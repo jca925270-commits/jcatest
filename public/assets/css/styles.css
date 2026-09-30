@@ -1,0 +1,247 @@
+/* ==========================================================
+   Sistema de Stock — identidad visual v2
+   Paleta: oscuro (fondo/sidebar) con acento naranja (marca/acciones)
+   Tipografía: Inter (UI), JetBrains Mono (MACs y códigos)
+   ========================================================== */
+
+:root {
+  --bg: #0e1015;
+  --surface: #171a21;
+  --surface-alt: #1e222b;
+  --border: #2a2f3a;
+  --text: #e8e6e3;
+  --text-muted: #9aa0ac;
+
+  --orange: #ff7a29;
+  --orange-dark: #d9601a;
+  --orange-soft: rgba(255, 122, 41, 0.15);
+
+  --sidebar-bg: #12141a;
+
+  --ok: #34c076;
+  --danger: #e5534b;
+  --info: #4c9be8;
+  --comodato: #b98ef2;
+  --amber: #f2c94c;
+}
+
+body {
+  background: var(--bg);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--text);
+}
+
+.font-mono, .mac, td.mac, .codigo {
+  font-family: "JetBrains Mono", "Consolas", monospace;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Layout con sidebar fija ---------- */
+.app-shell { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 250px;
+  background: var(--sidebar-bg);
+  color: #c7ccd6;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+.sidebar .brand {
+  padding: 1.25rem 1.25rem 1rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #fff;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: .02em;
+}
+.sidebar .brand small { display:block; font-weight:400; opacity:.55; font-size:.72rem; margin-top:.15rem;}
+.sidebar nav { flex: 1; padding: .75rem 0; overflow-y: auto; }
+
+.sidebar a.nav-link {
+  color: #b7bcc6;
+  padding: .6rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .92rem;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+}
+.sidebar a.nav-link:hover { background: var(--surface-alt); color:#fff; }
+.sidebar a.nav-link.active {
+  background: var(--surface-alt);
+  color: #fff;
+  border-left-color: var(--orange);
+}
+
+/* Grupos desplegables (Movimientos, Depósito, Estado, Stock) */
+.sidebar details.nav-group { border-left: 3px solid transparent; }
+.sidebar details.nav-group[open] { border-left-color: var(--orange-dark); background: rgba(255,122,41,0.04); }
+.sidebar details.nav-group > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: .6rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .92rem;
+  color: #b7bcc6;
+  user-select: none;
+}
+.sidebar details.nav-group > summary::-webkit-details-marker { display: none; }
+.sidebar details.nav-group > summary:hover { background: var(--surface-alt); color: #fff; }
+.sidebar details.nav-group > summary::after {
+  content: "›";
+  margin-left: auto;
+  transition: transform .15s ease;
+  font-size: 1.1rem;
+  opacity: .6;
+}
+.sidebar details.nav-group[open] > summary::after { transform: rotate(90deg); }
+.sidebar details.nav-group .sub-link {
+  display: block;
+  padding: .45rem 1.25rem .45rem 2.75rem;
+  color: #9aa0ac;
+  font-size: .86rem;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+.sidebar details.nav-group .sub-link:hover { background: var(--surface-alt); color: #fff; }
+.sidebar details.nav-group .sub-link.active { color: var(--orange); font-weight: 600; }
+
+.sidebar .user-box {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: .82rem;
+}
+.sidebar .user-box .rol { color: var(--orange); text-transform: uppercase; font-size: .68rem; letter-spacing: .05em; }
+.sidebar .user-box a { color: #8a8f99; }
+
+.main-content { flex: 1; padding: 1.75rem 2rem; min-width: 0; }
+
+.page-title { font-weight: 700; color: #fff; margin-bottom: .25rem; }
+.page-subtitle { color: var(--text-muted); margin-bottom: 1.5rem; font-size: .92rem; }
+
+/* ---------- Componentes ---------- */
+.card {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text);
+}
+.card-body { color: var(--text); }
+.table { color: var(--text); }
+.table > :not(caption) > * > * { background-color: transparent; color: var(--text); border-color: var(--border); }
+.table-light, .table-light > th { background-color: var(--surface-alt) !important; color: var(--text) !important; border-color: var(--border) !important; }
+.table-hover > tbody > tr:hover > * { background-color: var(--surface-alt); color: var(--text); }
+
+.form-control, .form-select {
+  background-color: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.form-control:focus, .form-select:focus {
+  background-color: var(--surface-alt);
+  color: var(--text);
+  border-color: var(--orange);
+  box-shadow: 0 0 0 .2rem var(--orange-soft);
+}
+.form-control::placeholder { color: #6b7280; }
+.form-label { color: var(--text-muted); }
+.form-check-input { background-color: var(--surface-alt); border-color: var(--border); }
+
+.card-kpi {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 1.1rem 1.25rem;
+}
+.card-kpi .valor { font-size: 1.9rem; font-weight: 700; color: #fff; font-family: "JetBrains Mono", monospace; }
+.card-kpi .etiqueta { color: var(--text-muted); font-size: .82rem; }
+.card-kpi.alerta { border-left: 4px solid var(--amber); }
+
+.btn-teal, .btn-orange {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #10120f;
+  font-weight: 600;
+}
+.btn-teal:hover, .btn-orange:hover { background: var(--orange-dark); border-color: var(--orange-dark); color: #fff; }
+
+.btn-outline-secondary { color: var(--text-muted); border-color: var(--border); }
+.btn-outline-secondary:hover { background: var(--surface-alt); color: #fff; border-color: var(--border); }
+
+.badge-estado { font-weight: 600; padding: .35em .6em; font-size: .74rem; }
+.badge-en_stock { background: rgba(52,192,118,.15); color: var(--ok); }
+.badge-vendido { background: rgba(76,155,232,.15); color: var(--info); }
+.badge-comodato { background: rgba(185,142,242,.15); color: var(--comodato); }
+.badge-garantia { background: rgba(229,83,75,.15); color: #ff8f88; }
+.badge-a_reparar, .badge-reparado { background: rgba(242,201,76,.15); color: var(--amber); }
+.badge-actualizacion { background: rgba(76,155,232,.15); color: #7cc4ff; }
+.badge-devuelto { background: rgba(154,160,172,.15); color: var(--text-muted); }
+.badge-prueba { background: rgba(255,122,41,.15); color: var(--orange); }
+.badge-de_baja { background: rgba(229,83,75,.18); color: var(--danger); }
+
+.buscador-scanner {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.05rem;
+  letter-spacing: .03em;
+}
+.buscador-scanner:focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 .2rem var(--orange-soft);
+}
+
+.login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 30% 20%, #1c1108 0%, #0e1015 55%);
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2.25rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.login-card h1 { color: #fff !important; }
+
+.modal-content { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.modal-header, .modal-footer { border-color: var(--border); }
+.btn-close { filter: invert(1); }
+
+.nav-tabs { border-color: var(--border); }
+.nav-tabs .nav-link { color: var(--text-muted); border: none; }
+.nav-tabs .nav-link.active { background: var(--surface-alt); color: var(--orange); border-bottom: 2px solid var(--orange); }
+
+.text-muted { color: var(--text-muted) !important; }
+a { color: var(--orange); }
+
+/* Tarjetas tipo "kanban" para vistas de resumen (Depósito, Stock) */
+.kanban-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--orange);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  transition: transform .1s ease, border-color .1s ease;
+  text-decoration: none;
+  display: block;
+  color: var(--text);
+}
+.kanban-card:hover { border-left-color: var(--orange); transform: translateY(-2px); background: var(--surface-alt); color: #fff; }
+.kanban-card .titulo { font-weight: 700; color: #fff; font-size: 1.05rem; }
+.kanban-card .valor { font-family: "JetBrains Mono", monospace; font-size: 1.6rem; color: var(--orange); margin: .3rem 0; }
+.kanban-card .subtitulo { color: var(--text-muted); font-size: .8rem; }
+
+@media (max-width: 768px) {
+  .app-shell { flex-direction: column; }
+  .sidebar { width: 100%; }
+  .sidebar nav { display:flex; overflow-x:auto; }
+  .sidebar .user-box { display:none; }
+}

@@ -1,0 +1,17 @@
+node_modules/
+.env
+import/venv/
+import/__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+
+archivos/
+import/credenciales_google.json
+import/config_google.ini
+import/config_sync.ini

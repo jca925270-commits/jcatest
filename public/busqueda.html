@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Búsqueda — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>Trazabilidad por MAC</small></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link active">🔍 Búsqueda</a>
+      <a href="dispositivo.html" class="nav-link">📦 dispositivo</a>
+      <a href="reparados.html" class="nav-link">🔧 Reparados y Reutilizados</a>
+
+      <a href="ingreso.html" class="nav-link">📥 Ingreso</a>
+      <a href="egreso.html" class="nav-link">📤 Egreso</a>
+
+      <details class="nav-group">
+        <summary>🔄 Movimientos</summary>
+        <a href="movimientos.html" class="sub-link">Todos</a>
+        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
+        <a href="movimientos.html?vista=ingreso" class="sub-link">Ingreso</a>
+        <a href="movimientos.html?vista=egreso" class="sub-link">Egreso</a>
+        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
+        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
+        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+      </details>
+
+      <a href="soporte.html" class="nav-link">🛠️ Soporte Técnico</a>
+
+      <details class="nav-group">
+        <summary>🏭 Depósito</summary>
+        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
+        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏷️ Estado</summary>
+        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
+        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+        <a href="dispositivo.html" class="sub-link">dispositivo</a>
+        <a href="deposito.html" class="sub-link">Depósito</a>
+      </details>
+
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <a href="reportes.html" class="nav-link">📈 Reportes</a>
+      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="page-title">Búsqueda</h1>
+    <p class="page-subtitle">Buscá por MAC, Razón Social o un rango de fechas — te muestro toda la trazabilidad encontrada.</p>
+
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label small mb-1">MAC WiFi o Ethernet</label>
+            <input type="text" class="form-control buscador-scanner" id="buscar-mac" placeholder="Escaneá o tipeá">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1">Razón Social</label>
+            <input type="text" class="form-control" id="buscar-razon" list="lista-clientes-busqueda" placeholder="Nombre del cliente">
+            <datalist id="lista-clientes-busqueda"></datalist>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">Desde</label>
+            <input type="date" class="form-control" id="buscar-desde">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">Hasta</label>
+            <input type="date" class="form-control" id="buscar-hasta">
+          </div>
+          <div class="col-md-1 d-grid">
+            <button class="btn btn-orange" id="btn-buscar">Buscar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="resumen-dispositivo" class="mb-3"></div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 mb-3">Trazabilidad encontrada</h2>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover">
+            <thead class="table-light">
+              <tr><th>Fecha</th><th>MAC</th><th>Movimiento</th><th>Cliente</th><th>Depósito</th><th>Detalle</th></tr>
+            </thead>
+            <tbody id="tabla-resultados"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script>
+async function cargarClientesDatalist() {
+  const clientes = await apiFetch("clientes.php");
+  document.getElementById("lista-clientes-busqueda").innerHTML =
+    clientes.map(c => `<option value="${c.razon_social}">`).join("");
+}
+
+async function buscar() {
+  const mac = document.getElementById("buscar-mac").value.trim();
+  const razon = document.getElementById("buscar-razon").value.trim();
+  const desde = document.getElementById("buscar-desde").value;
+  const hasta = document.getElementById("buscar-hasta").value;
+
+  document.getElementById("resumen-dispositivo").innerHTML = "";
+  const params = { limite: 300 };
+  if (mac) params.mac = mac;
+  if (desde) params.desde = desde;
+  if (hasta) params.hasta = hasta + " 23:59:59";
+
+  try {
+    // Si escribieron razón social, primero resolvemos el cliente_id
+    if (razon) {
+      const clientes = await apiFetch("clientes.php", { params: { q: razon } });
+      const match = clientes.find(c => c.razon_social.toLowerCase() === razon.toLowerCase()) || clientes[0];
+      if (!match) {
+        document.getElementById("tabla-resultados").innerHTML =
+          `<tr><td colspan="6" class="text-center text-muted py-4">No se encontró ningún cliente con ese nombre</td></tr>`;
+        return;
+      }
+      params.cliente_id = match.id;
+    }
+
+    // Si escribieron MAC, mostramos también la ficha resumen del dispositivo
+    if (mac) {
+      const disp = await apiFetch("dispositivo.php", { params: { q: mac } });
+      if (disp.length) {
+        const d = disp[0];
+        document.getElementById("resumen-dispositivo").innerHTML = `
+          <div class="card border-0 shadow-sm">
+            <div class="card-body d-flex flex-wrap gap-4">
+              <div><div class="text-muted small">MAC WiFi</div><div class="font-mono">${d.mac_wifi || "—"}</div></div>
+              <div><div class="text-muted small">MAC Ethernet</div><div class="font-mono">${d.mac_eth || "—"}</div></div>
+              <div><div class="text-muted small">Tipo</div><div>${d.tipo_nombre || "—"}</div></div>
+              <div><div class="text-muted small">Estado</div><div>${badgeEstado(d.estado)}</div></div>
+              <div><div class="text-muted small">Depósito</div><div>${d.deposito_nombre || "—"}</div></div>
+              <div><div class="text-muted small">Cliente</div><div>${d.cliente_nombre || "—"}</div></div>
+            </div>
+          </div>`;
+      }
+    }
+
+    const filas = await apiFetch("movimientos.php", { params });
+    document.getElementById("tabla-resultados").innerHTML = filas.map(m => `
+      <tr>
+        <td>${formatearFecha(m.fecha)}</td>
+        <td class="mac">${m.mac_wifi || m.mac_eth || "—"}</td>
+        <td>${m.tipo_movimiento}</td>
+        <td>${m.cliente_nombre || "—"}</td>
+        <td>${m.origen_nombre || m.destino_nombre || "—"}</td>
+        <td style="max-width:320px; white-space:normal;">${m.motivo || "—"}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="6" class="text-center text-muted py-4">Sin resultados para esa búsqueda</td></tr>`;
+  } catch (err) {
+    mostrarError("msg-error", err.message);
+  }
+}
+
+document.getElementById("btn-buscar").addEventListener("click", buscar);
+["buscar-mac", "buscar-razon"].forEach(id =>
+  document.getElementById(id).addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); buscar(); } })
+);
+
+cargarClientesDatalist();
+</script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Sistema de Stock</title>
+<script src="assets/js/theme-init.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: { orange: { DEFAULT: "#ff7a29", 600: "#ff7a29", 700: "#d9601a" } },
+        fontFamily: {
+          sans: ["Inter", "system-ui", "sans-serif"],
+          mono: ["JetBrains Mono", "Consolas", "monospace"],
+        },
+      },
+    },
+  };
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style type="text/tailwindcss">
+  @layer components {
+    .nav-link { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 border-l-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
+    .nav-link.active { @apply bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white border-orange-500 font-medium; }
+    .nav-group summary { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white list-none; }
+    .nav-group summary::-webkit-details-marker { display: none; }
+    .sub-link { @apply block px-5 py-2 pl-11 text-[13px] text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
+    .sub-link.active { @apply text-orange-600 dark:text-orange-400 font-semibold; }
+    .kpi-card { @apply rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4; }
+    .kanban-col { @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl min-w-[260px] max-w-[260px] shrink-0 flex flex-col max-h-[70vh]; }
+    .kanban-item { @apply w-full text-left bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 border-l-4 border-l-orange-500 rounded-md px-3 py-2 hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-slate-700 transition; }
+  }
+</style>
+</head>
+<body class="font-sans bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+<div class="flex min-h-screen">
+
+  <aside class="sidebar w-64 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
+    <div class="px-5 pt-5 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div class="font-bold text-slate-900 dark:text-white text-[15px]">Sistema de Stock</div>
+      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Trazabilidad por MAC</div>
+    </div>
+    <nav class="flex-1 overflow-y-auto py-2">
+      <a href="index.html" class="nav-link active">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <a href="dispositivo.html" class="nav-link">📦 dispositivo</a>
+      <a href="reparados.html" class="nav-link">🔧 Reparados y Reutilizados</a>
+      <a href="ingreso.html" class="nav-link">📥 Ingreso</a>
+      <a href="egreso.html" class="nav-link">📤 Egreso</a>
+
+      <details class="nav-group">
+        <summary>🔄 Movimientos</summary>
+        <a href="movimientos.html" class="sub-link">Todos</a>
+        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
+        <a href="movimientos.html?vista=ingreso" class="sub-link">Ingreso</a>
+        <a href="movimientos.html?vista=egreso" class="sub-link">Egreso</a>
+        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
+        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
+        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+      </details>
+
+      <a href="soporte.html" class="nav-link">🛠️ Soporte Técnico</a>
+
+      <details class="nav-group">
+        <summary>🏭 Depósito</summary>
+        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
+        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏷️ Estado</summary>
+        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
+        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
+      </details>
+
+      <!-- Grupo Stock con la opción agregada -->
+      <details class="nav-group">
+        <summary>📚 Stock</summary>
+        <a href="stock.html" class="sub-link">Stock General</a>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+        <a href="dispositivo.html" class="sub-link">dispositivo</a>
+        <a href="deposito.html" class="sub-link">Depósito</a>
+      </details>
+
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <a href="reportes.html" class="nav-link">📈 Reportes</a>
+      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+    </nav>
+    <div class="px-5 py-4 border-t border-slate-200 dark:border-slate-800 text-sm">
+      <button id="btn-tema" onclick="alternarTema()" class="mb-3 text-xs font-medium px-2.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400"></button>
+      <div class="text-[10px] uppercase tracking-wide text-orange-600 dark:text-orange-400 font-semibold" id="usuario-rol">—</div>
+      <div class="text-slate-700 dark:text-slate-200" id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="flex-1 min-w-0 p-7">
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">Resumen general del stock actual — hacé click en cualquier tarjeta para ver el detalle del dispositivo.</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6" id="kpis"></div>
+
+    <div class="mb-6">
+      <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">⚠️ Alertas de stock bajo</h2>
+      <div id="alertas-lista" class="flex flex-col gap-2"></div>
+    </div>
+
+    <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Tablero por estado</h2>
+    <div class="flex gap-4 overflow-x-auto pb-4" id="kanban-board"></div>
+  </main>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/theme.js"></script>
+<script src="assets/js/modal.js"></script>
+<script src="assets/js/ventanas.js"></script>
+<script src="assets/js/ui.js"></script>
+<script>
+async function cargarDashboard() {
+  try {
+    const data = await apiFetch("reportes.php", { params: { accion: "dashboard" } });
+    document.getElementById("kpis").innerHTML = `
+      <div class="kpi-card"><div class="text-2xl font-bold font-mono text-slate-900 dark:text-white">${data.total_en_stock}</div><div class="text-xs text-slate-500 dark:text-slate-400 mt-1">dispositivo en stock</div></div>
+      <div class="kpi-card"><div class="text-2xl font-bold font-mono text-slate-900 dark:text-white">${data.total_vendidos}</div><div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Vendidos / activos en cliente</div></div>
+      <div class="kpi-card border-l-4 border-l-amber-400"><div class="text-2xl font-bold font-mono text-slate-900 dark:text-white">${data.alertas.length}</div><div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Alertas de stock bajo</div></div>
+    `;
+    document.getElementById("alertas-lista").innerHTML = data.alertas.map(a => `
+      <div class="flex justify-between items-center px-3 py-2 rounded-lg border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-sm">
+        <div><strong>${a.tipo_nombre}</strong> ${a.deposito_nombre ? "— " + a.deposito_nombre : ""}</div>
+        <div class="font-mono text-xs">${a.cantidad_actual} / mín. ${a.stock_minimo}</div>
+      </div>
+    `).join("") || `<p class="text-sm text-slate-400">No hay alertas configuradas o todo está por encima del mínimo.</p>`;
+  } catch (err) {
+    mostrarErrorTW("kpis", err.message);
+  }
+}
+
+async function cargarKanban() {
+  const columnas = await apiFetch("reportes.php", { params: { accion: "kanban" } });
+  document.getElementById("kanban-board").innerHTML = columnas.map(col => `
+    <div class="kanban-col">
+      <div class="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-200 dark:border-slate-800 text-sm font-semibold text-slate-800 dark:text-white">
+        <span>${col.etiqueta}</span>
+        <span class="text-xs font-mono bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-full px-2 py-0.5">${col.total}</span>
+      </div>
+      <div class="p-2.5 overflow-y-auto flex-1 flex flex-col gap-2">
+        ${col.dispositivo.map(d => `
+          <button class="kanban-item" onclick='verFicha(${JSON.stringify(d)})'>
+            <div class="font-mono text-[13px] text-slate-900 dark:text-white">${d.mac_wifi || d.mac_eth || "—"}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${d.tipo_nombre} ${d.deposito_nombre ? "· " + d.deposito_nombre : ""}</div>
+            ${d.cliente_nombre ? `<div class="text-xs text-slate-500 dark:text-slate-400">👤 ${d.cliente_nombre}</div>` : ""}
+          </button>
+        `).join("") || `<p class="text-xs text-slate-400 px-1">Vacío</p>`}
+      </div>
+      ${col.total > col.dispositivo.length ? `
+        <div class="px-3.5 py-2 border-t border-slate-200 dark:border-slate-800">
+          <a href="estado.html?estado=${col.estado}" class="text-xs text-orange-600 dark:text-orange-400 font-medium">Ver los ${col.total} →</a>
+        </div>` : ""}
+    </div>
+  `).join("");
+}
+
+function verFicha(d) {
+  const idVentana = "ficha-" + d.id;
+  const html = `
+    <div class="mb-2"><span class="text-xs text-slate-400">MAC WiFi</span><div class="font-mono text-slate-900 dark:text-white">${d.mac_wifi || "—"}</div></div>
+    <div class="mb-2"><span class="text-xs text-slate-400">MAC Ethernet</span><div class="font-mono text-slate-900 dark:text-white">${d.mac_eth || "—"}</div></div>
+    <div class="mb-2"><span class="text-xs text-slate-400">Tipo</span><div>${d.tipo_nombre || "—"}</div></div>
+    <div class="mb-2"><span class="text-xs text-slate-400">Depósito</span><div>${d.deposito_nombre || "—"}</div></div>
+    <div class="mb-3"><span class="text-xs text-slate-400">Cliente</span><div>${d.cliente_nombre || "—"}</div></div>
+    <a href="dispositivo.html?q=${encodeURIComponent(d.mac_wifi || d.mac_eth || "")}" class="inline-block bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg px-3 py-1.5">Ver ficha completa</a>
+  `;
+  abrirVentana({ id: idVentana, titulo: d.mac_wifi || d.mac_eth || "Dispositivo", contenidoHtml: html });
+}
+
+cargarDashboard();
+cargarKanban();
+</script>
+</body>
+</html>

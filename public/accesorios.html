@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accesorios — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>Trazabilidad por MAC</small></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <a href="dispositivo.html" class="nav-link">📦 dispositivo</a>
+      <a href="reparados.html" class="nav-link">🔧 Reparados y Reutilizados</a>
+
+      <a href="ingreso.html" class="nav-link">📥 Ingreso</a>
+      <a href="egreso.html" class="nav-link">📤 Egreso</a>
+
+      <details class="nav-group">
+        <summary>🔄 Movimientos</summary>
+        <a href="movimientos.html" class="sub-link">Todos</a>
+        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
+        <a href="movimientos.html?vista=ingreso" class="sub-link">Ingreso</a>
+        <a href="movimientos.html?vista=egreso" class="sub-link">Egreso</a>
+        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
+        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
+        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+      </details>
+
+      <a href="soporte.html" class="nav-link">🛠️ Soporte Técnico</a>
+
+      <details class="nav-group">
+        <summary>🏭 Depósito</summary>
+        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
+        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏷️ Estado</summary>
+        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
+        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
+      </details>
+
+      <details class="nav-group" open>
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link active">Accesorios</a>
+        <a href="dispositivo.html" class="sub-link">dispositivo</a>
+        <a href="deposito.html" class="sub-link">Depósito</a>
+      </details>
+
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <a href="reportes.html" class="nav-link">📈 Reportes</a>
+      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="page-title">Accesorios</h1>
+    <p class="page-subtitle">Stock de accesorios sueltos (sin MAC) por depósito: fuentes, controles, cables, antenas.</p>
+
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+    <div id="msg-exito" class="alert d-none"></div>
+
+    <ul class="nav nav-tabs mb-3" id="tabs-deposito"></ul>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover">
+            <thead class="table-light"><tr><th>Accesorio</th><th class="text-end">Cantidad</th><th class="text-end" data-requiere-escritura>Movimiento</th></tr></thead>
+            <tbody id="tabla-accesorios"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal fade" id="modal-mov-accesorio" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-acc-titulo">Registrar movimiento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="acc-id">
+        <div class="mb-2">
+          <label class="form-label small">Tipo</label>
+          <select class="form-select" id="acc-tipo">
+            <option value="ingreso">Ingreso (+)</option>
+            <option value="egreso">Egreso (-)</option>
+            <option value="ajuste">Ajuste (corrección manual)</option>
+          </select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small">Cantidad</label>
+          <input type="number" class="form-control" id="acc-cantidad" value="1">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small">Motivo (opcional)</label>
+          <input type="text" class="form-control" id="acc-motivo">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-orange" id="btn-guardar-mov-acc">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script>
+let DEPOSITO_ACTUAL_ID = null;
+
+async function cargarTabs() {
+  const cat = await apiFetch("catalogos.php");
+  const relevantes = cat.depositos.filter(d => ["Campiña del Sur", "Casa Santi", "Oficina", "Showroom"].includes(d.nombre));
+  document.getElementById("tabs-deposito").innerHTML = relevantes.map((d, i) => `
+    <li class="nav-item">
+      <button class="nav-link ${i === 0 ? "active" : ""}" data-id="${d.id}" onclick="cambiarDeposito(this)">${d.nombre}</button>
+    </li>
+  `).join("");
+  if (relevantes.length) {
+    DEPOSITO_ACTUAL_ID = relevantes[0].id;
+    cargarAccesorios();
+  }
+}
+
+function cambiarDeposito(btn) {
+  document.querySelectorAll("#tabs-deposito .nav-link").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  DEPOSITO_ACTUAL_ID = btn.dataset.id;
+  cargarAccesorios();
+}
+
+async function cargarAccesorios() {
+  const filas = await apiFetch("accesorios.php", { params: { deposito_id: DEPOSITO_ACTUAL_ID } });
+  document.getElementById("tabla-accesorios").innerHTML = filas.map(a => `
+    <tr>
+      <td>${a.accesorio}</td>
+      <td class="text-end font-mono">${a.cantidad}</td>
+      <td class="text-end" data-requiere-escritura>
+        <button class="btn btn-sm btn-outline-secondary" onclick="abrirModalMov(${a.id}, ${JSON.stringify(a.accesorio)})">Registrar</button>
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="3" class="text-center text-muted py-3">Sin accesorios para este depósito</td></tr>`;
+}
+
+function abrirModalMov(id, nombre) {
+  document.getElementById("modal-acc-titulo").textContent = "Movimiento — " + nombre;
+  document.getElementById("acc-id").value = id;
+  document.getElementById("acc-cantidad").value = 1;
+  document.getElementById("acc-motivo").value = "";
+  new bootstrap.Modal(document.getElementById("modal-mov-accesorio")).show();
+}
+
+document.getElementById("btn-guardar-mov-acc").addEventListener("click", async () => {
+  try {
+    await apiFetch("accesorios.php", {
+      method: "POST",
+      body: {
+        accesorio_id: document.getElementById("acc-id").value,
+        tipo_movimiento: document.getElementById("acc-tipo").value,
+        cantidad: document.getElementById("acc-cantidad").value,
+        motivo: document.getElementById("acc-motivo").value.trim() || null,
+      },
+    });
+    bootstrap.Modal.getInstance(document.getElementById("modal-mov-accesorio")).hide();
+    mostrarExito("msg-exito", "Movimiento registrado");
+    cargarAccesorios();
+  } catch (err) {
+    mostrarError("msg-error", err.message);
+  }
+});
+
+cargarTabs();
+</script>
+</body>
+</html>

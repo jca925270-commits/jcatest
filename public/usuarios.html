@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Usuarios — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>Trazabilidad por MAC</small></div>
+    <nav>
+      <a href="index.html" class="nav-link" >📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link" >🔍 Búsqueda</a>
+      <a href="dispositivos.html" class="nav-link" >📦 Dispositivos</a>
+      <a href="reparados.html" class="nav-link" >🔧 Reparados y Reutilizados</a>
+
+      <details class="nav-group" >
+        <summary>🔄 Movimientos</summary>
+        <a href="movimientos.html" class="sub-link ">Todos</a>
+        <a href="movimientos.html?vista=mac" class="sub-link ">Por MAC</a>
+        <a href="movimientos.html?vista=ingreso" class="sub-link ">Ingreso</a>
+        <a href="movimientos.html?vista=egreso" class="sub-link ">Egreso</a>
+        <a href="movimientos.html?vista=fecha" class="sub-link ">Por fecha</a>
+        <a href="movimientos.html?vista=estado" class="sub-link ">Por estado</a>
+        <a href="movimientos.html?vista=instancia" class="sub-link ">Por instancia</a>
+      </details>
+
+      <a href="soporte.html" class="nav-link" >🛠️ Soporte Técnico</a>
+
+      <details class="nav-group" >
+        <summary>🏭 Depósito</summary>
+        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
+        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      </details>
+
+      <details class="nav-group" >
+        <summary>🏷️ Estado</summary>
+        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
+        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
+      </details>
+
+      <details class="nav-group" >
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+        <a href="dispositivos.html" class="sub-link">Dispositivos</a>
+        <a href="deposito.html" class="sub-link">Depósito</a>
+      </details>
+
+      <a href="clientes.html" class="nav-link" >🧾 Clientes</a>
+      <a href="reportes.html" class="nav-link" >📈 Reportes</a>
+      <a href="usuarios.html" class="nav-link active" data-solo-admin>👤 Usuarios</a>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="page-title">Usuarios</h1>
+    <p class="page-subtitle">Solo el administrador puede crear o editar usuarios y sus roles.</p>
+
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+    <div id="msg-exito" class="alert d-none"></div>
+
+    <div class="text-end mb-2">
+      <button class="btn btn-teal btn-sm" data-bs-toggle="modal" data-bs-target="#modal-usuario" onclick="abrirModalNuevoUsuario()">+ Nuevo usuario</button>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light"><tr><th>Usuario</th><th>Rol</th><th>Activo</th><th></th></tr></thead>
+          <tbody id="tabla-usuarios"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal fade" id="modal-usuario" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-usuario-titulo">Nuevo usuario</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="usuario-id">
+        <div class="mb-2"><label class="form-label small">Nombre de usuario</label><input class="form-control" id="usuario-nombre-input"></div>
+        <div class="mb-2">
+          <label class="form-label small">Contraseña <span class="text-muted" id="pass-hint"></span></label>
+          <input type="password" class="form-control" id="usuario-password">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small">Rol</label>
+          <select class="form-select" id="usuario-rol-input">
+            <option value="operador">Operador (carga y consulta)</option>
+            <option value="admin">Administrador</option>
+            <option value="lectura">Solo lectura</option>
+          </select>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="usuario-activo" checked>
+          <label class="form-check-label" for="usuario-activo">Activo</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-teal" id="btn-guardar-usuario">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script>
+async function cargarUsuarios() {
+  try {
+    const filas = await apiFetch("usuarios.php");
+    document.getElementById("tabla-usuarios").innerHTML = filas.map(u => `
+      <tr>
+        <td>${u.nombre}</td><td>${u.rol}</td><td>${u.activo ? "Sí" : "No"}</td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-secondary" onclick='abrirModalEditarUsuario(${JSON.stringify(u)})'>Editar</button>
+          <button class="btn btn-sm btn-outline-danger" onclick="eliminarUsuario(${u.id}, ${JSON.stringify(u.nombre)})">Eliminar</button>
+        </td>
+      </tr>
+    `).join("");
+  } catch (err) { mostrarError("msg-error", err.message); }
+}
+
+function abrirModalNuevoUsuario() {
+  document.getElementById("modal-usuario-titulo").textContent = "Nuevo usuario";
+  document.getElementById("pass-hint").textContent = "(obligatoria)";
+  ["usuario-id","usuario-nombre-input","usuario-password"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("usuario-activo").checked = true;
+}
+
+function abrirModalEditarUsuario(u) {
+  document.getElementById("modal-usuario-titulo").textContent = "Editar usuario";
+  document.getElementById("pass-hint").textContent = "(dejar vacío para no cambiarla)";
+  document.getElementById("usuario-id").value = u.id;
+  document.getElementById("usuario-nombre-input").value = u.nombre;
+  document.getElementById("usuario-password").value = "";
+  document.getElementById("usuario-rol-input").value = u.rol;
+  document.getElementById("usuario-activo").checked = !!u.activo;
+  new bootstrap.Modal(document.getElementById("modal-usuario")).show();
+}
+
+document.getElementById("btn-guardar-usuario").addEventListener("click", async () => {
+  const id = document.getElementById("usuario-id").value;
+  const payload = {
+    nombre: document.getElementById("usuario-nombre-input").value.trim(),
+    rol: document.getElementById("usuario-rol-input").value,
+    activo: document.getElementById("usuario-activo").checked ? 1 : 0,
+  };
+  const pass = document.getElementById("usuario-password").value;
+  if (pass) payload.password = pass;
+
+  try {
+    if (id) { payload.id = id; await apiFetch("usuarios.php", { method: "PUT", body: payload }); }
+    else {
+      if (!pass) { mostrarError("msg-error", "La contraseña es obligatoria para un usuario nuevo"); return; }
+      await apiFetch("usuarios.php", { method: "POST", body: payload });
+    }
+    bootstrap.Modal.getInstance(document.getElementById("modal-usuario")).hide();
+    mostrarExito("msg-exito", "Usuario guardado");
+    cargarUsuarios();
+  } catch (err) { mostrarError("msg-error", err.message); }
+});
+
+async function eliminarUsuario(id, nombre) {
+  if (!confirm(`¿Eliminar definitivamente al usuario "${nombre}"? Esta acción no se puede deshacer.`)) {
+    return;
+  }
+  try {
+    await apiFetch("usuarios.php", { method: "DELETE", params: { id } });
+    mostrarExito("msg-exito", "Usuario eliminado");
+    cargarUsuarios();
+  } catch (err) {
+    mostrarError("msg-error", err.message);
+  }
+}
+
+cargarUsuarios();
+</script>
+</body>
+</html>

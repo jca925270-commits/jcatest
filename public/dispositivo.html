@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dispositivo — Sistema de Stock</title>
+<script src="assets/js/theme-init.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: { orange: { DEFAULT: "#ff7a29", 600: "#ff7a29", 700: "#d9601a" } },
+        fontFamily: {
+          sans: ["Inter", "system-ui", "sans-serif"],
+          mono: ["JetBrains Mono", "Consolas", "monospace"],
+        },
+      },
+    },
+  };
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style type="text/tailwindcss">
+  @layer components {
+    .nav-link { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 border-l-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
+    .nav-link.active { @apply bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white border-orange-500 font-medium; }
+    .nav-group summary { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white list-none; }
+    .nav-group summary::-webkit-details-marker { display: none; }
+    .sub-link { @apply block px-5 py-2 pl-11 text-[13px] text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
+    .sub-link.active { @apply text-orange-600 dark:text-orange-400 font-semibold; }
+    .card-tw { @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl; }
+    .input-tw { @apply w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500; }
+    .btn-primary-tw { @apply bg-orange-600 hover:bg-orange-700 text-white font-semibold text-sm rounded-lg px-4 py-2 transition; }
+    .btn-secondary-tw { @apply border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium rounded-lg px-4 py-2 transition; }
+    .th-tw { @apply px-3 py-2 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide bg-slate-50 dark:bg-slate-800/60; }
+    .modal-backdrop-tw { @apply hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4; }
+    .modal-panel-tw { @apply w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl; }
+  }
+</style>
+</head>
+<body class="font-sans bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+<div class="flex min-h-screen">
+  <aside class="sidebar w-64 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
+    <div class="px-5 pt-5 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div class="font-bold text-slate-900 dark:text-white text-[15px]">Sistema de Stock</div>
+      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Trazabilidad por MAC</div>
+    </div>
+    <nav class="flex-1 overflow-y-auto py-2">
+      <a href="index.html" class="nav-link" >📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link" >🔍 Búsqueda</a>
+      <a href="dispositivo.html" class="nav-link active" >📦 dispositivo</a>
+      <a href="reparados.html" class="nav-link" >🔧 Reparados y Reutilizados</a>
+      <a href="ingreso.html" class="nav-link">📥 Ingreso</a>
+      <a href="egreso.html" class="nav-link">📤 Egreso</a>
+
+      <details class="nav-group" >
+        <summary>🔄 Movimientos</summary>
+        <a href="movimientos.html" class="sub-link">Todos</a>
+        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
+        <a href="movimientos.html?vista=ingreso" class="sub-link">Ingreso</a>
+        <a href="movimientos.html?vista=egreso" class="sub-link">Egreso</a>
+        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
+        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
+        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+      </details>
+
+      <a href="soporte.html" class="nav-link" >🛠️ Soporte Técnico</a>
+
+      <details class="nav-group" >
+        <summary>🏭 Depósito</summary>
+        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
+        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      </details>
+
+      <details class="nav-group" >
+        <summary>🏷️ Estado</summary>
+        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
+        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
+      </details>
+
+      <details class="nav-group" >
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link ">Accesorios</a>
+        <a href="dispositivo.html" class="sub-link">dispositivo</a>
+        <a href="deposito.html" class="sub-link">Depósito</a>
+      </details>
+
+      <a href="clientes.html" class="nav-link" >🧾 Clientes</a>
+      <a href="reportes.html" class="nav-link" >📈 Reportes</a>
+      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+    </nav>
+    <div class="px-5 py-4 border-t border-slate-200 dark:border-slate-800 text-sm">
+      <button id="btn-tema" onclick="alternarTema()" class="mb-3 text-xs font-medium px-2.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400"></button>
+      <div class="text-[10px] uppercase tracking-wide text-orange-600 dark:text-orange-400 font-semibold" id="usuario-rol">—</div>
+      <div class="text-slate-700 dark:text-slate-200" id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">Cerrar sesión</a>
+    </div>
+  </aside>
+  <main class="flex-1 min-w-0 p-7">
+    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">dispositivo</h1>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-5">Buscá escaneando el código de barras o tipeando la MAC — funciona igual con ambos.</p>
+
+    <div id="msg-error" class="hidden mb-4 rounded-lg border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 px-4 py-3 text-sm"></div>
+    <div id="msg-exito" class="hidden mb-4 rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 px-4 py-3 text-sm"></div>
+
+    <div class="card-tw p-4 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+        <div class="md:col-span-5">
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Buscar (MAC WiFi, MAC Ethernet o código de barras)</label>
+          <input type="text" id="buscador" placeholder="Escaneá o tipeá y presioná Enter" class="input-tw font-mono">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Estado</label>
+          <select id="filtro-estado" class="input-tw">
+            <option value="">Todos</option>
+            <option value="en_stock">En stock</option>
+            <option value="vendido">Vendido</option>
+            <option value="comodato">Comodato</option>
+            <option value="garantia">Garantía</option>
+            <option value="a_reparar">A reparar</option>
+            <option value="reparado">Reparado</option>
+            <option value="devuelto">Devuelto</option>
+            <option value="prueba">Prueba</option>
+            <option value="actualizacion">Actualización</option>
+            <option value="de_baja">De baja</option>
+          </select>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tipo</label>
+          <select id="filtro-tipo" class="input-tw"><option value="">—</option></select>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Depósito</label>
+          <select id="filtro-deposito" class="input-tw"><option value="">—</option></select>
+        </div>
+        <div class="md:col-span-1">
+          <button id="btn-buscar" class="btn-primary-tw w-full">Buscar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-xs text-slate-400" id="contador-resultados"></span>
+      <button class="btn-primary-tw text-xs py-1.5" data-requiere-escritura onclick="abrirModalNuevo()">+ Nuevo dispositivo</button>
+    </div>
+
+    <div class="card-tw overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr>
+              <th class="th-tw">MAC WiFi</th><th class="th-tw">MAC Ethernet</th><th class="th-tw">Tipo</th><th class="th-tw">Estado</th>
+              <th class="th-tw">Depósito</th><th class="th-tw">Cliente</th><th class="th-tw">Caja</th><th class="th-tw"></th>
+            </tr>
+          </thead>
+          <tbody id="tabla-dispositivo"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="modal-dispositivo" data-modal-backdrop class="modal-backdrop-tw">
+  <div class="modal-panel-tw max-w-md">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+      <h3 class="font-semibold text-slate-900 dark:text-white" id="modal-titulo">Nuevo dispositivo</h3>
+      <button data-cerrar-modal class="text-slate-400 hover:text-slate-700 dark:hover:text-white text-xl leading-none">&times;</button>
+    </div>
+    <div class="px-5 py-4 max-h-[70vh] overflow-y-auto">
+      <form id="form-dispositivo" class="grid grid-cols-2 gap-3">
+        <input type="hidden" id="disp-id">
+        <div class="col-span-2">
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">MAC WiFi</label>
+          <input type="text" id="disp-mac-wifi" placeholder="80:E4:DA:88:8B:46" class="input-tw font-mono">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">MAC Ethernet</label>
+          <input type="text" id="disp-mac-eth" placeholder="Opcional si tiene MAC WiFi" class="input-tw font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tipo de equipo</label>
+          <select id="disp-tipo" required class="input-tw"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Depósito</label>
+          <select id="disp-deposito" class="input-tw"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Lote</label>
+          <select id="disp-lote" class="input-tw"><option value="">—</option></select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Caja n°</label>
+          <input type="text" id="disp-caja" class="input-tw">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Código de fábrica</label>
+          <input type="text" id="disp-cod-fabrica" class="input-tw font-mono">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Estado</label>
+          <select id="disp-estado" class="input-tw">
+            <option value="en_stock">En stock</option>
+            <option value="vendido">Vendido</option>
+            <option value="comodato">Comodato</option>
+            <option value="garantia">Garantía</option>
+            <option value="a_reparar">A reparar</option>
+            <option value="reparado">Reparado</option>
+            <option value="devuelto">Devuelto</option>
+            <option value="prueba">Prueba</option>
+            <option value="actualizacion">Actualización</option>
+            <option value="de_baja">De baja</option>
+          </select>
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Observaciones</label>
+          <textarea id="disp-obs" rows="2" class="input-tw"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="px-5 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
+      <button data-cerrar-modal class="btn-secondary-tw">Cancelar</button>
+      <button id="btn-guardar-dispositivo" class="btn-primary-tw">Guardar</button>
+    </div>
+  </div>
+</div>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/theme.js"></script>
+<script src="assets/js/modal.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/dispositivo.js"></script>
+</body>
+</html>

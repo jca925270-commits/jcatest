@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingreso — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css" rel="stylesheet">
+<style>
+  .equipo-row { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: .9rem 1rem; margin-bottom: .6rem; }
+  .equipo-row .btn-quitar { color: var(--text-muted); }
+  .equipo-row .btn-quitar:hover { color: var(--danger); }
+  .tipo-preview { width: 44px; height: 44px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 4px; flex-shrink: 0; }
+  .tipo-preview img { width: 100%; height: 100%; object-fit: contain; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>Trazabilidad por MAC</small></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <a href="dispositivo.html" class="nav-link">📦 dispositivo</a>
+      <a href="reparados.html" class="nav-link">🔧 Reparados y Reutilizados</a>
+
+      <a href="ingreso.html" class="nav-link active">📥 Ingreso</a>
+      <a href="egreso.html" class="nav-link">📤 Egreso</a>
+
+      <details class="nav-group">
+        <summary>🔄 Movimientos</summary>
+        <a href="movimientos.html" class="sub-link">Todos</a>
+        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
+        <a href="movimientos.html?vista=ingreso" class="sub-link">Ingreso</a>
+        <a href="movimientos.html?vista=egreso" class="sub-link">Egreso</a>
+        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
+        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
+        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+      </details>
+
+      <a href="soporte.html" class="nav-link">🛠️ Soporte Técnico</a>
+
+      <details class="nav-group">
+        <summary>🏭 Depósito</summary>
+        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
+        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏷️ Estado</summary>
+        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
+        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+        <a href="dispositivo.html" class="sub-link">dispositivo</a>
+        <a href="deposito.html" class="sub-link">Depósito</a>
+      </details>
+
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <a href="reportes.html" class="nav-link">📈 Reportes</a>
+      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="page-title">Ingreso</h1>
+    <p class="page-subtitle">Da de alta uno o varios equipos nuevos en stock, agrupados bajo una misma recepción (remito / ticket).</p>
+
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+    <div id="msg-exito" class="alert d-none"></div>
+
+    <div class="card border-0 shadow-sm mb-4" data-requiere-escritura>
+      <div class="card-body">
+        <h2 class="h6 mb-3">Datos de la recepción</h2>
+        <div class="row g-2 mb-3">
+          <div class="col-md-3">
+            <label class="form-label small mb-1">Depósito destino</label>
+            <select class="form-select" id="ing-deposito"><option value="">Seleccionar…</option></select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1">Lote</label>
+            <select class="form-select" id="ing-lote"><option value="">—</option></select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">Fecha de llegada</label>
+            <input type="date" class="form-control" id="ing-fecha">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">N° Remito</label>
+            <input type="text" class="form-control" id="ing-remito">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small mb-1">N° Ticket</label>
+            <input type="text" class="form-control" id="ing-ticket">
+          </div>
+        </div>
+        <div class="row g-2 mb-1">
+          <div class="col-md-3">
+            <label class="form-label small mb-1">N° Factura</label>
+            <input type="text" class="form-control" id="ing-factura">
+          </div>
+          <div class="col-md-9">
+            <label class="form-label small mb-1">Motivo / observación general</label>
+            <input type="text" class="form-control" id="ing-motivo" placeholder="Ej: compra a proveedor, devolución de depósito, etc.">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-4" data-requiere-escritura>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h6 mb-0">Equipos a ingresar</h2>
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-agregar-equipo">+ Agregar equipo</button>
+        </div>
+        <div id="lista-equipos"></div>
+        <button class="btn btn-teal mt-2" id="btn-registrar-ingreso">Registrar ingreso</button>
+        <span class="text-muted small ms-2" id="ing-resumen"></span>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h2 class="h6 mb-3">Últimos ingresos registrados</h2>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead><tr><th>Fecha</th><th>MAC</th><th>Tipo</th><th>Depósito</th><th>Remito</th><th>Ticket</th><th>Usuario</th></tr></thead>
+            <tbody id="tabla-ingresos"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<template id="tpl-equipo-row">
+  <div class="equipo-row" data-row>
+    <div class="d-flex align-items-start gap-2">
+      <div class="tipo-preview" data-preview></div>
+      <div class="row g-2 flex-grow-1">
+        <div class="col-md-3">
+          <label class="form-label small mb-1">Tipo de equipo</label>
+          <select class="form-select form-select-sm" data-tipo><option value="">Seleccionar…</option></select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small mb-1">MAC WiFi</label>
+          <input type="text" class="form-control form-control-sm font-mono" data-mac-wifi placeholder="AA:BB:CC:DD:EE:FF">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small mb-1">MAC Ethernet</label>
+          <input type="text" class="form-control form-control-sm font-mono" data-mac-eth placeholder="AA:BB:CC:DD:EE:FF">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label small mb-1">Caja N°</label>
+          <input type="text" class="form-control form-control-sm" data-caja>
+        </div>
+        <div class="col-md-1 d-flex align-items-end justify-content-end">
+          <button type="button" class="btn btn-sm btn-quitar" data-quitar title="Quitar">✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-text text-danger d-none mt-1" data-fila-error></div>
+  </div>
+</template>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/ingreso.js"></script>
+</body>
+</html>

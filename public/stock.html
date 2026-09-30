@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Actual — Sistema de Stock</title>
+<script src="assets/js/theme-init.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: { orange: { DEFAULT: "#ff7a29", 600: "#ff7a29", 700: "#d9601a" } },
+        fontFamily: {
+          sans: ["Inter", "system-ui", "sans-serif"],
+          mono: ["JetBrains Mono", "Consolas", "monospace"],
+        },
+      },
+    },
+  };
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style type="text/tailwindcss">
+  @layer components {
+    .nav-link { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 border-l-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
+    .nav-link.active { @apply bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white border-orange-500 font-medium; }
+    .nav-group summary { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white list-none; }
+    .nav-group summary::-webkit-details-marker { display: none; }
+    .sub-link { @apply block px-5 py-2 pl-11 text-[13px] text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
+    .sub-link.active { @apply text-orange-600 dark:text-orange-400 font-semibold; }
+    .table-th { @apply px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-200 dark:border-slate-800; }
+    .table-td { @apply px-4 py-3 text-sm text-slate-700 dark:text-slate-300 border-b border-slate-100 dark:border-slate-800/60 whitespace-nowrap; }
+    .btn-paginacion { @apply px-3 py-1.5 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition text-slate-700 dark:text-slate-200; }
+    .btn-paginacion-num { @apply px-3 py-1 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200; }
+    .btn-paginacion-num.activa { @apply bg-orange-600 text-white border-orange-600 hover:bg-orange-700 dark:hover:bg-orange-700 font-bold; }
+    .input-form { @apply w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-orange-500 dark:focus:border-orange-500; }
+  }
+</style>
+</head>
+<body class="font-sans bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
+<div class="flex min-h-screen">
+
+  <!-- Sidebar -->
+  <aside class="sidebar w-64 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
+    <div class="px-5 pt-5 pb-4 border-b border-slate-200 dark:border-slate-800">
+      <div class="font-bold text-slate-900 dark:text-white text-[15px]">Sistema de Stock</div>
+      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Trazabilidad por MAC</div>
+    </div>
+    <nav class="flex-1 overflow-y-auto py-2">
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <a href="stock.html" class="nav-link active">📚 Stock General</a>
+    </nav>
+    <div class="px-5 py-4 border-t border-slate-200 dark:border-slate-800 text-sm">
+      <button id="btn-tema" onclick="alternarTema()" class="mb-3 text-xs font-medium px-2.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400"></button>
+      <div class="text-[10px] uppercase tracking-wide text-orange-600 dark:text-orange-400 font-semibold" id="usuario-rol">—</div>
+      <div class="text-slate-700 dark:text-slate-200" id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <!-- Contenido Principal -->
+  <main class="flex-1 min-w-0 p-7 overflow-x-auto">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Stock Actual</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-mono text-xs">SELECT * FROM stock_db.stock_actual;</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Botón para abrir Modal de Nuevo Registro -->
+        <button 
+          onclick="abrirModalNuevoRegistro()" 
+          class="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-sm rounded-lg shadow-sm transition"
+        >
+          <span>➕</span> Nuevo Registro
+        </button>
+
+        <!-- Selector de Paginación -->
+        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+          <span>Mostrar:</span>
+          <select id="select-registros-pagina" onchange="cambiarRegistrosPorPagina()" class="px-2 py-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-100">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros y Buscador -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 mb-6 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div class="relative w-full md:w-96">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
+        <input type="text" id="input-busqueda" placeholder="Buscar por ID, Remito, Factura, Razón Social, MAC..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg text-sm" oninput="filtrarTabla()">
+      </div>
+
+      <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+        <select id="select-tipo" onchange="filtrarTabla()" class="px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg text-sm">
+          <option value="TODOS">Todos los Movimientos</option>
+          <option value="INGRESO">Solo Ingresos</option>
+          <option value="EGRESO">Solo Egresos</option>
+        </select>
+        <button onclick="limpiarFiltros()" class="px-3 py-2 text-xs font-medium text-slate-500 hover:text-orange-600 border border-slate-200 dark:border-slate-700 rounded-lg transition">Limpiar</button>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto shadow-sm">
+      <table class="w-full text-left border-collapse min-w-[800px]">
+        <thead>
+          <tr class="bg-slate-50 dark:bg-slate-800/50">
+            <th class="table-th">ID</th>
+            <th class="table-th">Fecha</th>
+            <th class="table-th">Remito</th>
+            <th class="table-th">Factura</th>
+            <th class="table-th">Razón Social</th>
+            <th class="table-th">Dispositivo 
+            <th class="table-th"> MAC wifi</th>
+           <th class="table-th"> MAC eth</th>
+            <th class="table-th">Ticket</th>
+            <th class="table-th">Ingreso</th>
+            <th class="table-th">Egreso</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-stock-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-1">
+      <div class="text-xs text-slate-500 dark:text-slate-400">
+        Página <span id="pagina-actual-num" class="font-bold">1</span> de <span id="total-paginas-num" class="font-bold">1</span>
+      </div>
+      <div class="flex items-center gap-2" id="contenedor-paginacion"></div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL FORMULARIO: INSERT INTO stock_db.stock_actual -->
+<div id="modal-nuevo" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm hidden">
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl w-full max-w-lg p-6 shadow-xl relative">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-4">
+      <h3 class="text-lg font-bold text-slate-900 dark:text-white">Nuevo Registro de Stock</h3>
+      <button onclick="cerrarModalNuevoRegistro()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold">✕</button>
+    </div>
+
+    <form id="form-nuevo-stock" onsubmit="guardarRegistroStock(event)" class="space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Tipo Movimiento</label>
+          <select id="nuevo-tipo" class="input-form" required>
+            <option value="INGRESO">INGRESO</option>
+            <option value="EGRESO">EGRESO</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Cantidad</label>
+          <input type="number" id="nuevo-cantidad" min="1" value="1" class="input-form" required />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Nº Remito</label>
+          <input type="text" id="nuevo-remito" placeholder="Ej: R-00012" class="input-form">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Nº Factura</label>
+          <input type="text" id="nuevo-factura" placeholder="Ej: F-00045" class="input-form">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Razón Social / Cliente</label>
+        <input type="text" id="nuevo-razon-social" placeholder="Nombre de la empresa o cliente" class="input-form" required>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Dispositivo / Modelo</label>
+          <input type="text" id="nuevo-dispositivo" placeholder="Ej: Router AC1200" class="input-form">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Dirección MAC WiFi</label>
+          <input type="text" id="nuevo-mac" placeholder="AA:BB:CC:DD:EE:FF" class="input-form font-mono">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Nº Ticket / Soporte</label>
+        <input type="text" id="nuevo-ticket" placeholder="Ej: T-8821" class="input-form">
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <button type="button" onclick="cerrarModalNuevoRegistro()" class="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700 rounded-lg">Cancelar</button>
+        <button type="submit" id="btn-guardar" class="px-4 py-2 text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white rounded-lg">Guardar en BD</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/theme.js"></script>
+
+<script>
+let todosLosDatos = [];
+let datosFiltrados = [];
+let paginaActual = 1;
+let registrosPorPagina = 20;
+
+// SELECT * FROM stock_db.stock_actual
+async function cargarStockGeneral() {
+  const tbody = document.getElementById("tabla-stock-body");
+
+  try {
+    const datos = await apiFetch("stock");
+
+    if (!datos || datos.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="9" class="table-td text-center text-slate-400 py-6">No hay registros de stock disponibles.</td></tr>`;
+      return;
+    }
+
+    todosLosDatos = datos;
+    datosFiltrados = [...todosLosDatos];
+    actualizarTablaYPaginacion();
+
+  } catch (err) {
+    console.error("Error SELECT:", err);
+    tbody.innerHTML = `<tr><td colspan="9" class="table-td text-center text-red-500 py-6">Error al consultar base de datos: ${err.message}</td></tr>`;
+  }
+}
+
+// INSERT INTO stock_db.stock_actual
+async function guardarRegistroStock(e) {
+  e.preventDefault();
+  const btnGuardar = document.getElementById("btn-guardar");
+  btnGuardar.disabled = true;
+  btnGuardar.textContent = "Guardando...";
+
+  // Construimos el objeto JS plano (apiFetch se encarga del JSON.stringify de forma limpia)
+  const nuevoRegistro = {
+    tipo_movimiento: document.getElementById("nuevo-tipo").value,
+    cantidad: parseInt(document.getElementById("nuevo-cantidad").value, 10) || 1,
+    num_remito: document.getElementById("nuevo-remito").value || null,
+    num_factura: document.getElementById("nuevo-factura").value || null,
+    razon_social: document.getElementById("nuevo-razon-social").value || null,
+    dispositivo: document.getElementById("nuevo-dispositivo").value || null,
+    mac_wifi: document.getElementById("nuevo-mac").value || null,
+    num_ticket: document.getElementById("nuevo-ticket").value || null,
+    deposito: "SHOWROOM", // Campo Enum requerido según MySQL
+    fecha: new Date().toISOString().slice(0, 19).replace('T', ' ') // Formato DATETIME MySQL YYYY-MM-DD HH:MM:SS
+  };
+
+  try {
+    await apiFetch("stock", {
+      method: "POST",
+      body: nuevoRegistro // Pasamos el objeto directo sin envolverlo en JSON.stringify
+    });
+
+    cerrarModalNuevoRegistro();
+    document.getElementById("form-nuevo-stock").reset();
+    await cargarStockGeneral();
+
+  } catch (err) {
+    alert("Error al insertar el registro en la BD: " + err.message);
+  } finally {
+    btnGuardar.disabled = false;
+    btnGuardar.textContent = "Guardar en BD";
+  }
+}
+
+function abrirModalNuevoRegistro() {
+  document.getElementById("modal-nuevo").classList.remove("hidden");
+}
+
+function cerrarModalNuevoRegistro() {
+  document.getElementById("modal-nuevo").classList.add("hidden");
+}
+
+function filtrarTabla() {
+  const query = document.getElementById("input-busqueda").value.toLowerCase().trim();
+  const filtroTipo = document.getElementById("select-tipo").value;
+
+  datosFiltrados = todosLosDatos.filter(item => {
+    const tipoItem = (item.tipo_movimiento || "").toUpperCase();
+    const coincideTipo = filtroTipo === "TODOS" || (filtroTipo === "INGRESO" && tipoItem === "INGRESO") || (filtroTipo === "EGRESO" && tipoItem === "EGRESO");
+
+    const cadena = [item.id_registro, item.num_remito, item.num_factura, item.razon_social, item.dispositivo, item.mac_wifi, item.num_ticket].join(" ").toLowerCase();
+    const coincideTexto = cadena.includes(query);
+
+    return coincideTipo && coincideTexto;
+  });
+
+  paginaActual = 1;
+  actualizarTablaYPaginacion();
+}
+
+function cambiarRegistrosPorPagina() {
+  registrosPorPagina = parseInt(document.getElementById("select-registros-pagina").value, 10);
+  paginaActual = 1;
+  actualizarTablaYPaginacion();
+}
+
+function actualizarTablaYPaginacion() {
+  const total = datosFiltrados.length;
+  const totalPaginas = Math.ceil(total / registrosPorPagina) || 1;
+
+  if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+
+  const inicio = (paginaActual - 1) * registrosPorPagina;
+  const fin = inicio + registrosPorPagina;
+  const datosPagina = datosFiltrados.slice(inicio, fin);
+
+  renderizarFilas(datosPagina);
+
+  document.getElementById("pagina-actual-num").textContent = total > 0 ? paginaActual : 0;
+  document.getElementById("total-paginas-num").textContent = totalPaginas;
+
+  renderizarControlesPaginacion(totalPaginas);
+}
+
+function renderizarFilas(lista) {
+  const tbody = document.getElementById("tabla-stock-body");
+
+  if (lista.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" class="table-td text-center text-slate-400 py-6">No se encontraron resultados.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = lista.map(item => {
+    const tipo = (item.tipo_movimiento || "").toUpperCase();
+    const cant = item.cantidad ?? 1;
+
+    return `
+      <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+        <td class="table-td font-mono font-semibold">${item.id_registro ?? "—"}</td>
+        <td class="table-td">${item.fecha ? new Date(item.fecha).toLocaleDateString("es-AR") : "—"}</td>
+        <td class="table-td">${item.num_remito || "—"}</td>
+        <td class="table-td">${item.num_factura || "—"}</td>
+        <td class="table-td">${item.razon_social || "—"}</td>
+        <td class="table-td font-mono text-xs">${item.dispositivo || item.mac_wifi || "—"}</td>
+        <td class="table-td">${item.num_ticket || "—"}</td>
+        <td class="table-td font-semibold text-emerald-500">${tipo === "INGRESO" || tipo === "" ? cant : 0}</td>
+        <td class="table-td font-semibold text-rose-500">${tipo === "EGRESO" ? cant : 0}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+function renderizarControlesPaginacion(totalPaginas) {
+  const contenedor = document.getElementById("contenedor-paginacion");
+  contenedor.innerHTML = "";
+
+  if (totalPaginas <= 1) return;
+
+  const btnAnt = document.createElement("button");
+  btnAnt.className = "btn-paginacion";
+  btnAnt.textContent = "← Anterior";
+  btnAnt.disabled = paginaActual === 1;
+  btnAnt.onclick = () => { paginaActual--; actualizarTablaYPaginacion(); };
+  contenedor.appendChild(btnAnt);
+
+  for (let i = 1; i <= totalPaginas; i++) {
+    if (i === 1 || i === totalPaginas || (i >= paginaActual - 1 && i <= paginaActual + 1)) {
+      const btnNum = document.createElement("button");
+      btnNum.className = `btn-paginacion-num ${i === paginaActual ? "activa" : ""}`;
+      btnNum.textContent = i;
+      btnNum.onclick = () => { paginaActual = i; actualizarTablaYPaginacion(); };
+      contenedor.appendChild(btnNum);
+    }
+  }
+
+  const btnSig = document.createElement("button");
+  btnSig.className = "btn-paginacion";
+  btnSig.textContent = "Siguiente →";
+  btnSig.disabled = paginaActual === totalPaginas;
+  btnSig.onclick = () => { paginaActual++; actualizarTablaYPaginacion(); };
+  contenedor.appendChild(btnSig);
+}
+
+function limpiarFiltros() {
+  document.getElementById("input-busqueda").value = "";
+  document.getElementById("select-tipo").value = "TODOS";
+  datosFiltrados = [...todosLosDatos];
+  paginaActual = 1;
+  actualizarTablaYPaginacion();
+}
+
+// Cargar stock al iniciar la vista
+cargarStockGeneral();
+</script>
+</body>
+</html>

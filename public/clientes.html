@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clientes — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>Trazabilidad por MAC</small></div>
+    <nav>
+      <a href="index.html" class="nav-link" >📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link" >🔍 Búsqueda</a>
+      <a href="dispositivo.html" class="nav-link" >📦 dispositivo</a>
+      <a href="reparados.html" class="nav-link" >🔧 Reparados y Reutilizados</a>
+
+      <a href="ingreso.html" class="nav-link">📥 Ingreso</a>
+      <a href="egreso.html" class="nav-link">📤 Egreso</a>
+
+      <details class="nav-group" >
+        <summary>🔄 Movimientos</summary>
+        <a href="movimientos.html" class="sub-link ">Todos</a>
+        <a href="movimientos.html?vista=mac" class="sub-link ">Por MAC</a>
+        <a href="movimientos.html?vista=ingreso" class="sub-link ">Ingreso</a>
+        <a href="movimientos.html?vista=egreso" class="sub-link ">Egreso</a>
+        <a href="movimientos.html?vista=fecha" class="sub-link ">Por fecha</a>
+        <a href="movimientos.html?vista=estado" class="sub-link ">Por estado</a>
+        <a href="movimientos.html?vista=instancia" class="sub-link ">Por instancia</a>
+      </details>
+
+      <a href="soporte.html" class="nav-link" >🛠️ Soporte Técnico</a>
+
+      <details class="nav-group" >
+        <summary>🏭 Depósito</summary>
+        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
+        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      </details>
+
+      <details class="nav-group" >
+        <summary>🏷️ Estado</summary>
+        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
+        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
+      </details>
+
+      <details class="nav-group" >
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+        <a href="dispositivo.html" class="sub-link">dispositivo</a>
+        <a href="deposito.html" class="sub-link">Depósito</a>
+      </details>
+
+      <a href="clientes.html" class="nav-link active" >🧾 Clientes</a>
+      <a href="reportes.html" class="nav-link" >📈 Reportes</a>
+      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="page-title">Clientes</h1>
+    <p class="page-subtitle">Empresas y personas asociadas a ventas, comodatos y garantías.</p>
+
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+    <div id="msg-exito" class="alert d-none"></div>
+
+    <div class="row g-2 mb-3">
+      <div class="col-md-4">
+        <input type="text" class="form-control" id="buscador-cliente" placeholder="Buscar por razón social...">
+      </div>
+      <div class="col-md-8 text-end">
+        <button class="btn btn-teal btn-sm" data-bs-toggle="modal" data-bs-target="#modal-cliente"
+                data-requiere-escritura onclick="abrirModalNuevoCliente()">+ Nuevo cliente</button>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light"><tr><th>Razón social</th><th>Email</th><th>Entidad</th><th>Sucursal</th><th></th></tr></thead>
+          <tbody id="tabla-clientes"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal fade" id="modal-cliente" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-cliente-titulo">Nuevo cliente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="cliente-id">
+        <div class="mb-2"><label class="form-label small">Razón social</label><input class="form-control" id="cliente-razon" required></div>
+        <div class="mb-2"><label class="form-label small">Email</label><input class="form-control" id="cliente-email"></div>
+        <div class="mb-2"><label class="form-label small">Entidad</label><input class="form-control" id="cliente-entidad"></div>
+        <div class="mb-2"><label class="form-label small">Sucursal</label><input class="form-control" id="cliente-sucursal"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-teal" id="btn-guardar-cliente">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script>
+async function cargarClientes() {
+  const q = document.getElementById("buscador-cliente").value.trim();
+  const filas = await apiFetch("clientes.php", { params: q ? { q } : {} });
+  document.getElementById("tabla-clientes").innerHTML = filas.map(c => `
+    <tr>
+      <td>${c.razon_social}</td><td>${c.email || "—"}</td><td>${c.entidad || "—"}</td><td>${c.sucursal || "—"}</td>
+      <td class="text-end"><button class="btn btn-sm btn-outline-secondary" onclick='abrirModalEditarCliente(${JSON.stringify(c)})'>Editar</button></td>
+    </tr>
+  `).join("") || `<tr><td colspan="5" class="text-center text-muted py-3">Sin clientes cargados</td></tr>`;
+}
+
+function abrirModalNuevoCliente() {
+  document.getElementById("modal-cliente-titulo").textContent = "Nuevo cliente";
+  ["cliente-id","cliente-razon","cliente-email","cliente-entidad","cliente-sucursal"].forEach(id => document.getElementById(id).value = "");
+}
+function abrirModalEditarCliente(c) {
+  document.getElementById("modal-cliente-titulo").textContent = "Editar cliente";
+  document.getElementById("cliente-id").value = c.id;
+  document.getElementById("cliente-razon").value = c.razon_social;
+  document.getElementById("cliente-email").value = c.email || "";
+  document.getElementById("cliente-entidad").value = c.entidad || "";
+  document.getElementById("cliente-sucursal").value = c.sucursal || "";
+  new bootstrap.Modal(document.getElementById("modal-cliente")).show();
+}
+
+document.getElementById("btn-guardar-cliente").addEventListener("click", async () => {
+  const id = document.getElementById("cliente-id").value;
+  const payload = {
+    razon_social: document.getElementById("cliente-razon").value.trim(),
+    email: document.getElementById("cliente-email").value.trim() || null,
+    entidad: document.getElementById("cliente-entidad").value.trim() || null,
+    sucursal: document.getElementById("cliente-sucursal").value.trim() || null,
+  };
+  try {
+    if (id) { payload.id = id; await apiFetch("clientes.php", { method: "PUT", body: payload }); }
+    else { await apiFetch("clientes.php", { method: "POST", body: payload }); }
+    bootstrap.Modal.getInstance(document.getElementById("modal-cliente")).hide();
+    mostrarExito("msg-exito", "Cliente guardado");
+    cargarClientes();
+  } catch (err) { mostrarError("msg-error", err.message); }
+});
+
+document.getElementById("buscador-cliente").addEventListener("input", () => cargarClientes());
+cargarClientes();
+</script>
+</body>
+</html>
