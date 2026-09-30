@@ -1,31 +1,46 @@
 require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
+const MySQLStore = require("express-mysql-session")(session);
 const path = require("path");
-const cors = require("cors"); // Se recomienda instalar con: npm install cors
+const cors = require("cors");
 
+if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
+  throw new Error("Configurá SESSION_SECRET con una clave aleatoria de al menos 32 caracteres.");
+}
+const pool = require("./config/db");
 const app = express();
+const production = process.env.NODE_ENV === "production";
+app.disable("x-powered-by");
+if (production) app.set("trust proxy", 1);
 
-// --- Middlewares Básicos y Body Parsers ---
-app.use(cors()); // Habilita peticiones desde cualquier origen local/IP
-app.use(express.json()); // Parsea peticiones con content-type: application/json
-app.use(express.urlencoded({ extended: true })); // Parsea peticiones con datos de formulario
+// El frontend servido por Express funciona sin CORS.
+// Para un frontend separado, indicar sus URLs exactas en CORS_ORIGINS.
+const allowedOrigins = (process.env.CORS_ORIGINS || "").split(",").map(v => v.trim()).filter(Boolean);
+if (allowedOrigins.length) app.use(cors({ origin: allowedOrigins, credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// --- Configuración de Sesiones ---
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "Yanina3",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 8, // 8 horas
-      // secure: true, // Descomentar cuando la app corra bajo HTTPS
-    },
-  })
-);
+const sessionStore = new MySQLStore({
+  createDatabaseTable: true,
+  expiration: 1000 * 60 * 60 * 8,
+  endConnectionOnClose: false,
+}, pool);
+sessionStore.on("error", err => console.error("Error de sesiones:", err.code || "SESSION_ERROR"));
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  store: sessionStore,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: production,
+    sameSite: "lax",
+    maxAge: 1000 * 60 * 60 * 8,
+  },
+}));
 
-// --- Rutas de la API ---
+app.get("/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/catalogos", require("./routes/catalogos"));
 app.use("/api/dispositivos", require("./routes/dispositivos"));
@@ -35,27 +50,34 @@ app.use("/api/usuarios", require("./routes/usuarios"));
 app.use("/api/reportes", require("./routes/reportes"));
 app.use("/api/accesorios", require("./routes/accesorios"));
 app.use("/api/stock", require("./routes/stock"));
-
-// --- Frontend Estático (Archivos HTML, CSS, JS) ---
 app.use(express.static(path.join(__dirname, "public")));
 
-// --- Manejador de errores para JSON mal formados (Evita SyntaxError 400 no controlado) ---
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
-    console.error("❌ Error de sintaxis en JSON recibido:", err.message);
     return res.status(400).json({ error: "El formato JSON enviado no es válido" });
   }
   next(err);
 });
-
-// --- Manejador de errores genérico (Catch-all 500) ---
 app.use((err, req, res, next) => {
-  console.error("❌ Error no controlado:", err);
+  console.error("Error no controlado:", err.code || err.name || "SERVER_ERROR");
   res.status(500).json({ error: "Error interno del servidor" });
 });
 
-// --- Inicio del Servidor ---
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor de Stock corriendo en http://localhost:${PORT}`);
-});
+async function start() {
+  try {
+    await pool.query("SELECT 1");
+    await sessionStore.onReady();
+    const port = Number(process.env.PORT || 3000);
+    const server = app.listen(port, "0.0.0.0", () => {
+      console.log(`Servidor de Stock iniciado en puerto ${port}`);
+    });
+    server.on("error", err => {
+      console.error("No se pudo abrir el puerto:", err.code);
+      process.exit(1);
+    });
+  } catch (err) {
+    console.error("No se pudo iniciar la conexión o las sesiones:", err.code || err.name);
+    process.exit(1);
+  }
+}
+start();
