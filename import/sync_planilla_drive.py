@@ -44,16 +44,27 @@ AVISO_COMPARTIR = (
 )
 
 
+CLAVES_ENTORNO = (
+    "DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD",
+    "DB_SSL", "DB_SSL_CA", "DB_SSL_CA_PATH",
+    "GOOGLE_SHEET_ID", "SYNC_INTERVAL_SEC",
+)
+
+
 def leer_env():
     ruta = os.path.join(os.path.dirname(__file__), "..", ".env")
     env = {}
-    with open(ruta, encoding="utf-8") as archivo:
-        for linea in archivo:
-            linea = linea.strip()
-            if not linea or linea.startswith("#") or "=" not in linea:
-                continue
-            clave, valor = linea.split("=", 1)
-            env[clave.strip()] = valor.strip()
+    if os.path.exists(ruta):
+        with open(ruta, encoding="utf-8") as archivo:
+            for linea in archivo:
+                linea = linea.strip()
+                if not linea or linea.startswith("#") or "=" not in linea:
+                    continue
+                clave, valor = linea.split("=", 1)
+                env[clave.strip()] = valor.strip()
+    for clave in CLAVES_ENTORNO:
+        if os.environ.get(clave):
+            env[clave] = os.environ[clave]
     return env
 
 
@@ -244,17 +255,33 @@ def aplicar(cnx, hojas):
 
 def conectar():
     env = leer_env()
-    return mysql.connector.connect(
-        host=env.get("DB_HOST", "127.0.0.1"),
-        port=int(env.get("DB_PORT", "3306")),
-        database=env.get("DB_NAME", "stock_db"),
-        user=env.get("DB_USER", "root"),
-        password=env.get("DB_PASSWORD", ""),
-    )
+    host = env.get("DB_HOST", "127.0.0.1")
+    config = {
+        "host": host,
+        "port": int(env.get("DB_PORT", "3306")),
+        "database": env.get("DB_NAME", "stock_db"),
+        "user": env.get("DB_USER", "root"),
+        "password": env.get("DB_PASSWORD", ""),
+    }
+    if env.get("DB_SSL", "").lower() == "true" or host.endswith(".aivencloud.com"):
+        ca_inline = env.get("DB_SSL_CA", "").replace("\\n", "\n").strip()
+        if ca_inline:
+            ca_archivo = os.path.join(tempfile.gettempdir(), "stock-aiven-ca.pem")
+            with open(ca_archivo, "w", encoding="utf-8") as archivo:
+                archivo.write(ca_inline + "\n")
+            ca = ca_archivo
+        else:
+            ca = env.get("DB_SSL_CA_PATH", os.path.join("config", "ca.pem"))
+            if not os.path.isabs(ca):
+                ca = os.path.join(os.path.dirname(__file__), "..", ca)
+            ca = os.path.abspath(ca)
+        config["ssl_ca"] = ca
+        config["ssl_verify_cert"] = True
+    return mysql.connector.connect(**config)
 
 
 def descargar(sheet_id, destino):
-    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=xlsx"
+    url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=xlsx&t={int(time.time())}"
     pedido = urllib.request.Request(url, headers={"User-Agent": "stock-node-sync"})
     with urllib.request.urlopen(pedido, timeout=90) as respuesta:
         datos = respuesta.read()
@@ -316,7 +343,21 @@ def vigilar():
         time.sleep(intervalo)
 
 
+def una_vez():
+    env = leer_env()
+    sheet_id = env.get("GOOGLE_SHEET_ID", "").strip()
+    if not sheet_id:
+        log.error("Falta GOOGLE_SHEET_ID")
+        sys.exit(1)
+    destino = os.path.join(tempfile.gettempdir(), "stock-planilla.xlsx")
+    descargar(sheet_id, destino)
+    sincronizar_archivo(destino)
+
+
 def main():
+    if len(sys.argv) >= 2 and sys.argv[1] == "--una-vez":
+        una_vez()
+        return
     if len(sys.argv) >= 3 and sys.argv[1] == "--probar":
         probar(sys.argv[2])
         return
