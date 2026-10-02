@@ -84,8 +84,8 @@
       <div class="col-lg-6">
         <div class="card border-0 shadow-sm">
           <div class="card-body">
-            <h2 class="h6 mb-3">Stock actual por tipo y depósito</h2>
-            <table class="table table-sm"><thead><tr><th>Tipo</th><th>Depósito</th><th class="text-end">Cantidad</th></tr></thead>
+            <h2 class="h6 mb-3">Stock actual de la planilla</h2>
+            <table class="table table-sm"><thead><tr><th>Categoría</th><th>País</th><th class="text-end">Cantidad</th></tr></thead>
               <tbody id="tabla-stock"></tbody></table>
           </div>
         </div>
@@ -127,26 +127,24 @@
       <div class="col-12">
         <div class="card border-0 shadow-sm" data-requiere-escritura>
           <div class="card-body">
-            <h2 class="h6 mb-3">Configurar alertas de stock bajo</h2>
+            <h2 class="h6 mb-3">Alertas de stock para venta</h2>
+            <p class="small mb-3">Solo en el depósito Oficina. EBD para venta: alertar cuando queden 20. D3 para venta: alertar cuando queden 8.</p>
+            <div id="alertas-activas" class="mb-3"></div>
             <div class="row g-2 align-items-end mb-3">
-              <div class="col-md-3">
-                <label class="form-label small mb-1">Tipo de equipo</label>
-                <select class="form-select" id="alerta-tipo"></select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label small mb-1">Depósito (opcional)</label>
-                <select class="form-select" id="alerta-deposito"><option value="">Cualquiera</option></select>
+              <div class="col-md-5">
+                <label class="form-label small mb-1">Categoría</label>
+                <select class="form-select" id="alerta-categoria"></select>
               </div>
               <div class="col-md-2">
-                <label class="form-label small mb-1">Stock mínimo</label>
-                <input type="number" class="form-control" id="alerta-minimo" min="1" value="10">
+                <label class="form-label small mb-1">Alertar cuando queden</label>
+                <input type="number" class="form-control" id="alerta-minimo" min="0" value="20">
               </div>
               <div class="col-md-2">
                 <button class="btn btn-teal" id="btn-guardar-alerta">Guardar</button>
               </div>
             </div>
             <table class="table table-sm">
-              <thead><tr><th>Tipo</th><th>Depósito</th><th>Mínimo</th><th></th></tr></thead>
+              <thead><tr><th>Categoría</th><th>Depósito</th><th>Stock actual</th><th>Alertar cuando queden</th><th></th></tr></thead>
               <tbody id="tabla-alertas-config"></tbody>
             </table>
           </div>
@@ -201,20 +199,27 @@ async function cargarMovimientosPeriodo() {
 }
 
 async function cargarCombosAlertas() {
-  const cat = await apiFetch("catalogos.php");
-  document.getElementById("alerta-tipo").innerHTML = cat.tipos_equipo.map(t => `<option value="${t.id}">${t.nombre}</option>`).join("");
-  document.getElementById("alerta-deposito").innerHTML =
-    '<option value="">Cualquiera</option>' + cat.depositos.map(u => `<option value="${u.id}">${u.nombre}</option>`).join("");
+  const filas = await apiFetch("reportes.php", { params: { accion: "categorias_stock" } });
+  document.getElementById("alerta-categoria").innerHTML = filas.map(c =>
+    `<option value="${c.id}">${c.nombre} · ${c.pais}</option>`
+  ).join("");
 }
 
 async function cargarAlertasConfig() {
   const filas = await apiFetch("reportes.php", { params: { accion: "alertas_config" } });
+  const activas = filas.filter(a => Number(a.cantidad_actual) <= Number(a.stock_minimo));
+  document.getElementById("alertas-activas").innerHTML = activas.map(a => `
+    <div class="alert alert-warning py-2 mb-2">Alerta: ${a.tipo_nombre} (${a.deposito_nombre}) quedó en ${a.cantidad_actual}. El aviso es desde ${a.stock_minimo}.</div>
+  `).join("") || `<p class="text-muted small mb-0">Ninguna categoría para venta está en el mínimo.</p>`;
   document.getElementById("tabla-alertas-config").innerHTML = filas.map(a => `
-    <tr>
-      <td>${a.tipo_nombre}</td><td>${a.deposito_nombre || "Cualquiera"}</td><td class="font-mono">${a.stock_minimo}</td>
+    <tr class="${Number(a.cantidad_actual) <= Number(a.stock_minimo) ? "table-warning" : ""}">
+      <td>${a.tipo_nombre}</td>
+      <td>${a.deposito_nombre || "—"}</td>
+      <td class="font-mono">${a.cantidad_actual}</td>
+      <td class="font-mono">${a.stock_minimo}</td>
       <td class="text-end"><button class="btn btn-sm btn-outline-danger" data-requiere-escritura onclick="borrarAlerta(${a.id})">Quitar</button></td>
     </tr>
-  `).join("") || `<tr><td colspan="4" class="text-muted text-center py-2">No hay alertas configuradas</td></tr>`;
+  `).join("") || `<tr><td colspan="5" class="text-muted text-center py-2">No hay alertas configuradas</td></tr>`;
 }
 
 async function borrarAlerta(id) {
@@ -272,8 +277,7 @@ document.getElementById("btn-guardar-alerta").addEventListener("click", async ()
       method: "POST",
       params: { accion: "alertas_config" },
       body: {
-        tipo_equipo_id: document.getElementById("alerta-tipo").value,
-        deposito_id: document.getElementById("alerta-deposito").value || null,
+        categoria_id: document.getElementById("alerta-categoria").value,
         stock_minimo: document.getElementById("alerta-minimo").value,
       },
     });

@@ -69,8 +69,8 @@ router.get("/", async (req, res) => {
        FROM movimientos m
        LEFT JOIN dispositivos d ON d.id = m.dispositivo_id
        LEFT JOIN clientes c ON c.id = m.cliente_id
-       LEFT JOIN depositos uo ON uo.id = m.deposito_origen_id
-       LEFT JOIN depositos ud ON ud.id = m.deposito_destino_id
+       LEFT JOIN depositos uo ON uo.id_deposito = m.deposito_origen_id
+       LEFT JOIN depositos ud ON ud.id_deposito = m.deposito_destino_id
        LEFT JOIN usuarios us ON us.id = m.usuario_id
        ${where}
        ORDER BY m.fecha DESC

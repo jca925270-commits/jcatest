@@ -53,4 +53,71 @@ async function iniciarGuardia() {
   return u;
 }
 
-document.addEventListener("DOMContentLoaded", iniciarGuardia);
+const ICONO_POR_TEXTO = {
+  Dashboard: "dashboard",
+  "Búsqueda": "search",
+  dispositivo: "inventory_2",
+  "Reparados y Reutilizados": "build",
+  Ingreso: "move_to_inbox",
+  Egreso: "outbox",
+  Movimientos: "sync_alt",
+  "Soporte Técnico": "support_agent",
+  "Depósito": "warehouse",
+  Estado: "sell",
+  Stock: "menu_book",
+  Clientes: "receipt_long",
+  Reportes: "monitoring",
+  Usuarios: "person",
+};
+
+function teñirIconosMenu() {
+  document.querySelectorAll("aside.sidebar .nav-link, aside.sidebar summary").forEach((el) => {
+    if (el.querySelector(".nav-icono")) return;
+    const limpio = el.textContent.replace(/\p{Extended_Pictographic}|\uFE0F/gu, "").trim();
+    const icono = ICONO_POR_TEXTO[limpio];
+    if (!icono) return;
+    el.textContent = "";
+    const span = document.createElement("span");
+    span.className = "nav-icono";
+    span.setAttribute("aria-hidden", "true");
+    span.textContent = icono;
+    el.append(span, document.createTextNode(" " + limpio));
+  });
+}
+
+function colocarLogo() {
+  const marca = document.querySelector("aside.sidebar .brand, aside.sidebar > div:first-child");
+  if (!marca || marca.querySelector(".logo-banner")) return;
+  const subtitulo = marca.classList.contains("brand")
+    ? `<small>Trazabilidad por MAC</small>`
+    : `<div class="logo-subtitulo">Trazabilidad por MAC</div>`;
+  marca.innerHTML = `<img class="logo-banner" src="assets/img/logo.png" alt="Banner Director">${subtitulo}`;
+}
+
+async function actualizarSyncPlanilla() {
+  let el = document.getElementById("sync-planilla");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "sync-planilla";
+    el.className = "sync-planilla";
+    document.body.appendChild(el);
+  }
+  try {
+    const data = await apiFetch("reportes.php", { params: { accion: "ultima_sync" } });
+    if (!data) return;
+    el.textContent = data.ultima_sync
+      ? `Última sincronización: ${data.ultima_sync}`
+      : "Sin sincronización de la planilla";
+  } catch (_) {
+    el.textContent = "";
+  }
+}
+
+colocarLogo();
+teñirIconosMenu();
+document.addEventListener("DOMContentLoaded", () => {
+  colocarLogo();
+  teñirIconosMenu();
+  iniciarGuardia().then(() => actualizarSyncPlanilla());
+  setInterval(actualizarSyncPlanilla, 15000);
+});

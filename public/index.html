@@ -20,7 +20,9 @@
     },
   };
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/banner.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style type="text/tailwindcss">
   @layer components {
     .nav-link { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 border-l-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
@@ -108,13 +110,24 @@
 
   <main class="flex-1 min-w-0 p-7">
     <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">Resumen general del stock actual — hacé click en cualquier tarjeta para ver el detalle del dispositivo.</p>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">El número grande es el stock actual de EBD y D3. El total de cada uno va abajo. Se actualiza desde la planilla de Google.</p>
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6" id="kpis"></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-6" id="kpis"></div>
 
     <div class="mb-6">
-      <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">⚠️ Alertas de stock bajo</h2>
-      <div id="alertas-lista" class="flex flex-col gap-2"></div>
+      <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Alertas de Oficina</h2>
+      <div id="alertas-lista" class="grid grid-cols-1 md:grid-cols-2 gap-2"></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div class="kpi-card">
+        <h2 class="text-sm font-semibold mb-3">Dispositivos por depósito</h2>
+        <canvas id="grafico-ebd" height="180"></canvas>
+      </div>
+      <div class="kpi-card">
+        <h2 class="text-sm font-semibold mb-3">Venta, garantía y devolución</h2>
+        <canvas id="grafico-estados" height="180"></canvas>
+      </div>
     </div>
 
     <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Tablero por estado</h2>
@@ -129,20 +142,149 @@
 <script src="assets/js/ventanas.js"></script>
 <script src="assets/js/ui.js"></script>
 <script>
+let graficoEbd;
+let graficoEstados;
+
+function tarjeta(valor, titulo, detalle) {
+  return `<div class="kpi-card">
+    <div class="text-3xl font-bold font-mono text-slate-900 dark:text-white">${valor}</div>
+    <div class="text-sm mt-1">${titulo}</div>
+    ${detalle ? `<div class="text-[11px] text-slate-400 mt-1">${detalle}</div>` : ""}
+  </div>`;
+}
+
+function cifra(valor, titulo) {
+  return `<div>
+    <div class="text-3xl font-bold font-mono">${valor}</div>
+    <div class="text-[11px] text-slate-400 mt-1">${titulo}</div>
+  </div>`;
+}
+
+function tarjetaDevolucion(devolucion) {
+  return `<div class="kpi-card">
+    <div class="text-xs uppercase tracking-wide mb-2">Devolución · ingresos</div>
+    <div class="flex gap-8 flex-wrap">
+      ${cifra(devolucion.ingresos, "Total ingresos")}
+      ${cifra(devolucion.ebd_venta, "EBD para venta")}
+      ${cifra(devolucion.d3_venta, "D3 para venta")}
+      ${cifra(devolucion.prueba, "Prueba")}
+      ${cifra(devolucion.comodato, "Comodato")}
+    </div>
+    <div class="text-[11px] text-slate-400 mt-2">${devolucion.movimientos} movimientos</div>
+  </div>`;
+}
+
+function tarjetaGarantia(garantia) {
+  return `<div class="kpi-card">
+    <div class="text-xs uppercase tracking-wide mb-2">Garantía · egresos</div>
+    <div class="flex gap-8 flex-wrap">
+      ${cifra(garantia.egresos, "Total egresos")}
+      ${cifra(garantia.d3_venta, "D3 para venta")}
+      ${cifra(garantia.ebd_nuevo, "EBD nuevo")}
+      ${cifra(garantia.ebd_reparado, "EBD reparado")}
+    </div>
+    <div class="text-[11px] text-slate-400 mt-2">${garantia.movimientos} movimientos</div>
+  </div>`;
+}
+
+function tarjetaVendidos(venta) {
+  return `<div class="kpi-card">
+    <div class="text-xs uppercase tracking-wide mb-2">Vendidos al cliente</div>
+    <div class="flex gap-8 flex-wrap">
+      ${cifra(venta.egresos, "Total")}
+      ${cifra(venta.ebd, "EBD")}
+      ${cifra(venta.d3, "D3")}
+    </div>
+    <div class="text-[11px] text-slate-400 mt-2">${venta.movimientos} movimientos</div>
+  </div>`;
+}
+
+function tarjetaLugar(nombre, datos, conD3plus) {
+  return `<div class="kpi-card">
+    <div class="text-xs uppercase tracking-wide mb-2">${nombre}</div>
+    <div class="flex gap-8 flex-wrap">
+      ${cifra(datos.ebd, "Total EBD")}
+      ${cifra(datos.d3, "Total D3")}
+      ${conD3plus ? cifra(datos.d3plus, "Total D3+") : ""}
+    </div>
+  </div>`;
+}
+
+function dibujarGraficos(planilla) {
+  const texto = "#ede0dd";
+  const grilla = "#4f4542";
+  const opciones = {
+    responsive: true,
+    plugins: { legend: { labels: { color: texto } } },
+    scales: {
+      x: { ticks: { color: texto }, grid: { color: grilla } },
+      y: { ticks: { color: texto }, grid: { color: grilla }, beginAtZero: true },
+    },
+  };
+  if (graficoEbd) graficoEbd.destroy();
+  if (graficoEstados) graficoEstados.destroy();
+  graficoEbd = new Chart(document.getElementById("grafico-ebd"), {
+    type: "bar",
+    data: {
+      labels: ["Campiña", "Showroom", "Paraguay", "Oficina"],
+      datasets: [
+        { label: "EBD", data: ["campina", "showroom", "paraguay", "oficina"].map((k) => planilla.lugares[k].ebd), backgroundColor: "#ffb5a0" },
+        { label: "D3", data: ["campina", "showroom", "paraguay", "oficina"].map((k) => planilla.lugares[k].d3), backgroundColor: "#e8a090" },
+        { label: "D3+", data: ["campina", "showroom", "paraguay", "oficina"].map((k) => planilla.lugares[k].d3plus), backgroundColor: "#ffdbd1" },
+      ],
+    },
+    options: opciones,
+  });
+  graficoEstados = new Chart(document.getElementById("grafico-estados"), {
+    type: "bar",
+    data: {
+      labels: ["Venta", "Garantía", "Devolución"],
+      datasets: [{
+        label: "Unidades",
+        data: [planilla.venta.egresos, planilla.garantia.egresos, planilla.devolucion.ingresos],
+        backgroundColor: ["#ffb5a0", "#c9b8b3", "#ffdbd1"],
+      }],
+    },
+    options: opciones,
+  });
+}
+
+let dashboardPrevio = "";
+
 async function cargarDashboard() {
   try {
     const data = await apiFetch("reportes.php", { params: { accion: "dashboard" } });
-    document.getElementById("kpis").innerHTML = `
-      <div class="kpi-card"><div class="text-2xl font-bold font-mono text-slate-900 dark:text-white">${data.total_en_stock}</div><div class="text-xs text-slate-500 dark:text-slate-400 mt-1">dispositivo en stock</div></div>
-      <div class="kpi-card"><div class="text-2xl font-bold font-mono text-slate-900 dark:text-white">${data.total_vendidos}</div><div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Vendidos / activos en cliente</div></div>
-      <div class="kpi-card border-l-4 border-l-amber-400"><div class="text-2xl font-bold font-mono text-slate-900 dark:text-white">${data.alertas.length}</div><div class="text-xs text-slate-500 dark:text-slate-400 mt-1">Alertas de stock bajo</div></div>
-    `;
-    document.getElementById("alertas-lista").innerHTML = data.alertas.map(a => `
-      <div class="flex justify-between items-center px-3 py-2 rounded-lg border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 text-sm">
-        <div><strong>${a.tipo_nombre}</strong> ${a.deposito_nombre ? "— " + a.deposito_nombre : ""}</div>
-        <div class="font-mono text-xs">${a.cantidad_actual} / mín. ${a.stock_minimo}</div>
-      </div>
-    `).join("") || `<p class="text-sm text-slate-400">No hay alertas configuradas o todo está por encima del mínimo.</p>`;
+    const firma = JSON.stringify(data.planilla) + JSON.stringify(data.alertas_oficina);
+    if (firma === dashboardPrevio) return;
+    dashboardPrevio = firma;
+    const p = data.planilla;
+    document.getElementById("kpis").innerHTML = [
+      tarjeta(p.ebd_total, "EBD nuevos", `En todo Banner · Campiña ${p.ebd_campina} + Oficina ${p.ebd_oficina}`),
+      tarjeta(p.lugares.campina.d3 + p.lugares.oficina.d3, "D3 nuevos", `En todo Banner · Campiña ${p.lugares.campina.d3} + Oficina ${p.lugares.oficina.d3}`),
+      tarjetaVendidos(p.venta),
+      tarjetaGarantia(p.garantia),
+      tarjetaDevolucion(p.devolucion),
+      tarjeta(p.d3_prueba, "D3 de prueba", "Stock actual de la planilla"),
+      tarjeta(p.ebd_reparados, "EBD reparados", "Ya reparados, según la planilla"),
+      tarjetaLugar("Campiña", p.lugares.campina, true),
+      tarjetaLugar("Showroom", p.lugares.showroom, false),
+      tarjetaLugar("Paraguay", p.lugares.paraguay, false),
+      tarjetaLugar("Oficina", p.lugares.oficina, true),
+    ].join("");
+
+    const alertas = data.alertas_oficina || [];
+    document.getElementById("alertas-lista").innerHTML = alertas.map(a => {
+      const activa = Number(a.cantidad_actual) <= Number(a.stock_minimo);
+      const estilo = activa
+        ? "border-amber-300 bg-amber-50"
+        : "border-slate-200";
+      return `<div class="flex justify-between items-center gap-3 px-3 py-2 rounded-lg border ${estilo} text-sm">
+        <div><strong>${a.tipo_nombre}</strong><div class="text-xs text-slate-400">${a.deposito_nombre || "Oficina"}</div></div>
+        <div class="font-mono text-xs text-right">quedan ${a.cantidad_actual}<br>alerta desde ${a.stock_minimo}</div>
+      </div>`;
+    }).join("") || `<p class="text-sm text-slate-400">No hay alertas de Oficina.</p>`;
+
+    dibujarGraficos(p);
   } catch (err) {
     mostrarErrorTW("kpis", err.message);
   }
@@ -157,10 +299,10 @@ async function cargarKanban() {
         <span class="text-xs font-mono bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-full px-2 py-0.5">${col.total}</span>
       </div>
       <div class="p-2.5 overflow-y-auto flex-1 flex flex-col gap-2">
-        ${col.dispositivo.map(d => `
+        ${(col.dispositivos || []).map(d => `
           <button class="kanban-item" onclick='verFicha(${JSON.stringify(d)})'>
             <div class="font-mono text-[13px] text-slate-900 dark:text-white">${d.mac_wifi || d.mac_eth || "—"}</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${d.tipo_nombre} ${d.deposito_nombre ? "· " + d.deposito_nombre : ""}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${htmlFotoEquipo(d.tipo_nombre)} ${d.deposito_nombre ? "· " + d.deposito_nombre : ""}</div>
             ${d.cliente_nombre ? `<div class="text-xs text-slate-500 dark:text-slate-400">👤 ${d.cliente_nombre}</div>` : ""}
           </button>
         `).join("") || `<p class="text-xs text-slate-400 px-1">Vacío</p>`}
@@ -178,7 +320,7 @@ function verFicha(d) {
   const html = `
     <div class="mb-2"><span class="text-xs text-slate-400">MAC WiFi</span><div class="font-mono text-slate-900 dark:text-white">${d.mac_wifi || "—"}</div></div>
     <div class="mb-2"><span class="text-xs text-slate-400">MAC Ethernet</span><div class="font-mono text-slate-900 dark:text-white">${d.mac_eth || "—"}</div></div>
-    <div class="mb-2"><span class="text-xs text-slate-400">Tipo</span><div>${d.tipo_nombre || "—"}</div></div>
+    <div class="mb-2"><span class="text-xs text-slate-400">Tipo</span><div>${htmlFotoEquipo(d.tipo_nombre)}</div></div>
     <div class="mb-2"><span class="text-xs text-slate-400">Depósito</span><div>${d.deposito_nombre || "—"}</div></div>
     <div class="mb-3"><span class="text-xs text-slate-400">Cliente</span><div>${d.cliente_nombre || "—"}</div></div>
     <a href="dispositivo.html?q=${encodeURIComponent(d.mac_wifi || d.mac_eth || "")}" class="inline-block bg-orange-600 hover:bg-orange-700 text-white text-xs font-semibold rounded-lg px-3 py-1.5">Ver ficha completa</a>
@@ -188,6 +330,7 @@ function verFicha(d) {
 
 cargarDashboard();
 cargarKanban();
+setInterval(cargarDashboard, 15000);
 </script>
 </body>
 </html>

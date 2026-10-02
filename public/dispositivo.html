@@ -20,7 +20,8 @@
     },
   };
 </script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/banner.css" rel="stylesheet">
 <style type="text/tailwindcss">
   @layer components {
     .nav-link { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 border-l-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
@@ -108,7 +109,9 @@
   </aside>
   <main class="flex-1 min-w-0 p-7">
     <h1 class="text-2xl font-bold text-slate-900 dark:text-white">dispositivo</h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-5">Buscá escaneando el código de barras o tipeando la MAC — funciona igual con ambos.</p>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-5">Cantidad de cada equipo en la ubicación de la planilla STOCK 2026.</p>
+
+    <div id="stock-ubicacion" class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6"></div>
 
     <div id="msg-error" class="hidden mb-4 rounded-lg border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 px-4 py-3 text-sm"></div>
     <div id="msg-exito" class="hidden mb-4 rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 px-4 py-3 text-sm"></div>
@@ -239,6 +242,6 @@
 <script src="assets/js/theme.js"></script>
 <script src="assets/js/modal.js"></script>
 <script src="assets/js/ui.js"></script>
-<script src="assets/js/dispositivo.js"></script>
+<script src="assets/js/dispositivos.js"></script>
 </body>
 </html>

@@ -28,7 +28,7 @@ async function buscardispositivo() {
       <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
         <td class="px-3 py-2 font-mono text-[13px]">${d.mac_wifi || "—"}</td>
         <td class="px-3 py-2 font-mono text-[13px]">${d.mac_eth || "—"}</td>
-        <td class="px-3 py-2">${d.tipo_nombre || "—"}</td>
+        <td class="px-3 py-2">${htmlFotoEquipo(d.tipo_nombre)}</td>
         <td class="px-3 py-2">${badgeEstadoTW(d.estado)}</td>
         <td class="px-3 py-2">${d.deposito_nombre || "—"}</td>
         <td class="px-3 py-2">${d.cliente_nombre || "—"}</td>
@@ -102,7 +102,56 @@ document.getElementById("btn-buscar").addEventListener("click", buscardispositiv
   document.getElementById(id).addEventListener("change", buscardispositivo)
 );
 
+function ubicacionPlanilla(nombre, pais) {
+  if (pais === "PARAGUAY") return "Paraguay";
+  const n = nombre.toLowerCase();
+  if (n.includes("campi")) return "Campiña del Sur";
+  if (n.includes("casa santi")) return "Casa Santi";
+  if (n.includes("contenedor")) return "Contenedor";
+  if (n.includes("showroom")) return "Showroom";
+  if (n.includes("casas varias")) return "Casas varias";
+  return "Oficina";
+}
+
+function tipoPlanilla(nombre) {
+  const n = nombre.toUpperCase();
+  if (n.includes("D3+")) return "D3+";
+  if (n.includes("EBD")) return "EBD";
+  if (n.includes("CUBE")) return "CUBE";
+  if (n.includes("D3")) return "D3";
+  return "";
+}
+
+async function cargarStockUbicacion() {
+  const cont = document.getElementById("stock-ubicacion");
+  if (!cont) return;
+  const filas = await apiFetch("reportes.php", { params: { accion: "categorias_stock" } });
+  const orden = ["Campiña del Sur", "Casa Santi", "Contenedor", "Oficina", "Showroom", "Casas varias", "Paraguay"];
+  const grupos = new Map();
+  for (const f of filas) {
+    const ubi = ubicacionPlanilla(f.nombre, f.pais);
+    if (!grupos.has(ubi)) grupos.set(ubi, []);
+    grupos.get(ubi).push(f);
+  }
+  cont.innerHTML = orden.filter((u) => grupos.has(u)).map((ubi) => {
+    const items = grupos.get(ubi).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+    const detalle = items.map((f) => {
+      const src = fotoEquipo(tipoPlanilla(f.nombre));
+      const foto = src ? `<img src="${src}" alt="" class="equipo-foto">` : "";
+      return `<div class="flex items-center justify-between gap-3 py-2 border-t border-slate-200/10">
+        <div class="flex items-center gap-2 min-w-0 text-sm">${foto}<span class="truncate">${f.nombre}</span></div>
+        <span class="font-mono text-sm shrink-0">${f.cantidad_actual}</span>
+      </div>`;
+    }).join("");
+    return `<section class="rounded-2xl border border-slate-700/80 bg-slate-900/80 p-4">
+      <h2 class="text-sm font-semibold tracking-wide uppercase text-orange-300 mb-1">${ubi}</h2>
+      ${detalle}
+    </section>`;
+  }).join("");
+}
+
 (async () => {
+  await cargarStockUbicacion();
   await cargarCatalogos();
   const qURL = new URLSearchParams(location.search).get("q");
   if (qURL) document.getElementById("buscador").value = qURL;

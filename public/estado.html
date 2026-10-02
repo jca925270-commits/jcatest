@@ -75,7 +75,8 @@
 
   <main class="main-content">
     <h1 class="page-title">Estado</h1>
-    <p class="page-subtitle" id="subtitulo">dispositivo filtrados por estado.</p>
+    <p class="page-subtitle" id="subtitulo">Movimientos de la planilla por estado.</p>
+    <p class="page-subtitle" id="resumen-estado"></p>
 
     <div id="msg-error" class="alert alert-danger d-none"></div>
 
@@ -101,40 +102,61 @@ const NOMBRES_ESTADO = {
   de_baja: "Baja", soporte_tecnico: "Soporte técnico",
 };
 
+function fechaCorta(f) {
+  if (!f) return "—";
+  const d = new Date(f);
+  if (isNaN(d)) return String(f).slice(0, 10);
+  return d.toLocaleDateString("es-AR");
+}
+
+function cantidad(n) {
+  return n == null || n === "" ? "—" : n;
+}
+
 async function cargar() {
   const params = new URLSearchParams(location.search);
   const estado = params.get("estado") || "vendido";
-  document.getElementById("subtitulo").textContent = `dispositivo con estado: ${NOMBRES_ESTADO[estado] || estado}`;
+  const titulo = NOMBRES_ESTADO[estado] || estado;
+  document.getElementById("subtitulo").textContent = `Movimientos de la planilla — ${titulo}`;
 
-  if (estado === "soporte_tecnico") {
+  const filas = await apiFetch("estado", { params: { estado } });
+  const ingresos = filas.reduce((s, f) => s + Number(f.ingreso || 0), 0);
+  const egresos = filas.reduce((s, f) => s + Number(f.egreso || 0), 0);
+  document.getElementById("resumen-estado").textContent = estado === "actualizacion"
+    ? `${filas.length} movimientos en la base`
+    : `${filas.length} movimientos · ingresos ${ingresos} · egresos ${egresos}`;
+
+  if (estado === "actualizacion") {
     document.getElementById("thead-tabla").innerHTML =
-      `<tr><th>Fecha</th><th>Tipo</th><th>MAC</th><th>Movimiento</th><th>Detalle</th></tr>`;
-    const filas = await apiFetch("movimientos.php", { params: { origen_hoja: "Ingresos,Egresos", limite: 300 } });
-    document.getElementById("tabla-estado").innerHTML = filas.map(m => `
+      `<tr><th>Fecha</th><th>Razón social</th><th>Factura</th><th>Remito</th><th>MAC</th><th>Detalle</th></tr>`;
+    document.getElementById("tabla-estado").innerHTML = filas.map(f => `
       <tr>
-        <td>${formatearFecha(m.fecha)}</td>
-        <td>${m.origen_hoja === "Ingresos" ? "🔵 Ingreso" : "🟠 Egreso"}</td>
-        <td class="mac">${m.mac_wifi || m.mac_eth || "—"}</td>
-        <td>${m.tipo_movimiento}</td>
-        <td style="max-width:340px; white-space:normal;">${m.motivo || "—"}</td>
+        <td>${fechaCorta(f.fecha)}</td>
+        <td style="max-width:280px; white-space:normal;">${f.razon_social || "—"}</td>
+        <td>${f.factura || "—"}</td>
+        <td>${f.remito || "—"}</td>
+        <td class="mac">${f.mac_wifi || "—"}</td>
+        <td style="max-width:360px; white-space:normal;">${f.motivo || f.categoria || "—"}</td>
       </tr>
-    `).join("") || `<tr><td colspan="5" class="text-center text-muted py-4">Sin resultados</td></tr>`;
+    `).join("") || `<tr><td colspan="6" class="text-center text-muted py-4">Sin movimientos de actualización en la base</td></tr>`;
     return;
   }
 
   document.getElementById("thead-tabla").innerHTML =
-    `<tr><th>MAC WiFi</th><th>MAC Ethernet</th><th>Tipo</th><th>Depósito</th><th>Cliente</th><th>Caja</th></tr>`;
-  const filas = await apiFetch("dispositivo.php", { params: { estado, limite: 500 } });
-  document.getElementById("tabla-estado").innerHTML = filas.map(d => `
+    `<tr><th>Fecha</th><th>Estado</th><th>Categoría</th><th>Razón social</th><th>Remito</th><th>Factura</th><th>Ingreso</th><th>Egreso</th></tr>`;
+
+  document.getElementById("tabla-estado").innerHTML = filas.map(f => `
     <tr>
-      <td class="mac">${d.mac_wifi || "—"}</td>
-      <td class="mac">${d.mac_eth || "—"}</td>
-      <td>${d.tipo_nombre || "—"}</td>
-      <td>${d.deposito_nombre || "—"}</td>
-      <td>${d.cliente_nombre || "—"}</td>
-      <td>${d.caja_n || "—"}</td>
+      <td>${fechaCorta(f.fecha)}</td>
+      <td>${f.estado || "—"}</td>
+      <td>${f.categoria || "—"}${f.pais === "PARAGUAY" ? " · Paraguay" : ""}</td>
+      <td style="max-width:320px; white-space:normal;">${f.razon_social || f.motivo || "—"}</td>
+      <td>${f.remito || "—"}</td>
+      <td>${f.factura || "—"}</td>
+      <td class="font-mono">${cantidad(f.ingreso)}</td>
+      <td class="font-mono">${cantidad(f.egreso)}</td>
     </tr>
-  `).join("") || `<tr><td colspan="6" class="text-center text-muted py-4">Sin dispositivo en este estado</td></tr>`;
+  `).join("") || `<tr><td colspan="8" class="text-center text-muted py-4">Sin movimientos con este estado en la planilla</td></tr>`;
 }
 
 cargar().catch(err => mostrarError("msg-error", err.message));

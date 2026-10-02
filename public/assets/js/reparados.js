@@ -28,7 +28,7 @@ async function buscardispositivo() {
       <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
         <td class="px-3 py-2 font-mono text-[13px]">${d.mac_wifi || "—"}</td>
         <td class="px-3 py-2 font-mono text-[13px]">${d.mac_eth || "—"}</td>
-        <td class="px-3 py-2">${d.tipo_nombre || "—"}</td>
+        <td class="px-3 py-2">${htmlFotoEquipo(d.tipo_nombre)}</td>
         <td class="px-3 py-2">${badgeEstadoTW(d.estado)}</td>
         <td class="px-3 py-2">${d.deposito_nombre || "—"}</td>
         <td class="px-3 py-2">${d.cliente_nombre || "—"}</td>

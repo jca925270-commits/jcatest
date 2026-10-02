@@ -75,7 +75,7 @@
 
   <main class="main-content">
     <h1 class="page-title">Depósito</h1>
-    <p class="page-subtitle" id="subtitulo">Registros por depósito físico.</p>
+    <p class="page-subtitle" id="subtitulo">Stock de la planilla por ubicación.</p>
 
     <div id="msg-error" class="alert alert-danger d-none"></div>
 
@@ -87,7 +87,7 @@
           <div class="table-responsive">
             <table class="table table-sm table-hover">
               <thead class="table-light">
-                <tr><th>MAC WiFi</th><th>MAC Ethernet</th><th>Tipo</th><th>Estado</th><th>Cantidad</th><th>Fecha ingreso</th><th>Fecha egreso</th></tr>
+                <tr><th>Dispositivo</th><th>Stock</th><th>Ingresos</th><th>Egresos</th><th>Desde</th><th>Hasta</th></tr>
               </thead>
               <tbody id="tabla-detalle"></tbody>
             </table>
@@ -106,7 +106,9 @@ const nombreDeposito = params.get("nombre");
 
 function formatearFechaCorta(f) {
   if (!f) return "—";
-  return f;
+  const d = new Date(f);
+  if (isNaN(d)) return String(f).slice(0, 10);
+  return d.toLocaleDateString("es-AR");
 }
 
 async function cargar() {
@@ -118,15 +120,14 @@ async function cargar() {
     const filas = await apiFetch("deposito", { params: { nombre: nombreDeposito } });
     document.getElementById("tabla-detalle").innerHTML = filas.map(f => `
       <tr>
-        <td class="mac">${f.mac_wifi || "—"}</td>
-        <td class="mac">${f.mac_ethernet || "—"}</td>
-        <td>${f.tipo || "—"}</td>
-        <td>${f.estado ? badgeEstado(f.estado) : "—"}</td>
-        <td>${f.cantidad ?? "—"}</td>
+        <td>${f.nombre || f.tipo || "—"}</td>
+        <td class="font-mono">${f.cantidad ?? "—"}</td>
+        <td class="font-mono">${f.ingresos ?? "—"}</td>
+        <td class="font-mono">${f.egresos ?? "—"}</td>
         <td>${formatearFechaCorta(f.fecha_ingreso)}</td>
         <td>${formatearFechaCorta(f.fecha_egreso)}</td>
       </tr>
-    `).join("") || `<tr><td colspan="7" class="text-center text-muted py-4">Sin registros en este depósito</td></tr>`;
+    `).join("") || `<tr><td colspan="6" class="text-center text-muted py-4">Sin registros en este depósito</td></tr>`;
     return;
   }
 
@@ -138,7 +139,7 @@ async function cargar() {
       <a href="deposito.html?nombre=${encodeURIComponent(t.nombre)}" class="kanban-card">
         <div class="titulo">${t.nombre}</div>
         <div class="valor">${t.cantidad}</div>
-        <div class="subtitulo">registros</div>
+        <div class="subtitulo">unidades</div>
       </a>
     </div>
   `).join("");

@@ -1,4 +1,5 @@
 require("dotenv").config();
+const { spawn } = require("child_process");
 const express = require("express");
 const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
@@ -50,6 +51,8 @@ app.use("/api/usuarios", require("./routes/usuarios"));
 app.use("/api/reportes", require("./routes/reportes"));
 app.use("/api/accesorios", require("./routes/accesorios"));
 app.use("/api/stock", require("./routes/stock"));
+app.use("/api/deposito", require("./routes/deposito"));
+app.use("/api/estado", require("./routes/estado"));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((err, req, res, next) => {
@@ -75,9 +78,23 @@ async function start() {
       console.error("No se pudo abrir el puerto:", err.code);
       process.exit(1);
     });
+    iniciarSyncPlanilla();
   } catch (err) {
     console.error("No se pudo iniciar la conexión o las sesiones:", err.code || err.name);
     process.exit(1);
   }
 }
+function iniciarSyncPlanilla() {
+  if (!process.env.GOOGLE_SHEET_ID) return;
+  const child = spawn("python", [path.join(__dirname, "import", "sync_planilla_drive.py")], {
+    cwd: __dirname,
+    stdio: "inherit",
+    windowsHide: true,
+  });
+  child.on("error", err => console.error("No se pudo iniciar la sincronización de la planilla:", err.code || err.message));
+  child.on("exit", code => {
+    if (code) console.error("La sincronización de la planilla se detuvo. Código:", code);
+  });
+}
+
 start();

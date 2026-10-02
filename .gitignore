@@ -15,3 +15,7 @@ archivos/
 import/credenciales_google.json
 import/config_google.ini
 import/config_sync.ini
+config/ca.pem
+stock-aiven.zip
+/Sin*.png
+INSTRUCCIONES.txt

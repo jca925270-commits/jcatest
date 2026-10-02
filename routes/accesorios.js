@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
     const [rows] = await pool.query(
       `SELECT a.id, a.accesorio, a.cantidad, a.deposito_id, d.nombre AS deposito_nombre
        FROM accesorios a
-       LEFT JOIN depositos d ON d.id = a.deposito_id
+       LEFT JOIN depositos d ON d.id_deposito = a.deposito_id
        ${where}
        ORDER BY d.nombre, a.accesorio`,
       params

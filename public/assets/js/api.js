@@ -7,7 +7,8 @@
 const API_BASE = "api";
 
 async function apiFetch(endpoint, { method = "GET", body = null, params = null } = {}) {
-  const rutaLimpia = endpoint.replace(/\.php$/i, "");
+  let rutaLimpia = endpoint.replace(/\.php$/i, "");
+  if (rutaLimpia === "dispositivo") rutaLimpia = "dispositivos";
   let url = `${API_BASE}/${rutaLimpia}`;
   if (params) {
     const qs = new URLSearchParams(params).toString();
@@ -56,6 +57,24 @@ function formatearFecha(valor) {
   const d = new Date(valor.replace(" ", "T"));
   if (isNaN(d)) return valor;
   return d.toLocaleDateString("es-AR") + " " + d.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+}
+
+const FOTOS_EQUIPO = {
+  EBD: "assets/img/equipo-banner.png",
+  CUBE: "assets/img/equipo-banner.png",
+  D3: "assets/img/digital-desk.png",
+  "D3+": "assets/img/digital-desk.png",
+};
+
+function fotoEquipo(tipo) {
+  return FOTOS_EQUIPO[String(tipo || "").trim().toUpperCase()] || "";
+}
+
+function htmlFotoEquipo(tipo) {
+  const nombre = tipo || "—";
+  const src = fotoEquipo(tipo);
+  if (!src) return nombre;
+  return `<span class="equipo-con-foto"><img src="${src}" alt="${nombre}" class="equipo-foto"><span>${nombre}</span></span>`;
 }
 
 function badgeEstado(estado) {

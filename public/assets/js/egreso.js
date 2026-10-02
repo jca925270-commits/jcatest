@@ -48,7 +48,7 @@ function renderChips() {
   cont.innerHTML = EQUIPOS_A_EGRESAR.map((eq, i) => `
     <span class="equipo-chip">
       <span class="mac">${eq.mac}</span>
-      <span class="text-muted">${eq.tipo_nombre || ""}</span>
+      <span class="text-muted">${htmlFotoEquipo(eq.tipo_nombre)}</span>
       <span class="quitar" data-idx="${i}">&times;</span>
     </span>
   `).join("") || `<p class="text-muted small mb-0">Todavía no agregaste ningún equipo.</p>`;

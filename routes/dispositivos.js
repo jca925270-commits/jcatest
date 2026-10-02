@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
                 l.nombre AS lote_nombre, c.razon_social AS cliente_nombre
          FROM dispositivos d
          LEFT JOIN tipos_equipo t ON t.id = d.tipo_equipo_id
-         LEFT JOIN depositos u ON u.id = d.deposito_actual_id
+         LEFT JOIN depositos u ON u.id_deposito = d.deposito_actual_id
          LEFT JOIN lotes l ON l.id = d.lote_id
          LEFT JOIN clientes c ON c.id = d.cliente_actual_id
          WHERE d.id = ?`,
@@ -73,7 +73,7 @@ router.get("/", async (req, res) => {
               l.nombre AS lote_nombre, c.razon_social AS cliente_nombre
        FROM dispositivos d
        LEFT JOIN tipos_equipo t ON t.id = d.tipo_equipo_id
-       LEFT JOIN depositos u ON u.id = d.deposito_actual_id
+       LEFT JOIN depositos u ON u.id_deposito = d.deposito_actual_id
        LEFT JOIN lotes l ON l.id = d.lote_id
        LEFT JOIN clientes c ON c.id = d.cliente_actual_id
        ${where}

@@ -18,7 +18,7 @@ async function buscarDispositivoParaMovimiento() {
       return;
     }
     DISPOSITIVO_ACTUAL = filas[0];
-    info.innerHTML = `<span class="text-success">Encontrado: ${DISPOSITIVO_ACTUAL.tipo_nombre} —
+    info.innerHTML = `<span class="text-success">Encontrado: ${htmlFotoEquipo(DISPOSITIVO_ACTUAL.tipo_nombre)} —
       ${DISPOSITIVO_ACTUAL.mac_wifi || DISPOSITIVO_ACTUAL.mac_eth} (estado actual: ${DISPOSITIVO_ACTUAL.estado})</span>`;
   } catch (err) {
     mostrarError("msg-error", err.message);

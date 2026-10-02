@@ -168,7 +168,7 @@ async function buscar() {
             <div class="card-body d-flex flex-wrap gap-4">
               <div><div class="text-muted small">MAC WiFi</div><div class="font-mono">${d.mac_wifi || "—"}</div></div>
               <div><div class="text-muted small">MAC Ethernet</div><div class="font-mono">${d.mac_eth || "—"}</div></div>
-              <div><div class="text-muted small">Tipo</div><div>${d.tipo_nombre || "—"}</div></div>
+              <div><div class="text-muted small">Tipo</div><div>${htmlFotoEquipo(d.tipo_nombre)}</div></div>
               <div><div class="text-muted small">Estado</div><div>${badgeEstado(d.estado)}</div></div>
               <div><div class="text-muted small">Depósito</div><div>${d.deposito_nombre || "—"}</div></div>
               <div><div class="text-muted small">Cliente</div><div>${d.cliente_nombre || "—"}</div></div>

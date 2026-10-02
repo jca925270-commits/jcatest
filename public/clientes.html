@@ -75,7 +75,7 @@
 
   <main class="main-content">
     <h1 class="page-title">Clientes</h1>
-    <p class="page-subtitle">Empresas y personas asociadas a ventas, comodatos y garantías.</p>
+    <p class="page-subtitle" id="subtitulo-clientes">Razones sociales de la planilla STOCK 2026.</p>
 
     <div id="msg-error" class="alert alert-danger d-none"></div>
     <div id="msg-exito" class="alert d-none"></div>
@@ -129,7 +129,13 @@
 <script>
 async function cargarClientes() {
   const q = document.getElementById("buscador-cliente").value.trim();
-  const filas = await apiFetch("clientes.php", { params: q ? { q } : {} });
+  const params = { planilla: "1" };
+  if (q) params.q = q;
+  const filas = await apiFetch("clientes.php", { params });
+  if (!q) {
+    document.getElementById("subtitulo-clientes").textContent =
+      `${filas.length} razones sociales de la planilla STOCK 2026.`;
+  }
   document.getElementById("tabla-clientes").innerHTML = filas.map(c => `
     <tr>
       <td>${c.razon_social}</td><td>${c.email || "—"}</td><td>${c.entidad || "—"}</td><td>${c.sucursal || "—"}</td>

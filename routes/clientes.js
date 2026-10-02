@@ -8,14 +8,18 @@ router.use(requerirLogin);
 router.get("/", async (req, res) => {
   try {
     const q = (req.query.q || "").trim();
+    const soloPlanilla = req.query.planilla === "1";
+    const filtroPlanilla = soloPlanilla ? " AND planilla = 1" : "";
     let rows;
     if (q) {
       [rows] = await pool.query(
-        "SELECT * FROM clientes WHERE razon_social LIKE ? ORDER BY razon_social LIMIT 50",
+        `SELECT * FROM clientes WHERE razon_social LIKE ?${filtroPlanilla} ORDER BY razon_social LIMIT 500`,
         [`%${q}%`]
       );
     } else {
-      [rows] = await pool.query("SELECT * FROM clientes ORDER BY razon_social LIMIT 5000");
+      [rows] = await pool.query(
+        `SELECT * FROM clientes WHERE 1=1${filtroPlanilla} ORDER BY razon_social LIMIT 5000`
+      );
     }
     res.json(rows);
   } catch (e) {
