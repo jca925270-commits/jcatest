@@ -24,7 +24,9 @@ const pool = mysql.createPool({
   password: process.env.DB_PASSWORD || "",
   ...(ssl ? { ssl } : {}),
   waitForConnections: true,
-  connectionLimit: 5,
+  connectionLimit: process.env.VERCEL ? 3 : 5,
+  maxIdle: process.env.VERCEL ? 1 : 5,
+  idleTimeout: process.env.VERCEL ? 10000 : 60000,
   namedPlaceholders: true,
   connectTimeout: 15000,
 });

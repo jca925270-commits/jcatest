@@ -28,6 +28,13 @@ const sessionStore = new MySQLStore({
   endConnectionOnClose: false,
 }, pool);
 sessionStore.on("error", err => console.error("Error de sesiones:", err.code || "SESSION_ERROR"));
+const sesionesListas = sessionStore.onReady();
+app.use((req, res, next) => {
+  sesionesListas.then(() => next()).catch(err => {
+    console.error("Error de sesiones:", err.code || err.name || "SESSION_ERROR");
+    if (!res.headersSent) res.status(500).json({ error: "Error interno del servidor" });
+  });
+});
 app.use(session({
   secret: process.env.SESSION_SECRET,
   store: sessionStore,
@@ -97,4 +104,8 @@ function iniciarSyncPlanilla() {
   });
 }
 
-start();
+module.exports = app;
+
+if (!process.env.VERCEL) {
+  start();
+}

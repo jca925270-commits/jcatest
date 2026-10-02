@@ -114,3 +114,27 @@ stock-node/
 ├── sql/                    Esquema y migraciones (sin cambios)
 └── import/                 Scripts Python de sincronización (sin cambios)
 ```
+
+## 8. Alojamiento en Vercel
+
+El frontend (`public/`) lo sirve el CDN de Vercel. La API de Express queda
+como una función. En local no cambia nada: `npm start` sigue abriendo el
+puerto y la sincronización de la planilla.
+
+1. En [vercel.com](https://vercel.com) importá el repositorio de GitHub
+   `jca925270-commits/jcatest`. El directorio del proyecto es este.
+2. No hace falta comando de build. El archivo de entrada es `server.js`.
+3. En Settings → Environment Variables cargá los mismos datos del `.env`,
+   con estas diferencias:
+   - `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASSWORD` de un MySQL
+     público. Vercel no puede conectarse a `127.0.0.1` de tu PC.
+   - Si el host es Aiven, `DB_SSL=true` y `DB_SSL_CA` con el certificado
+     (el archivo `config/ca.pem` no se sube a git).
+   - `SESSION_SECRET` con una clave de al menos 32 caracteres.
+   - `NODE_ENV=production`.
+4. Hacé el deploy. La app queda en la URL que te da Vercel, por ejemplo
+   `https://tu-proyecto.vercel.app/login.html`.
+
+La sincronización de Google Sheets (`import/sync_planilla_drive.py`) sigue
+corriendo solo cuando arrancás el servidor en tu PC. Vercel no mantiene ese
+proceso de Python.
