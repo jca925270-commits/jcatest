@@ -19,7 +19,7 @@ from openpyxl import load_workbook
 from importar_stock_cantidad import a_fecha, limpiar_texto
 from sync_planilla_drive import conectar, descargar, leer_env, log
 
-SHEET_MAC_ID = "1kzUJvelU8QDqThQkYHE2v2Anc0xW9avSTWQeCGWj_gY"
+SHEET_MAC_ID = "1doNJ0X-qHquvw2ccdra5jWaVVMpLYvEO"
 
 HOJAS = (
     ("Ingreso EBD Oficina", "ingreso", "trazabilidad_ingreso_ebd"),
@@ -72,6 +72,18 @@ def texto_corto(valor, largo):
     if not texto or texto == "-":
         return None
     return texto[:largo]
+
+
+def numero_equipo(*valores):
+    patron = re.compile(r"EQUIPO\s*\(?\s*(\d+)", re.I)
+    for valor in valores:
+        texto = limpiar_texto(valor)
+        if not texto:
+            continue
+        hallado = patron.search(texto)
+        if hallado:
+            return hallado.group(1)
+    return None
 
 
 def caja(valor):
@@ -155,6 +167,7 @@ def parsear(ruta):
                         "mac_eth": mac(celda(vals, columnas.get("mac_eth"))),
                         "lote": texto_corto(celda(vals, columnas.get("lote")), 80),
                         "caja": caja(celda(vals, columnas.get("caja"))),
+                        "numero_equipo": numero_equipo(celda(vals, columnas.get("caja"))),
                         "origen_fila": numero,
                     }
                 else:
@@ -167,6 +180,10 @@ def parsear(ruta):
                         "mac_eth": mac(celda(vals, columnas.get("mac_eth"))),
                         "lote": texto_corto(celda(vals, columnas.get("lote")), 80),
                         "caja": caja(celda(vals, columnas.get("caja"))),
+                        "numero_equipo": numero_equipo(
+                            celda(vals, columnas.get("cliente")),
+                            celda(vals, columnas.get("caja")),
+                        ),
                         "origen_fila": numero,
                     }
                 if fila_vacia(registro):
@@ -189,6 +206,19 @@ def asegurar_tablas(cnx):
         sentencia = sentencia.strip()
         if sentencia and not sentencia.upper().startswith("USE "):
             cur.execute(sentencia)
+    for tabla in (
+        "trazabilidad_ingreso_ebd",
+        "trazabilidad_ingreso_d3",
+        "trazabilidad_egreso_ebd",
+        "trazabilidad_egreso_d3",
+    ):
+        cur.execute(
+            """SELECT COUNT(*) FROM information_schema.COLUMNS
+               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'numero_equipo'""",
+            (tabla,),
+        )
+        if cur.fetchone()[0] == 0:
+            cur.execute(f"ALTER TABLE {tabla} ADD COLUMN numero_equipo VARCHAR(20) NULL")
     cnx.commit()
 
 
@@ -200,8 +230,8 @@ def aplicar(cnx, hojas):
         if hoja["tipo"] == "ingreso":
             sql = f"""INSERT INTO {tabla}
                 (fecha_llegada, fecha_llegada_texto, fecha_carga, fecha_carga_texto,
-                 mac_wifi, mac_eth, lote, caja, origen_fila)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                 mac_wifi, mac_eth, lote, caja, numero_equipo, origen_fila)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE
                   fecha_llegada=VALUES(fecha_llegada),
                   fecha_llegada_texto=VALUES(fecha_llegada_texto),
@@ -210,17 +240,18 @@ def aplicar(cnx, hojas):
                   mac_wifi=VALUES(mac_wifi),
                   mac_eth=VALUES(mac_eth),
                   lote=VALUES(lote),
-                  caja=VALUES(caja)"""
+                  caja=VALUES(caja),
+                  numero_equipo=VALUES(numero_equipo)"""
             datos = [
                 (f["fecha_llegada"], f["fecha_llegada_texto"], f["fecha_carga"], f["fecha_carga_texto"],
-                 f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["origen_fila"])
+                 f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["numero_equipo"], f["origen_fila"])
                 for f in hoja["filas"]
             ]
         else:
             sql = f"""INSERT INTO {tabla}
                 (cliente, fecha_despacho, fecha_despacho_texto,
-                 mac_wifi, mac_eth, lote, caja, origen_fila)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                 mac_wifi, mac_eth, lote, caja, numero_equipo, origen_fila)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE
                   cliente=VALUES(cliente),
                   fecha_despacho=VALUES(fecha_despacho),
@@ -228,10 +259,11 @@ def aplicar(cnx, hojas):
                   mac_wifi=VALUES(mac_wifi),
                   mac_eth=VALUES(mac_eth),
                   lote=VALUES(lote),
-                  caja=VALUES(caja)"""
+                  caja=VALUES(caja),
+                  numero_equipo=VALUES(numero_equipo)"""
             datos = [
                 (f["cliente"], f["fecha_despacho"], f["fecha_despacho_texto"],
-                 f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["origen_fila"])
+                 f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["numero_equipo"], f["origen_fila"])
                 for f in hoja["filas"]
             ]
         if not datos:

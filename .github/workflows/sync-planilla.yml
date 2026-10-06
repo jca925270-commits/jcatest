@@ -30,7 +30,7 @@ jobs:
           DB_SSL: "true"
           DB_SSL_CA: ${{ secrets.DB_SSL_CA }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-          GOOGLE_SHEET_MAC_ID: "1kzUJvelU8QDqThQkYHE2v2Anc0xW9avSTWQeCGWj_gY"
+          GOOGLE_SHEET_MAC_ID: "1doNJ0X-qHquvw2ccdra5jWaVVMpLYvEO"
           GOOGLE_SHEET_SOPORTE_ID: "1b6zpjoQjgn6bkx6zCBZKgWDAjZ0cWG0x4OPEXJVvNHQ"
           GOOGLE_SHEET_TESTEO_ID: "16Ag2IJwMRHQSkrRIO8pC9ea4dxcSab6EC3TGKg0XmTI"
         run: python import/sync_planilla_drive.py --una-vez

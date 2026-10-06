@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Trazabilidad de Macs — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>SOPORTE Y LOGISTICA</small></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <a href="dispositivo.html" class="nav-link">📦 dispositivo</a>
+      <a href="reparados.html" class="nav-link">🔧 Reparados y Reutilizados</a>
+
+      <details class="nav-group">
+        <summary>🔄 Movimientos</summary>
+        <a href="ingreso.html" class="sub-link">Ingreso</a>
+        <a href="egreso.html" class="sub-link">Egreso</a>
+        <a href="movimientos.html" class="sub-link">Todos</a>
+        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
+        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
+        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
+        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+      </details>
+
+      <a href="soporte.html" class="nav-link">🛠️ Soporte Técnico</a>
+
+      <details class="nav-group">
+        <summary>🏭 Depósito</summary>
+        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
+        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏷️ Estado</summary>
+        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+        <a href="testeo.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+        <a href="testeo.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+        <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
+        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+        <a href="dispositivo.html" class="sub-link">dispositivo</a>
+        <a href="deposito.html" class="sub-link">Depósito</a>
+      </details>
+
+      <details class="nav-group" open>
+        <summary><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+        <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+        <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+        <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+        <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+      </details>
+
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <a href="reportes.html" class="nav-link">📈 Reportes</a>
+      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="page-title">Trazabilidad de Macs</h1>
+    <p class="page-subtitle" id="subtitulo">Equipos de la planilla de MAC.</p>
+    <p class="page-subtitle" id="resumen"></p>
+
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+
+    <div class="row g-2 mb-3">
+      <div class="col-md-5">
+        <input type="search" class="form-control" id="buscador" placeholder="Buscar por MAC, cliente, lote, caja o número de equipo">
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="tabla-scroll">
+          <table class="table table-sm table-hover">
+            <thead class="table-light" id="thead-tabla"></thead>
+            <tbody id="tabla"></tbody>
+          </table>
+        </div>
+        <div id="paginacion-trazabilidad"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script>
+const hoja = new URLSearchParams(location.search).get("hoja") || "ingreso_ebd";
+let filas = [];
+let tipo = "ingreso";
+let pagina = 1;
+
+document.querySelectorAll('a.sub-link[href*="trazabilidad.html"]').forEach((enlace) => {
+  const url = new URL(enlace.getAttribute("href"), location.href);
+  if (url.searchParams.get("hoja") === hoja) {
+    enlace.classList.add("active");
+    const grupo = enlace.closest("details");
+    if (grupo) grupo.open = true;
+  }
+});
+
+function fechaCorta(f) {
+  if (!f) return "";
+  const m = String(f).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${Number(m[3])}/${Number(m[2])}/${m[1]}`;
+  return String(f);
+}
+
+function fecha(valor, texto) {
+  return texto || fechaCorta(valor) || "—";
+}
+
+function texto(valor) {
+  return valor || "—";
+}
+
+function pintar() {
+  const q = document.getElementById("buscador").value.trim().toLowerCase();
+  const visibles = filas.filter((f) => {
+    if (!q) return true;
+    return [f.mac_wifi, f.mac_eth, f.cliente, f.lote, f.caja, f.numero_equipo].some((v) => String(v || "").toLowerCase().includes(q));
+  });
+  const corte = paginar(visibles, pagina);
+  pagina = corte.pagina;
+  document.getElementById("resumen").textContent = q
+    ? `${visibles.length} de ${filas.length} equipos · página ${corte.pagina} de ${corte.total}`
+    : `${visibles.length} equipos · página ${corte.pagina} de ${corte.total}`;
+  document.getElementById("paginacion-trazabilidad").innerHTML = htmlPaginacion(corte.pagina, corte.total);
+
+  if (tipo === "ingreso") {
+    document.getElementById("thead-tabla").innerHTML =
+      "<tr><th>Fecha de llegada</th><th>Fecha de carga</th><th>MAC WIFI</th><th>MAC ETH</th><th>Lote</th><th>Caja</th><th>Número de equipo</th></tr>";
+    document.getElementById("tabla").innerHTML = corte.filas.map((f) => `
+      <tr>
+        <td>${fecha(f.fecha_llegada, f.fecha_llegada_texto)}</td>
+        <td>${fecha(f.fecha_carga, f.fecha_carga_texto)}</td>
+        <td class="font-monospace">${texto(f.mac_wifi)}</td>
+        <td class="font-monospace">${texto(f.mac_eth)}</td>
+        <td>${texto(f.lote)}</td>
+        <td>${texto(f.caja)}</td>
+        <td>${texto(f.numero_equipo)}</td>
+      </tr>
+    `).join("") || `<tr><td colspan="7" class="text-center text-muted py-4">Sin equipos en esta pestaña</td></tr>`;
+    return;
+  }
+
+  document.getElementById("thead-tabla").innerHTML =
+    "<tr><th>Cliente</th><th>Fecha de despacho</th><th>MAC WIFI</th><th>MAC ETH</th><th>Lote</th><th>Caja</th><th>Número de equipo</th></tr>";
+  document.getElementById("tabla").innerHTML = corte.filas.map((f) => `
+    <tr>
+      <td class="col-texto">${texto(f.cliente)}</td>
+      <td>${fecha(f.fecha_despacho, f.fecha_despacho_texto)}</td>
+      <td class="font-monospace">${texto(f.mac_wifi)}</td>
+      <td class="font-monospace">${texto(f.mac_eth)}</td>
+      <td>${texto(f.lote)}</td>
+      <td>${texto(f.caja)}</td>
+      <td>${texto(f.numero_equipo)}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="7" class="text-center text-muted py-4">Sin equipos en esta pestaña</td></tr>`;
+}
+
+async function cargar() {
+  const data = await apiFetch("trazabilidad", { params: { hoja } });
+  tipo = data.tipo;
+  filas = data.filas || [];
+  document.getElementById("subtitulo").textContent = data.titulo;
+  document.title = `${data.titulo} — Trazabilidad de Macs`;
+  pintar();
+}
+
+document.getElementById("buscador").addEventListener("input", () => {
+  pagina = 1;
+  pintar();
+});
+document.getElementById("paginacion-trazabilidad").addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-pagina]");
+  if (!boton || boton.disabled) return;
+  pagina = Number(boton.dataset.pagina);
+  pintar();
+});
+cargar().catch((err) => mostrarError("msg-error", err.message));
+</script>
+</body>
+</html>
