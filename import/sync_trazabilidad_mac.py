@@ -91,7 +91,14 @@ def caja(valor):
         return str(int(valor))
     if isinstance(valor, int) and not isinstance(valor, bool):
         return str(valor)
-    return texto_corto(valor, 40)
+    texto = limpiar_texto(valor)
+    if not texto:
+        return None
+    texto = re.sub(r"\(?\s*equipo\s*\(?\s*\d+\s*\)?", " ", texto, flags=re.I)
+    texto = re.sub(r"\s+", " ", texto).strip(" -")
+    if not texto or texto == "-":
+        return None
+    return texto[:40]
 
 
 def fecha_o_texto(valor, largo=40):
