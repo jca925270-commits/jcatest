@@ -47,7 +47,7 @@ AVISO_COMPARTIR = (
 CLAVES_ENTORNO = (
     "DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD",
     "DB_SSL", "DB_SSL_CA", "DB_SSL_CA_PATH",
-    "GOOGLE_SHEET_ID", "SYNC_INTERVAL_SEC",
+    "GOOGLE_SHEET_ID", "GOOGLE_SHEET_MAC_ID", "GOOGLE_SHEET_SOPORTE_ID", "GOOGLE_SHEET_TESTEO_ID", "SYNC_INTERVAL_SEC",
 )
 
 
@@ -262,6 +262,7 @@ def conectar():
         "database": env.get("DB_NAME", "stock_db"),
         "user": env.get("DB_USER", "root"),
         "password": env.get("DB_PASSWORD", ""),
+        "charset": "utf8mb4",
     }
     if env.get("DB_SSL", "").lower() == "true" or host.endswith(".aivencloud.com"):
         ca_inline = env.get("DB_SSL_CA", "").replace("\\n", "\n").strip()
@@ -312,18 +313,48 @@ def probar(ruta):
             print(f"  {categoria['stock']}\t{categoria['nombre']}")
 
 
+def sincronizar_mac(destino=None):
+    from sync_trazabilidad_mac import aplicar_archivo, sheet_id as mac_sheet_id
+    if destino is None:
+        destino = os.path.join(tempfile.gettempdir(), "stock-mac.xlsx")
+        descargar(mac_sheet_id(), destino)
+    aplicar_archivo(destino)
+
+
+def sincronizar_soporte(destino=None):
+    from sync_soporte_planilla import aplicar_archivo, sheet_id as soporte_sheet_id
+    if destino is None:
+        destino = os.path.join(tempfile.gettempdir(), "stock-soporte.xlsx")
+        descargar(soporte_sheet_id(), destino)
+    aplicar_archivo(destino)
+
+
+def sincronizar_testeo(destino=None):
+    from sync_testeo_planilla import aplicar_archivo, sheet_id as testeo_sheet_id
+    if destino is None:
+        destino = os.path.join(tempfile.gettempdir(), "stock-testeo.xlsx")
+        descargar(testeo_sheet_id(), destino)
+    aplicar_archivo(destino)
+
+
 def vigilar():
     env = leer_env()
     sheet_id = env.get("GOOGLE_SHEET_ID", "").strip()
     if not sheet_id:
         log.error("Falta GOOGLE_SHEET_ID en .env")
         sys.exit(1)
-    intervalo = max(10, int(env.get("SYNC_INTERVAL_SEC", "15")))
+    intervalo = max(60, int(env.get("SYNC_INTERVAL_SEC", "300")))
     ultimo = None
+    ultimo_mac = None
+    ultimo_soporte = None
+    ultimo_testeo = None
     aviso = 0
-    log.info("Sincronización de la planilla cada %s segundos", intervalo)
+    log.info("Sincronización de las planillas cada %s segundos", intervalo)
     while True:
         destino = os.path.join(tempfile.gettempdir(), "stock-planilla.xlsx")
+        destino_mac = os.path.join(tempfile.gettempdir(), "stock-mac.xlsx")
+        destino_soporte = os.path.join(tempfile.gettempdir(), "stock-soporte.xlsx")
+        destino_testeo = os.path.join(tempfile.gettempdir(), "stock-testeo.xlsx")
         try:
             firma = descargar(sheet_id, destino)
             if firma != ultimo:
@@ -340,6 +371,36 @@ def vigilar():
                 log.error("No se pudo descargar la planilla: HTTP %s", error.code)
         except Exception as error:
             log.error("La sincronización falló: %s", error)
+        try:
+            from sync_trazabilidad_mac import sheet_id as mac_sheet_id
+            firma_mac = descargar(mac_sheet_id(), destino_mac)
+            if firma_mac != ultimo_mac:
+                sincronizar_mac(destino_mac)
+                ultimo_mac = firma_mac
+        except urllib.error.HTTPError as error:
+            log.error("No se pudo descargar la planilla de MAC: HTTP %s", error.code)
+        except Exception as error:
+            log.error("La sincronización de MAC falló: %s", error)
+        try:
+            from sync_soporte_planilla import sheet_id as soporte_sheet_id
+            firma_soporte = descargar(soporte_sheet_id(), destino_soporte)
+            if firma_soporte != ultimo_soporte:
+                sincronizar_soporte(destino_soporte)
+                ultimo_soporte = firma_soporte
+        except urllib.error.HTTPError as error:
+            log.error("No se pudo descargar la planilla de soporte: HTTP %s", error.code)
+        except Exception as error:
+            log.error("La sincronización de soporte falló: %s", error)
+        try:
+            from sync_testeo_planilla import sheet_id as testeo_sheet_id
+            firma_testeo = descargar(testeo_sheet_id(), destino_testeo)
+            if firma_testeo != ultimo_testeo:
+                sincronizar_testeo(destino_testeo)
+                ultimo_testeo = firma_testeo
+        except urllib.error.HTTPError as error:
+            log.error("No se pudo descargar la planilla de testeo: HTTP %s", error.code)
+        except Exception as error:
+            log.error("La sincronización de testeo falló: %s", error)
         time.sleep(intervalo)
 
 
@@ -352,11 +413,23 @@ def una_vez():
     destino = os.path.join(tempfile.gettempdir(), "stock-planilla.xlsx")
     descargar(sheet_id, destino)
     sincronizar_archivo(destino)
+    sincronizar_mac()
+    sincronizar_soporte()
+    sincronizar_testeo()
 
 
 def main():
     if len(sys.argv) >= 2 and sys.argv[1] == "--una-vez":
         una_vez()
+        return
+    if len(sys.argv) >= 2 and sys.argv[1] == "--solo-mac":
+        sincronizar_mac()
+        return
+    if len(sys.argv) >= 2 and sys.argv[1] == "--solo-soporte":
+        sincronizar_soporte()
+        return
+    if len(sys.argv) >= 2 and sys.argv[1] == "--solo-testeo":
+        sincronizar_testeo()
         return
     if len(sys.argv) >= 3 and sys.argv[1] == "--probar":
         probar(sys.argv[2])
