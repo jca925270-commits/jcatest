@@ -25,12 +25,14 @@ log = logging.getLogger("importar_stock_cantidad")
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), "config_sync.ini"))
-DB_CFG = {
-    "host": CONFIG["db"]["host"],
-    "database": CONFIG["db"]["database"],
-    "user": CONFIG["db"]["user"],
-    "password": CONFIG["db"]["password"],
-}
+DB_CFG = None
+if CONFIG.has_section("db"):
+    DB_CFG = {
+        "host": CONFIG["db"]["host"],
+        "database": CONFIG["db"]["database"],
+        "user": CONFIG["db"]["user"],
+        "password": CONFIG["db"]["password"],
+    }
 
 # Offset fijo observado en la planilla: la fila de encabezados de columna
 # ("FECHA", "ESTADO", ... "EBD\nIngreso", ...) está 3 filas debajo de la
@@ -172,6 +174,10 @@ def main():
     ruta = sys.argv[1]
     if not os.path.exists(ruta):
         log.error("No se encuentra el archivo: %s", ruta)
+        sys.exit(1)
+
+    if not DB_CFG:
+        log.error("Falta import/config_sync.ini con la seccion [db]")
         sys.exit(1)
 
     wb = load_workbook(ruta, data_only=True, read_only=True)
