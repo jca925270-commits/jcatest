@@ -99,7 +99,9 @@ router.post("/ingreso", requerirRol(["admin", "operador"]), async (req, res) => 
     if (!razon && !dispositivo && !mac) {
       return res.status(400).json({ error: "Completá al menos la razón social, el dispositivo o una MAC." });
     }
-    const fecha = /^\d{4}-\d{2}-\d{2}$/.test(String(b.fecha || "")) ? b.fecha : new Date().toISOString().slice(0, 10);
+    const fecha = /^\d{4}-\d{2}-\d{2}$/.test(String(b.fecha || ""))
+      ? b.fecha
+      : new Date().toLocaleDateString("en-CA", { timeZone: "America/Argentina/Buenos_Aires" });
     const conn = await pool.getConnection();
     try {
       await conn.beginTransaction();

@@ -41,9 +41,16 @@ async function cargarOpciones() {
   document.getElementById("razon").querySelector('option[value="__otro__"]')?.remove();
 }
 
+function fechaHoy() {
+  const hoy = new Date();
+  const mes = String(hoy.getMonth() + 1).padStart(2, "0");
+  const dia = String(hoy.getDate()).padStart(2, "0");
+  return `${hoy.getFullYear()}-${mes}-${dia}`;
+}
+
 function limpiarFormulario() {
   document.getElementById("form-ingreso").reset();
-  document.getElementById("fecha").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("fecha").value = fechaHoy();
   document.getElementById("instancia").value = "PENDIENTE";
   ["caja-dispositivo", "caja-correo"].forEach((id) => document.getElementById(id).classList.add("d-none"));
   document.getElementById("msg-error").classList.add("d-none");
@@ -92,5 +99,5 @@ document.getElementById("form-ingreso").addEventListener("submit", async (evento
   }
 });
 
-document.getElementById("fecha").value = new Date().toISOString().slice(0, 10);
+document.getElementById("fecha").value = fechaHoy();
 cargarOpciones().catch((err) => mostrarError("msg-error", err.message));
