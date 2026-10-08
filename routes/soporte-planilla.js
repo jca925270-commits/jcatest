@@ -6,15 +6,11 @@ const router = express.Router();
 router.use(requerirLogin);
 
 const COLUMNAS_INGRESO = [
-  ["perifericos", "VARCHAR(255) NULL"],
-  ["codigo_seguimiento", "VARCHAR(80) NULL"],
   ["deposito", "VARCHAR(120) NULL"],
-  ["lote", "VARCHAR(80) NULL"],
-  ["remito", "VARCHAR(80) NULL"],
-  ["factura", "VARCHAR(80) NULL"],
   ["caja", "VARCHAR(40) NULL"],
   ["origen", "VARCHAR(20) NOT NULL DEFAULT 'planilla'"],
 ];
+const COLUMNAS_QUITAR_INGRESO = ["perifericos", "codigo_seguimiento", "lote", "remito", "factura", "num_ticket"];
 
 async function asegurarColumnasIngreso() {
   for (const [nombre, tipo] of COLUMNAS_INGRESO) {
@@ -24,6 +20,14 @@ async function asegurarColumnasIngreso() {
       [nombre]
     );
     if (!Number(c)) await pool.query(`ALTER TABLE ingreso_soporte ADD COLUMN ${nombre} ${tipo}`);
+  }
+  for (const nombre of COLUMNAS_QUITAR_INGRESO) {
+    const [[{ c }]] = await pool.query(
+      `SELECT COUNT(*) c FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ingreso_soporte' AND COLUMN_NAME = ?`,
+      [nombre]
+    );
+    if (Number(c)) await pool.query(`ALTER TABLE ingreso_soporte DROP COLUMN ${nombre}`);
   }
 }
 
@@ -42,8 +46,8 @@ const CONSULTAS = {
   ingreso: `SELECT DATE_FORMAT(fecha_ingreso, '%Y-%m-%d') AS fecha, fecha_ingreso_texto AS fecha_texto,
       razsocial_agreg, razon_social, dispositivo_ingreso AS dispositivo, estado_ingreso AS estado,
       mac, NULL AS envio_retiro, correo_ingreso AS correo, segui_ingreso AS seguimiento,
-      codigo_seguimiento, num_ticket, obs_encomienda_ingreso AS observacion, con_soporte_ingreso AS contacto,
-      motivo, instancia_gestion, mac_wifi, mac_eth, perifericos, deposito, lote, remito, factura, caja, origen
+      obs_encomienda_ingreso AS observacion, con_soporte_ingreso AS contacto,
+      motivo, instancia_gestion, mac_wifi, mac_eth, deposito, caja, origen
     FROM ingreso_soporte ORDER BY fecha_ingreso IS NULL, fecha_ingreso DESC, origen_fila DESC`,
   egreso: `SELECT DATE_FORMAT(fecha_egreso, '%Y-%m-%d') AS fecha, fecha_egreso_texto AS fecha_texto,
       razsocial_agreg, razon_social, dispositivo_egreso AS dispositivo, estado_egreso AS estado,
@@ -62,19 +66,27 @@ router.get("/opciones", async (req, res) => {
     };
     const [tipos] = await pool.query("SELECT nombre FROM tipos_equipo ORDER BY nombre");
     const [depositos] = await pool.query("SELECT nombre FROM depositos ORDER BY nombre");
-    const [lotes] = await pool.query("SELECT nombre FROM lotes ORDER BY nombre");
     const dispositivosHoja = await distintos(
       "SELECT DISTINCT dispositivo_ingreso AS v FROM ingreso_soporte WHERE dispositivo_ingreso IS NOT NULL AND dispositivo_ingreso <> '' ORDER BY v"
     );
     const dispositivos = [...new Set([...dispositivosHoja, ...tipos.map((t) => t.nombre)])].sort((a, b) => a.localeCompare(b, "es"));
+    const [clientes] = await pool.query(
+      "SELECT DISTINCT TRIM(razon_social) AS v FROM clientes WHERE razon_social IS NOT NULL AND TRIM(razon_social) <> ''"
+    );
+    const vistas = new Map();
+    for (const fila of clientes) {
+      const nombre = String(fila.v || "").trim();
+      const clave = nombre.toLocaleLowerCase("es");
+      if (nombre && !vistas.has(clave)) vistas.set(clave, nombre);
+    }
+    const razones = [...vistas.values()].sort((a, b) => a.localeCompare(b, "es"));
     res.json({
-      razones: await distintos("SELECT DISTINCT razon_social AS v FROM ingreso_soporte WHERE razon_social IS NOT NULL AND razon_social <> '' ORDER BY v"),
+      razones,
       dispositivos,
       estados: await distintos("SELECT DISTINCT estado_ingreso AS v FROM ingreso_soporte WHERE estado_ingreso IS NOT NULL AND estado_ingreso <> '' ORDER BY v"),
       carriers: await distintos("SELECT DISTINCT correo_ingreso AS v FROM ingreso_soporte WHERE correo_ingreso IS NOT NULL AND correo_ingreso <> '' ORDER BY v"),
       instancias: await distintos("SELECT DISTINCT instancia_gestion AS v FROM ingreso_soporte WHERE instancia_gestion IS NOT NULL AND instancia_gestion <> '' ORDER BY v"),
       depositos: depositos.map((d) => d.nombre),
-      lotes: lotes.map((l) => l.nombre),
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -85,8 +97,8 @@ router.post("/ingreso", requerirRol(["admin", "operador"]), async (req, res) => 
   try {
     await asegurarColumnasIngreso();
     const b = req.body || {};
-    const razonLista = texto(b.razon_social, 255);
-    const razonNueva = texto(b.razsocial_agreg, 255);
+    const razonLista = texto(String(b.razon_social || "").replace(/\s+/g, " "), 200);
+    const razonNueva = texto(String(b.razsocial_agreg || "").replace(/\s+/g, " "), 200);
     const razon = razonLista || razonNueva;
     const dispositivo = texto(b.dispositivo, 120) || texto(b.dispositivo_otro, 120);
     const macTexto = texto(b.mac, 80);
@@ -109,13 +121,20 @@ router.post("/ingreso", requerirRol(["admin", "operador"]), async (req, res) => 
         "SELECT COALESCE(MIN(CASE WHEN origen_fila < 0 THEN origen_fila END), 0) - 1 AS n FROM ingreso_soporte FOR UPDATE"
       );
       const origenFila = Number(fila.n);
+      if (razonNueva) {
+        const [[ya]] = await conn.query(
+          "SELECT id FROM clientes WHERE LOWER(TRIM(razon_social)) = LOWER(?) LIMIT 1",
+          [razonNueva]
+        );
+        if (!ya) await conn.query("INSERT INTO clientes (razon_social, planilla) VALUES (?, 0)", [razonNueva]);
+      }
       await conn.query(
         `INSERT INTO ingreso_soporte (
            fecha_ingreso, razsocial_agreg, razon_social, dispositivo_ingreso, estado_ingreso,
-           mac, segui_ingreso, correo_ingreso, codigo_seguimiento, num_ticket, obs_encomienda_ingreso,
-           con_soporte_ingreso, motivo, instancia_gestion, mac_wifi, mac_eth, perifericos,
-           deposito, lote, remito, factura, caja, origen, origen_fila
-         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'sitio', ?)`,
+           mac, segui_ingreso, correo_ingreso, obs_encomienda_ingreso,
+           con_soporte_ingreso, motivo, instancia_gestion, mac_wifi, mac_eth,
+           deposito, caja, origen, origen_fila
+         ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'sitio', ?)`,
         [
           fecha,
           razonNueva,
@@ -125,19 +144,13 @@ router.post("/ingreso", requerirRol(["admin", "operador"]), async (req, res) => 
           mac,
           texto(b.seguimiento, 80),
           texto(b.correo, 80) || texto(b.correo_otro, 80),
-          texto(b.codigo_seguimiento, 80),
-          texto(b.num_ticket, 80),
           texto(b.observacion, 4000),
           texto(b.contacto, 255),
           texto(b.motivo, 255),
           texto(b.instancia_gestion, 80) || "PENDIENTE",
           macWifi,
           macEth,
-          texto(b.perifericos, 255),
           texto(b.deposito, 120),
-          texto(b.lote, 80),
-          texto(b.remito, 80),
-          texto(b.factura, 80),
           texto(b.caja, 40),
           origenFila,
         ]

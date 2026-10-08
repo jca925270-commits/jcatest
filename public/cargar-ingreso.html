@@ -9,8 +9,35 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <link href="assets/css/styles.css" rel="stylesheet">
 <style>
-  .form-logistica { max-width: 760px; }
-  .seccion-form { color: #ffb5a0; font-size: .72rem; font-weight: 700; letter-spacing: .14em; margin: 1.25rem 0 .7rem; }
+  .card:has(.razon-panel:not(.d-none)) { overflow: visible; position: relative; z-index: 40; }
+  .razon-buscar { position: relative; }
+  .razon-buscar > .form-select { color: var(--text); }
+  .razon-panel {
+    position: absolute;
+    z-index: 30;
+    left: 0;
+    right: 0;
+    margin-top: .35rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: .5rem;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .45);
+  }
+  .razon-lista { max-height: 240px; overflow: auto; margin-top: .45rem; }
+  .razon-opcion {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    color: var(--text);
+    border-radius: 8px;
+    padding: .45rem .6rem;
+    font-size: .92rem;
+  }
+  .razon-opcion:hover, .razon-opcion.activa { background: var(--surface-alt); color: #fff; }
+  .razon-vacio { color: var(--text-muted); font-size: .85rem; padding: .45rem .6rem; }
 </style>
 </head>
 <body>
@@ -36,7 +63,6 @@
 
       <details class="nav-group" open>
         <summary>🛠️ Soporte Técnico</summary>
-        <a href="soporte.html" class="sub-link">Soporte Técnico</a>
         <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
       </details>
 
@@ -92,137 +118,140 @@
 
   <main class="main-content">
     <h1 class="page-title">Cargar Ingreso</h1>
-    <p class="page-subtitle">Logística · Ingresos. El registro queda en ingreso_soporte y en Movimientos → Ingreso.</p>
+    <p class="page-subtitle">Registrá un ingreso de logística. Queda junto a los demás en Movimientos → Ingreso.</p>
 
     <div id="msg-error" class="alert alert-danger d-none"></div>
     <div id="msg-exito" class="alert d-none"></div>
 
-    <form id="form-ingreso" class="card border-0 shadow-sm form-logistica" data-requiere-escritura>
-      <div class="card-body">
-        <div class="seccion-form">IDENTIFICACIÓN</div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="razon">Razón social</label>
-          <select class="form-select" id="razon"><option value="">Seleccionar…</option></select>
+    <form id="form-ingreso" data-requiere-escritura>
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Identificación</h2>
+          <div class="row g-2 mb-1">
+            <div class="col-md-4">
+              <label class="form-label small mb-1" for="razon-boton">Razón social</label>
+              <div class="razon-buscar" id="razon-widget">
+                <button type="button" class="form-select text-start" id="razon-boton" aria-expanded="false">Seleccionar…</button>
+                <div class="razon-panel d-none" id="razon-panel">
+                  <input type="text" class="form-control" id="razon-filtro" placeholder="Escribí el nombre para buscar" autocomplete="off">
+                  <div class="razon-lista" id="razon-lista"></div>
+                </div>
+                <input type="hidden" id="razon" value="">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small mb-1" for="razon-nueva">Nueva razón social</label>
+              <input type="text" class="form-control" id="razon-nueva" placeholder="Si no está en la lista">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small mb-1" for="contacto">Contacto</label>
+              <input type="text" class="form-control" id="contacto" placeholder="Quien deja o retira">
+            </div>
+          </div>
         </div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="razon-nueva">Agregar razón social si no está en la lista</label>
-          <input type="text" class="form-control" id="razon-nueva" placeholder="Escribir nueva razón social">
-        </div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="contacto">Contacto</label>
-          <input type="text" class="form-control" id="contacto" placeholder="Nombre de quien deja o retira">
-        </div>
+      </div>
 
-        <div class="seccion-form">DISPOSITIVOS</div>
-        <div class="row g-2 mb-2">
-          <div class="col-md-8">
-            <label class="form-label small mb-1" for="dispositivo">Dispositivo</label>
-            <select class="form-select" id="dispositivo"><option value="">Seleccionar…</option></select>
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Dispositivo</h2>
+          <div class="row g-2 mb-2">
+            <div class="col-md-5">
+              <label class="form-label small mb-1" for="dispositivo">Dispositivo</label>
+              <select class="form-select" id="dispositivo"><option value="">Seleccionar…</option></select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small mb-1" for="estado">Estado</label>
+              <select class="form-select" id="estado"><option value="">Seleccionar…</option></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small mb-1" for="caja">Caja N°</label>
+              <input type="text" class="form-control" id="caja">
+            </div>
           </div>
-          <div class="col-md-4">
-            <label class="form-label small mb-1" for="estado">Estado</label>
-            <select class="form-select" id="estado"><option value="">Seleccionar…</option></select>
+          <div class="row g-2 mb-2 d-none" id="caja-dispositivo">
+            <div class="col-md-4">
+              <label class="form-label small mb-1" for="dispositivo-otro">Otro dispositivo</label>
+              <input type="text" class="form-control" id="dispositivo-otro">
+            </div>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-4">
+              <label class="form-label small mb-1" for="mac">MAC</label>
+              <input type="text" class="form-control font-mono" id="mac" placeholder="AA:BB:CC:DD:EE:FF">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small mb-1" for="mac-wifi">MAC WiFi</label>
+              <input type="text" class="form-control font-mono" id="mac-wifi" placeholder="AA:BB:CC:DD:EE:FF">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small mb-1" for="mac-eth">MAC Ethernet</label>
+              <input type="text" class="form-control font-mono" id="mac-eth" placeholder="AA:BB:CC:DD:EE:FF">
+            </div>
           </div>
         </div>
-        <div class="mb-2 d-none" id="caja-dispositivo">
-          <label class="form-label small mb-1" for="dispositivo-otro">Otro dispositivo</label>
-          <input type="text" class="form-control" id="dispositivo-otro">
-        </div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="mac">MAC</label>
-          <input type="text" class="form-control font-mono" id="mac" placeholder="MAC o pegar WiFi y Ethernet">
-        </div>
-        <div class="row g-2 mb-2">
-          <div class="col-md-6">
-            <label class="form-label small mb-1" for="mac-wifi">MAC WiFi</label>
-            <input type="text" class="form-control font-mono" id="mac-wifi" placeholder="AA:BB:CC:DD:EE:FF">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label small mb-1" for="mac-eth">MAC Ethernet</label>
-            <input type="text" class="form-control font-mono" id="mac-eth" placeholder="AA:BB:CC:DD:EE:FF">
-          </div>
-        </div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="caja">Caja N°</label>
-          <input type="text" class="form-control" id="caja">
-        </div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="perifericos">Periféricos</label>
-          <input type="text" class="form-control" id="perifericos" placeholder="MIC o precision Solar">
-        </div>
+      </div>
 
-        <div class="seccion-form">SEGUIMIENTO</div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="correo">Carrier</label>
-          <select class="form-select" id="correo"><option value="">Seleccionar…</option></select>
-        </div>
-        <div class="mb-2 d-none" id="caja-correo">
-          <label class="form-label small mb-1" for="correo-otro">Otro carrier</label>
-          <input type="text" class="form-control" id="correo-otro">
-        </div>
-        <div class="row g-2 mb-2">
-          <div class="col-md-6">
-            <label class="form-label small mb-1" for="seguimiento">Nº Seguimiento</label>
-            <input type="text" class="form-control" id="seguimiento">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Seguimiento</h2>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label small mb-1" for="correo">Correo/transporte</label>
+              <select class="form-select" id="correo"><option value="">Seleccionar…</option></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small mb-1" for="seguimiento">Nº Seguimiento</label>
+              <input type="text" class="form-control" id="seguimiento">
+            </div>
+            <div class="col-md-6 d-none" id="caja-correo">
+              <label class="form-label small mb-1" for="correo-otro">Otro correo/transporte</label>
+              <input type="text" class="form-control" id="correo-otro">
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label small mb-1" for="codigo">Código de seguimiento</label>
-            <input type="text" class="form-control" id="codigo">
-          </div>
         </div>
+      </div>
 
-        <div class="seccion-form">CONTEXTO DEL INGRESO</div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="observacion">Observaciones — cómo llegó</label>
-          <textarea class="form-control" id="observacion" rows="2" placeholder="Estado del embalaje, transporte, condición general"></textarea>
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Contexto del ingreso</h2>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label small mb-1" for="observacion">Observaciones — cómo llegó</label>
+              <textarea class="form-control" id="observacion" rows="2" placeholder="Estado del embalaje, transporte, condición general"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small mb-1" for="motivo">Motivo por el que lo trajeron</label>
+              <textarea class="form-control" id="motivo" rows="2" placeholder="Falla reportada, solicitud de actualización, devolución..."></textarea>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small mb-1" for="instancia">Instancia/gestión</label>
+              <select class="form-select" id="instancia"><option value="PENDIENTE">PENDIENTE</option></select>
+            </div>
+          </div>
         </div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="motivo">Motivo por el que lo trajeron</label>
-          <textarea class="form-control" id="motivo" rows="2" placeholder="Falla reportada, solicitud de actualización, devolución..."></textarea>
-        </div>
-        <div class="mb-2">
-          <label class="form-label small mb-1" for="instancia">Instancia/gestión</label>
-          <select class="form-select" id="instancia"><option value="PENDIENTE">PENDIENTE</option></select>
-        </div>
+      </div>
 
-        <div class="seccion-form">DATOS DE STOCK</div>
-        <div class="row g-2 mb-2">
-          <div class="col-md-6">
-            <label class="form-label small mb-1" for="deposito">Depósito destino</label>
-            <select class="form-select" id="deposito"><option value="">Seleccionar…</option></select>
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Datos de la recepción</h2>
+          <div class="row g-2 mb-3">
+            <div class="col-md-6">
+              <label class="form-label small mb-1" for="deposito">Depósito destino</label>
+              <select class="form-select" id="deposito"><option value="">Seleccionar…</option></select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small mb-1" for="fecha">Fecha de llegada</label>
+              <input type="date" class="form-control" id="fecha">
+            </div>
           </div>
-          <div class="col-md-6">
-            <label class="form-label small mb-1" for="lote">Lote</label>
-            <select class="form-select" id="lote"><option value="">—</option></select>
-          </div>
-        </div>
-        <div class="row g-2 mb-3">
-          <div class="col-md-3">
-            <label class="form-label small mb-1" for="fecha">Fecha de llegada</label>
-            <input type="date" class="form-control" id="fecha">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label small mb-1" for="remito">N° Remito</label>
-            <input type="text" class="form-control" id="remito">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label small mb-1" for="ticket">N° Ticket</label>
-            <input type="text" class="form-control" id="ticket">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label small mb-1" for="factura">N° Factura</label>
-            <input type="text" class="form-control" id="factura">
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-outline-secondary" id="btn-limpiar">Limpiar</button>
           <button type="submit" class="btn btn-teal">Guardar ingreso</button>
+          <button type="button" class="btn btn-outline-secondary ms-2" id="btn-limpiar">Limpiar</button>
         </div>
       </div>
     </form>
   </main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/auth-guard.js"></script>
 <script src="assets/js/cargar-ingreso.js"></script>

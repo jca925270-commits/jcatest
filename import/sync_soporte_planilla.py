@@ -181,12 +181,7 @@ def asegurar_tablas(cnx):
             cur.execute(sentencia)
     extras = {
         "ingreso_soporte": (
-            ("perifericos", "VARCHAR(255) NULL"),
-            ("codigo_seguimiento", "VARCHAR(80) NULL"),
             ("deposito", "VARCHAR(120) NULL"),
-            ("lote", "VARCHAR(80) NULL"),
-            ("remito", "VARCHAR(80) NULL"),
-            ("factura", "VARCHAR(80) NULL"),
             ("caja", "VARCHAR(40) NULL"),
             ("origen", "VARCHAR(20) NOT NULL DEFAULT 'planilla'"),
         ),
@@ -215,9 +210,9 @@ def aplicar(cnx, hojas):
             sql = f"""INSERT INTO {tabla}
                 (fecha_ingreso, fecha_ingreso_texto, razsocial_agreg, razon_social,
                  dispositivo_ingreso, estado_ingreso, mac, segui_ingreso, correo_ingreso,
-                 num_ticket, obs_encomienda_ingreso, con_soporte_ingreso, motivo,
+                 obs_encomienda_ingreso, con_soporte_ingreso, motivo,
                  instancia_gestion, mac_wifi, mac_eth, origen_fila)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE
                   fecha_ingreso=VALUES(fecha_ingreso),
                   fecha_ingreso_texto=VALUES(fecha_ingreso_texto),
@@ -228,7 +223,6 @@ def aplicar(cnx, hojas):
                   mac=VALUES(mac),
                   segui_ingreso=VALUES(segui_ingreso),
                   correo_ingreso=VALUES(correo_ingreso),
-                  num_ticket=VALUES(num_ticket),
                   obs_encomienda_ingreso=VALUES(obs_encomienda_ingreso),
                   con_soporte_ingreso=VALUES(con_soporte_ingreso),
                   motivo=VALUES(motivo),
@@ -237,7 +231,7 @@ def aplicar(cnx, hojas):
                   mac_eth=VALUES(mac_eth)"""
             datos = [
                 (f["fecha"], f["fecha_texto"], f["razsocial"], f["razon"], f["dispositivo"], f["estado"],
-                 f["mac"], f["segui"], f["correo"], f["ticket"], f["obs"], f["contacto"], f["motivo"],
+                 f["mac"], f["segui"], f["correo"], f["obs"], f["contacto"], f["motivo"],
                  f["instancia"], f["mac_wifi"], f["mac_eth"], f["origen_fila"])
                 for f in hoja["filas"]
             ]

@@ -23,9 +23,95 @@ function valorSelect(selectId, otroId) {
   return valor.trim();
 }
 
+let razonesCliente = [];
+
+function normalizarBusqueda(valor) {
+  return String(valor || "").normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase("es");
+}
+
+function armarListaRazones() {
+  const lista = document.getElementById("razon-lista");
+  lista.innerHTML = `${razonesCliente.map((nombre) => `<button type="button" class="razon-opcion" data-razon="${textoPlano(nombre)}">${textoPlano(nombre)}</button>`).join("")}<div class="razon-vacio d-none">No hay clientes con ese nombre</div>`;
+}
+
+function pintarRazones(filtro) {
+  const lista = document.getElementById("razon-lista");
+  if (lista.childElementCount <= 1) armarListaRazones();
+  const consulta = normalizarBusqueda(filtro);
+  let visibles = 0;
+  lista.querySelectorAll(".razon-opcion").forEach((boton) => {
+    const mostrar = !consulta || normalizarBusqueda(boton.dataset.razon).includes(consulta);
+    boton.classList.toggle("d-none", !mostrar);
+    boton.classList.remove("activa");
+    if (mostrar) visibles += 1;
+  });
+  lista.querySelector(".razon-vacio").classList.toggle("d-none", visibles > 0);
+}
+
+function elegirRazon(nombre) {
+  document.getElementById("razon").value = nombre || "";
+  document.getElementById("razon-boton").textContent = nombre || "Seleccionar…";
+  cerrarRazones();
+}
+
+function abrirRazones() {
+  const panel = document.getElementById("razon-panel");
+  panel.classList.remove("d-none");
+  document.getElementById("razon-boton").setAttribute("aria-expanded", "true");
+  const filtro = document.getElementById("razon-filtro");
+  filtro.value = "";
+  pintarRazones("");
+  filtro.focus();
+}
+
+function cerrarRazones() {
+  document.getElementById("razon-panel").classList.add("d-none");
+  document.getElementById("razon-boton").setAttribute("aria-expanded", "false");
+}
+
+document.getElementById("razon-boton").addEventListener("click", () => {
+  const abierto = !document.getElementById("razon-panel").classList.contains("d-none");
+  if (abierto) cerrarRazones();
+  else abrirRazones();
+});
+
+document.getElementById("razon-filtro").addEventListener("input", (evento) => {
+  pintarRazones(evento.target.value);
+});
+
+document.getElementById("razon-filtro").addEventListener("keydown", (evento) => {
+  const opcionesVisibles = [...document.querySelectorAll("#razon-lista .razon-opcion")];
+  const activa = document.querySelector("#razon-lista .razon-opcion.activa");
+  const indice = opcionesVisibles.indexOf(activa);
+  if (evento.key === "ArrowDown" || evento.key === "ArrowUp") {
+    evento.preventDefault();
+    const siguiente = evento.key === "ArrowDown" ? indice + 1 : indice - 1;
+    const elegida = opcionesVisibles[Math.max(0, Math.min(opcionesVisibles.length - 1, siguiente))];
+    if (!elegida) return;
+    if (activa) activa.classList.remove("activa");
+    elegida.classList.add("activa");
+    elegida.scrollIntoView({ block: "nearest" });
+  }
+  if (evento.key === "Enter") {
+    evento.preventDefault();
+    if (activa) elegirRazon(activa.dataset.razon);
+  }
+  if (evento.key === "Escape") cerrarRazones();
+});
+
+document.getElementById("razon-lista").addEventListener("click", (evento) => {
+  const opcion = evento.target.closest(".razon-opcion");
+  if (opcion) elegirRazon(opcion.dataset.razon);
+});
+
+document.addEventListener("click", (evento) => {
+  if (!document.getElementById("razon-widget").contains(evento.target)) cerrarRazones();
+});
+
 async function cargarOpciones() {
   const data = await apiFetch("soporte-planilla/opciones");
-  llenarSelect("razon", data.razones || []);
+  razonesCliente = data.razones || [];
+  armarListaRazones();
   llenarSelect("dispositivo", data.dispositivos || []);
   llenarSelect("estado", data.estados || []);
   llenarSelect("correo", data.carriers || []);
@@ -33,12 +119,9 @@ async function cargarOpciones() {
   llenarSelect("instancia", instancias, "PENDIENTE");
   document.getElementById("instancia").value = "PENDIENTE";
   llenarSelect("deposito", data.depositos || []);
-  llenarSelect("lote", data.lotes || []);
   document.getElementById("deposito").querySelector('option[value="__otro__"]')?.remove();
-  document.getElementById("lote").querySelector('option[value="__otro__"]')?.remove();
   document.getElementById("estado").querySelector('option[value="__otro__"]')?.remove();
   document.getElementById("instancia").querySelector('option[value="__otro__"]')?.remove();
-  document.getElementById("razon").querySelector('option[value="__otro__"]')?.remove();
 }
 
 function fechaHoy() {
@@ -52,6 +135,7 @@ function limpiarFormulario() {
   document.getElementById("form-ingreso").reset();
   document.getElementById("fecha").value = fechaHoy();
   document.getElementById("instancia").value = "PENDIENTE";
+  elegirRazon("");
   ["caja-dispositivo", "caja-correo"].forEach((id) => document.getElementById(id).classList.add("d-none"));
   document.getElementById("msg-error").classList.add("d-none");
   document.getElementById("msg-exito").classList.add("d-none");
@@ -76,24 +160,19 @@ document.getElementById("form-ingreso").addEventListener("submit", async (evento
     mac_wifi: document.getElementById("mac-wifi").value.trim(),
     mac_eth: document.getElementById("mac-eth").value.trim(),
     caja: document.getElementById("caja").value.trim(),
-    perifericos: document.getElementById("perifericos").value.trim(),
     correo: valorSelect("correo", "correo-otro"),
     seguimiento: document.getElementById("seguimiento").value.trim(),
-    codigo_seguimiento: document.getElementById("codigo").value.trim(),
     observacion: document.getElementById("observacion").value.trim(),
     motivo: document.getElementById("motivo").value.trim(),
     instancia_gestion: document.getElementById("instancia").value,
     deposito: document.getElementById("deposito").value,
-    lote: document.getElementById("lote").value,
-    remito: document.getElementById("remito").value.trim(),
-    num_ticket: document.getElementById("ticket").value.trim(),
-    factura: document.getElementById("factura").value.trim(),
   };
   try {
     await apiFetch("soporte-planilla/ingreso", { method: "POST", body: cuerpo });
     mostrarExito("msg-exito", "Ingreso guardado. Ya figura en Movimientos → Ingreso.");
     limpiarFormulario();
     document.getElementById("msg-exito").classList.remove("d-none");
+    cargarOpciones().catch(() => {});
   } catch (err) {
     mostrarError("msg-error", err.message);
   }
