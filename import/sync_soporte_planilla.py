@@ -179,6 +179,30 @@ def asegurar_tablas(cnx):
         sentencia = sentencia.strip()
         if sentencia:
             cur.execute(sentencia)
+    extras = {
+        "ingreso_soporte": (
+            ("perifericos", "VARCHAR(255) NULL"),
+            ("codigo_seguimiento", "VARCHAR(80) NULL"),
+            ("deposito", "VARCHAR(120) NULL"),
+            ("lote", "VARCHAR(80) NULL"),
+            ("remito", "VARCHAR(80) NULL"),
+            ("factura", "VARCHAR(80) NULL"),
+            ("caja", "VARCHAR(40) NULL"),
+            ("origen", "VARCHAR(20) NOT NULL DEFAULT 'planilla'"),
+        ),
+        "egreso_soporte": (
+            ("origen", "VARCHAR(20) NOT NULL DEFAULT 'planilla'"),
+        ),
+    }
+    for tabla, columnas in extras.items():
+        for nombre, tipo in columnas:
+            cur.execute(
+                """SELECT COUNT(*) FROM information_schema.COLUMNS
+                   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = %s""",
+                (tabla, nombre),
+            )
+            if cur.fetchone()[0] == 0:
+                cur.execute(f"ALTER TABLE {tabla} ADD COLUMN {nombre} {tipo}")
     cnx.commit()
 
 
@@ -264,7 +288,8 @@ def aplicar(cnx, hojas):
         cur.execute(
             f"""DELETE t FROM {tabla} t
                 LEFT JOIN tmp_soporte_sync s ON s.origen_fila = t.origen_fila
-                WHERE s.origen_fila IS NULL"""
+                WHERE s.origen_fila IS NULL
+                  AND COALESCE(t.origen, 'planilla') = 'planilla'"""
         )
         total += len(hoja["filas"])
         log.info("Soporte %s: %s filas", hoja["nombre"], len(hoja["filas"]))

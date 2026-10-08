@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Cargar Ingreso — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css" rel="stylesheet">
+<style>
+  .form-logistica { max-width: 760px; }
+  .seccion-form { color: #ffb5a0; font-size: .72rem; font-weight: 700; letter-spacing: .14em; margin: 1.25rem 0 .7rem; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>SOPORTE Y LOGISTICA</small></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <a href="dispositivo.html" class="nav-link">📦 dispositivo</a>
+      <a href="reparados.html" class="nav-link">🔧 Reparados y Reutilizados</a>
+
+      <details class="nav-group">
+        <summary>🔄 Movimientos</summary>
+        <a href="ingreso.html" class="sub-link">Ingreso</a>
+        <a href="egreso.html" class="sub-link">Egreso</a>
+        <a href="movimientos.html" class="sub-link">Todos</a>
+        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
+        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
+        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
+        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+      </details>
+
+      <details class="nav-group" open>
+        <summary>🛠️ Soporte Técnico</summary>
+        <a href="soporte.html" class="sub-link">Soporte Técnico</a>
+        <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏭 Depósito</summary>
+        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
+        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏷️ Estado</summary>
+        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+        <a href="testeo.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+        <a href="testeo.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+        <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
+        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
+      </details>
+
+      <details class="nav-group">
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+        <a href="dispositivo.html" class="sub-link">dispositivo</a>
+        <a href="deposito.html" class="sub-link">Depósito</a>
+      </details>
+
+      <details class="nav-group">
+        <summary><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+        <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+        <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+        <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+        <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+      </details>
+
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <a href="reportes.html" class="nav-link">📈 Reportes</a>
+      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="page-title">Cargar Ingreso</h1>
+    <p class="page-subtitle">Logística · Ingresos. El registro queda en ingreso_soporte y en Movimientos → Ingreso.</p>
+
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+    <div id="msg-exito" class="alert d-none"></div>
+
+    <form id="form-ingreso" class="card border-0 shadow-sm form-logistica" data-requiere-escritura>
+      <div class="card-body">
+        <div class="seccion-form">IDENTIFICACIÓN</div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="razon">Razón social</label>
+          <select class="form-select" id="razon"><option value="">Seleccionar…</option></select>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="razon-nueva">Agregar razón social si no está en la lista</label>
+          <input type="text" class="form-control" id="razon-nueva" placeholder="Escribir nueva razón social">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="contacto">Contacto</label>
+          <input type="text" class="form-control" id="contacto" placeholder="Nombre de quien deja o retira">
+        </div>
+
+        <div class="seccion-form">DISPOSITIVOS</div>
+        <div class="row g-2 mb-2">
+          <div class="col-md-8">
+            <label class="form-label small mb-1" for="dispositivo">Dispositivo</label>
+            <select class="form-select" id="dispositivo"><option value="">Seleccionar…</option></select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1" for="estado">Estado</label>
+            <select class="form-select" id="estado"><option value="">Seleccionar…</option></select>
+          </div>
+        </div>
+        <div class="mb-2 d-none" id="caja-dispositivo">
+          <label class="form-label small mb-1" for="dispositivo-otro">Otro dispositivo</label>
+          <input type="text" class="form-control" id="dispositivo-otro">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="mac">MAC</label>
+          <input type="text" class="form-control font-mono" id="mac" placeholder="MAC o pegar WiFi y Ethernet">
+        </div>
+        <div class="row g-2 mb-2">
+          <div class="col-md-6">
+            <label class="form-label small mb-1" for="mac-wifi">MAC WiFi</label>
+            <input type="text" class="form-control font-mono" id="mac-wifi" placeholder="AA:BB:CC:DD:EE:FF">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small mb-1" for="mac-eth">MAC Ethernet</label>
+            <input type="text" class="form-control font-mono" id="mac-eth" placeholder="AA:BB:CC:DD:EE:FF">
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="caja">Caja N°</label>
+          <input type="text" class="form-control" id="caja">
+        </div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="perifericos">Periféricos</label>
+          <input type="text" class="form-control" id="perifericos" placeholder="MIC o precision Solar">
+        </div>
+
+        <div class="seccion-form">SEGUIMIENTO</div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="correo">Carrier</label>
+          <select class="form-select" id="correo"><option value="">Seleccionar…</option></select>
+        </div>
+        <div class="mb-2 d-none" id="caja-correo">
+          <label class="form-label small mb-1" for="correo-otro">Otro carrier</label>
+          <input type="text" class="form-control" id="correo-otro">
+        </div>
+        <div class="row g-2 mb-2">
+          <div class="col-md-6">
+            <label class="form-label small mb-1" for="seguimiento">Nº Seguimiento</label>
+            <input type="text" class="form-control" id="seguimiento">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small mb-1" for="codigo">Código de seguimiento</label>
+            <input type="text" class="form-control" id="codigo">
+          </div>
+        </div>
+
+        <div class="seccion-form">CONTEXTO DEL INGRESO</div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="observacion">Observaciones — cómo llegó</label>
+          <textarea class="form-control" id="observacion" rows="2" placeholder="Estado del embalaje, transporte, condición general"></textarea>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="motivo">Motivo por el que lo trajeron</label>
+          <textarea class="form-control" id="motivo" rows="2" placeholder="Falla reportada, solicitud de actualización, devolución..."></textarea>
+        </div>
+        <div class="mb-2">
+          <label class="form-label small mb-1" for="instancia">Instancia/gestión</label>
+          <select class="form-select" id="instancia"><option value="PENDIENTE">PENDIENTE</option></select>
+        </div>
+
+        <div class="seccion-form">DATOS DE STOCK</div>
+        <div class="row g-2 mb-2">
+          <div class="col-md-6">
+            <label class="form-label small mb-1" for="deposito">Depósito destino</label>
+            <select class="form-select" id="deposito"><option value="">Seleccionar…</option></select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small mb-1" for="lote">Lote</label>
+            <select class="form-select" id="lote"><option value="">—</option></select>
+          </div>
+        </div>
+        <div class="row g-2 mb-3">
+          <div class="col-md-3">
+            <label class="form-label small mb-1" for="fecha">Fecha de llegada</label>
+            <input type="date" class="form-control" id="fecha">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1" for="remito">N° Remito</label>
+            <input type="text" class="form-control" id="remito">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1" for="ticket">N° Ticket</label>
+            <input type="text" class="form-control" id="ticket">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small mb-1" for="factura">N° Factura</label>
+            <input type="text" class="form-control" id="factura">
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-outline-secondary" id="btn-limpiar">Limpiar</button>
+          <button type="submit" class="btn btn-teal">Guardar ingreso</button>
+        </div>
+      </div>
+    </form>
+  </main>
+</div>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/auth-guard.js"></script>
+<script src="assets/js/cargar-ingreso.js"></script>
+</body>
+</html>
