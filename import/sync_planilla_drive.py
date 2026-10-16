@@ -233,12 +233,49 @@ def aplicar(cnx, hojas):
                 (categoria["stock"], cat),
             )
 
+    def esqueleto(valor):
+        import re
+        import unicodedata
+        original = str(valor or "")
+        if re.search(r"TOTAL DE D3|STOCK CONTROLADO AL|CAMPIÑA A OFICINA", original, re.I):
+            aparte = unicodedata.normalize("NFD", original.upper())
+            aparte = "".join(letra for letra in aparte if unicodedata.category(letra) != "Mn")
+            aparte = re.sub(r"[.,\-–—_/&'’]", " ", aparte)
+            return " ".join(aparte.split())
+        notas = re.compile(r"factura|comodato|garantia|falla|debe |sin garant|lleva |carrito|en su lugar|patricio", re.I)
+
+        def reemplazo(coincidencia):
+            dentro = unicodedata.normalize("NFD", coincidencia.group(1))
+            dentro = "".join(letra for letra in dentro if unicodedata.category(letra) != "Mn")
+            return " " if notas.search(dentro) else coincidencia.group(0)
+
+        texto = re.sub(r"\(([^)]*)\)", reemplazo, str(valor or ""))
+        texto = unicodedata.normalize("NFD", texto)
+        texto = "".join(letra for letra in texto if unicodedata.category(letra) != "Mn")
+        texto = texto.upper()
+        texto = re.sub(r"[.,\-–—_/&'’]", " ", texto)
+        texto = re.sub(r"\bS\s+A\s+S\b", "SAS", texto)
+        texto = re.sub(r"\bS\s+R\s+L\b", "SRL", texto)
+        texto = re.sub(r"\bS\s+A\b", "SA", texto)
+        return " ".join(sorted(parte for parte in texto.split() if parte))
+
+    cur.execute("SELECT id, razon_social, planilla FROM clientes")
+    por_esqueleto = {}
+    for fila in cur.fetchall():
+        clave = esqueleto(fila[1])
+        if not clave:
+            continue
+        previo = por_esqueleto.get(clave)
+        if previo is None or (not previo[1] and fila[2]):
+            por_esqueleto[clave] = (fila[0], fila[2])
     for razon in razones:
-        cur.execute("SELECT id FROM clientes WHERE razon_social=%s LIMIT 1", (razon,))
-        if cur.fetchone():
-            cur.execute("UPDATE clientes SET planilla=1 WHERE razon_social=%s AND planilla=0", (razon,))
+        clave = esqueleto(razon)
+        elegido = por_esqueleto.get(clave)
+        if elegido:
+            cur.execute("UPDATE clientes SET planilla=1 WHERE id=%s AND planilla=0", (elegido[0],))
         else:
             cur.execute("INSERT INTO clientes (razon_social, planilla) VALUES (%s,1)", (razon,))
+            por_esqueleto[clave] = (cur.lastrowid, 1)
     cur.execute(
         """INSERT INTO sync_control (archivo, ultima_sync, filas_ok, filas_error, detalle)
            VALUES ('STOCK_2026', NOW(), %s, 0, 'Google Sheets')
