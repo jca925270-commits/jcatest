@@ -205,6 +205,7 @@ def asegurar_tablas(cnx):
             ("deposito", "VARCHAR(120) NULL"),
             ("caja", "VARCHAR(40) NULL"),
             ("origen", "VARCHAR(20) NOT NULL DEFAULT 'planilla'"),
+            ("editado_en_sitio", "TINYINT NOT NULL DEFAULT 0"),
             ("dispositivo_extra", "VARCHAR(120) NULL"),
             ("mac_extra", "VARCHAR(80) NULL"),
             ("mac_wifi_extra", "VARCHAR(20) NULL"),
@@ -212,6 +213,7 @@ def asegurar_tablas(cnx):
         ),
         "egreso_soporte": (
             ("origen", "VARCHAR(20) NOT NULL DEFAULT 'planilla'"),
+            ("editado_en_sitio", "TINYINT NOT NULL DEFAULT 0"),
             ("deposito", "VARCHAR(120) NULL"),
             ("caja", "VARCHAR(40) NULL"),
             ("motivo", "VARCHAR(255) NULL"),
@@ -246,21 +248,21 @@ def aplicar(cnx, hojas):
                  instancia_gestion, mac_wifi, mac_eth, origen_fila)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE
-                  fecha_ingreso=VALUES(fecha_ingreso),
-                  fecha_ingreso_texto=VALUES(fecha_ingreso_texto),
-                  razsocial_agreg=VALUES(razsocial_agreg),
-                  razon_social=VALUES(razon_social),
-                  dispositivo_ingreso=VALUES(dispositivo_ingreso),
-                  estado_ingreso=VALUES(estado_ingreso),
-                  mac=VALUES(mac),
-                  segui_ingreso=VALUES(segui_ingreso),
-                  correo_ingreso=VALUES(correo_ingreso),
-                  obs_encomienda_ingreso=VALUES(obs_encomienda_ingreso),
-                  con_soporte_ingreso=VALUES(con_soporte_ingreso),
-                  motivo=VALUES(motivo),
-                  instancia_gestion=VALUES(instancia_gestion),
-                  mac_wifi=VALUES(mac_wifi),
-                  mac_eth=VALUES(mac_eth)"""
+                  fecha_ingreso=IF(editado_en_sitio=1, fecha_ingreso, VALUES(fecha_ingreso)),
+                  fecha_ingreso_texto=IF(editado_en_sitio=1, fecha_ingreso_texto, VALUES(fecha_ingreso_texto)),
+                  razsocial_agreg=IF(editado_en_sitio=1, razsocial_agreg, VALUES(razsocial_agreg)),
+                  razon_social=IF(editado_en_sitio=1, razon_social, VALUES(razon_social)),
+                  dispositivo_ingreso=IF(editado_en_sitio=1, dispositivo_ingreso, VALUES(dispositivo_ingreso)),
+                  estado_ingreso=IF(editado_en_sitio=1, estado_ingreso, VALUES(estado_ingreso)),
+                  mac=IF(editado_en_sitio=1, mac, VALUES(mac)),
+                  segui_ingreso=IF(editado_en_sitio=1, segui_ingreso, VALUES(segui_ingreso)),
+                  correo_ingreso=IF(editado_en_sitio=1, correo_ingreso, VALUES(correo_ingreso)),
+                  obs_encomienda_ingreso=IF(editado_en_sitio=1, obs_encomienda_ingreso, VALUES(obs_encomienda_ingreso)),
+                  con_soporte_ingreso=IF(editado_en_sitio=1, con_soporte_ingreso, VALUES(con_soporte_ingreso)),
+                  motivo=IF(editado_en_sitio=1, motivo, VALUES(motivo)),
+                  instancia_gestion=IF(editado_en_sitio=1, instancia_gestion, VALUES(instancia_gestion)),
+                  mac_wifi=IF(editado_en_sitio=1, mac_wifi, VALUES(mac_wifi)),
+                  mac_eth=IF(editado_en_sitio=1, mac_eth, VALUES(mac_eth))"""
             datos = [
                 (f["fecha"], f["fecha_texto"], f["razsocial"], f["razon"], f["dispositivo"], f["estado"],
                  f["mac"], f["segui"], f["correo"], f["obs"], f["contacto"], f["motivo"],
@@ -275,22 +277,22 @@ def aplicar(cnx, hojas):
                  instancia_gestion, mac_wifi, mac_eth, origen_fila)
                 VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE
-                  fecha_egreso=VALUES(fecha_egreso),
-                  fecha_egreso_texto=VALUES(fecha_egreso_texto),
-                  razsocial_agreg=VALUES(razsocial_agreg),
-                  razon_social=VALUES(razon_social),
-                  dispositivo_egreso=VALUES(dispositivo_egreso),
-                  estado_egreso=VALUES(estado_egreso),
-                  mac=VALUES(mac),
-                  envio_retiro=VALUES(envio_retiro),
-                  correo_egreso=VALUES(correo_egreso),
-                  segui_egreso=VALUES(segui_egreso),
-                  num_ticket=VALUES(num_ticket),
-                  obs_encomienda_egreso=VALUES(obs_encomienda_egreso),
-                  con_soporte_egreso=VALUES(con_soporte_egreso),
-                  instancia_gestion=VALUES(instancia_gestion),
-                  mac_wifi=VALUES(mac_wifi),
-                  mac_eth=VALUES(mac_eth)"""
+                  fecha_egreso=IF(editado_en_sitio=1, fecha_egreso, VALUES(fecha_egreso)),
+                  fecha_egreso_texto=IF(editado_en_sitio=1, fecha_egreso_texto, VALUES(fecha_egreso_texto)),
+                  razsocial_agreg=IF(editado_en_sitio=1, razsocial_agreg, VALUES(razsocial_agreg)),
+                  razon_social=IF(editado_en_sitio=1, razon_social, VALUES(razon_social)),
+                  dispositivo_egreso=IF(editado_en_sitio=1, dispositivo_egreso, VALUES(dispositivo_egreso)),
+                  estado_egreso=IF(editado_en_sitio=1, estado_egreso, VALUES(estado_egreso)),
+                  mac=IF(editado_en_sitio=1, mac, VALUES(mac)),
+                  envio_retiro=IF(editado_en_sitio=1, envio_retiro, VALUES(envio_retiro)),
+                  correo_egreso=IF(editado_en_sitio=1, correo_egreso, VALUES(correo_egreso)),
+                  segui_egreso=IF(editado_en_sitio=1, segui_egreso, VALUES(segui_egreso)),
+                  num_ticket=IF(editado_en_sitio=1, num_ticket, VALUES(num_ticket)),
+                  obs_encomienda_egreso=IF(editado_en_sitio=1, obs_encomienda_egreso, VALUES(obs_encomienda_egreso)),
+                  con_soporte_egreso=IF(editado_en_sitio=1, con_soporte_egreso, VALUES(con_soporte_egreso)),
+                  instancia_gestion=IF(editado_en_sitio=1, instancia_gestion, VALUES(instancia_gestion)),
+                  mac_wifi=IF(editado_en_sitio=1, mac_wifi, VALUES(mac_wifi)),
+                  mac_eth=IF(editado_en_sitio=1, mac_eth, VALUES(mac_eth))"""
             datos = [
                 (f["fecha"], f["fecha_texto"], f["razsocial"], f["razon"], f["dispositivo"], f["estado"],
                  f["mac"], f["envio"], f["correo"], f["segui"], f["ticket"], f["obs"], f["contacto"],
@@ -315,7 +317,8 @@ def aplicar(cnx, hojas):
             f"""DELETE t FROM {tabla} t
                 LEFT JOIN tmp_soporte_sync s ON s.origen_fila = t.origen_fila
                 WHERE s.origen_fila IS NULL
-                  AND COALESCE(t.origen, 'planilla') = 'planilla'"""
+                  AND COALESCE(t.origen, 'planilla') = 'planilla'
+                  AND COALESCE(t.editado_en_sitio, 0) = 0"""
         )
         total += len(hoja["filas"])
         log.info("Soporte %s: %s filas", hoja["nombre"], len(hoja["filas"]))
