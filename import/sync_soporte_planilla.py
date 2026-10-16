@@ -46,14 +46,32 @@ def como_texto(valor, largo):
     return texto[:largo]
 
 
-def mac(valor):
-    texto = limpiar_texto(valor)
-    if not texto:
-        return None
+def partes_mac(valor):
+    texto = limpiar_texto(valor) or ""
     limpio = re.sub(r"[^0-9A-Fa-f]", "", texto).upper()
-    if len(limpio) < 8:
-        return None
-    return limpio[:20]
+    partes = []
+    i = 0
+    while i + 12 <= len(limpio) and len(partes) < 2:
+        partes.append(limpio[i:i + 12])
+        i += 12
+    return partes
+
+
+def normalizar_macs(mac, wifi, eth):
+    de_mac = partes_mac(mac)
+    de_wifi = partes_mac(wifi)
+    de_eth = partes_mac(eth)
+    wifi_final = (de_wifi[0] if de_wifi else None) or (de_mac[0] if de_mac else None)
+    eth_final = (
+        (de_eth[0] if de_eth else None)
+        or (de_wifi[1] if len(de_wifi) > 1 else None)
+        or (de_mac[1] if len(de_mac) > 1 else None)
+    )
+    juntas = "".join(parte for parte in (wifi_final, eth_final) if parte)
+    if juntas:
+        return juntas, wifi_final, eth_final
+    resto = re.sub(r"[^0-9A-Fa-f]", "", (limpiar_texto(mac) or "")).upper()
+    return (resto or None), None, None
 
 
 def fecha_o_texto(valor):
@@ -146,7 +164,7 @@ def parsear(ruta):
                     "razon": como_texto(celda(valores, cols["razon"]), 255),
                     "dispositivo": como_texto(celda(valores, cols["dispositivo"]), 120),
                     "estado": como_texto(celda(valores, cols["estado"]), 80),
-                    "mac": como_texto(celda(valores, cols["mac"]), 80),
+                    "mac": celda(valores, cols["mac"]),
                     "envio": como_texto(celda(valores, cols.get("envio")), 80) if tipo == "egreso" else None,
                     "correo": como_texto(celda(valores, cols["correo"]), 80),
                     "segui": como_texto(celda(valores, cols["segui"]), 80),
@@ -155,10 +173,13 @@ def parsear(ruta):
                     "contacto": como_texto(celda(valores, cols["contacto"]), 255),
                     "motivo": como_texto(celda(valores, cols.get("motivo")), 255) if tipo == "ingreso" else None,
                     "instancia": como_texto(celda(valores, cols["instancia"]), 80),
-                    "mac_wifi": mac(celda(valores, cols["wifi"])),
-                    "mac_eth": mac(celda(valores, cols["eth"])),
+                    "mac_wifi": celda(valores, cols["wifi"]),
+                    "mac_eth": celda(valores, cols["eth"]),
                     "origen_fila": numero,
                 }
+                registro["mac"], registro["mac_wifi"], registro["mac_eth"] = normalizar_macs(
+                    registro["mac"], registro["mac_wifi"], registro["mac_eth"]
+                )
                 if not any(registro[k] for k in (
                     "razsocial", "razon", "dispositivo", "mac", "mac_wifi", "mac_eth", "segui", "ticket", "obs"
                 )):
@@ -184,9 +205,20 @@ def asegurar_tablas(cnx):
             ("deposito", "VARCHAR(120) NULL"),
             ("caja", "VARCHAR(40) NULL"),
             ("origen", "VARCHAR(20) NOT NULL DEFAULT 'planilla'"),
+            ("dispositivo_extra", "VARCHAR(120) NULL"),
+            ("mac_extra", "VARCHAR(80) NULL"),
+            ("mac_wifi_extra", "VARCHAR(20) NULL"),
+            ("mac_eth_extra", "VARCHAR(20) NULL"),
         ),
         "egreso_soporte": (
             ("origen", "VARCHAR(20) NOT NULL DEFAULT 'planilla'"),
+            ("deposito", "VARCHAR(120) NULL"),
+            ("caja", "VARCHAR(40) NULL"),
+            ("motivo", "VARCHAR(255) NULL"),
+            ("dispositivo_extra", "VARCHAR(120) NULL"),
+            ("mac_extra", "VARCHAR(80) NULL"),
+            ("mac_wifi_extra", "VARCHAR(20) NULL"),
+            ("mac_eth_extra", "VARCHAR(20) NULL"),
         ),
     }
     for tabla, columnas in extras.items():

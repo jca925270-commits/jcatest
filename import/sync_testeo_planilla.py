@@ -91,16 +91,11 @@ def semanas(valor):
 
 def partir_macs(valor):
     texto = como_texto(valor, 80) or ""
-    partes = re.findall(r"[0-9A-Fa-f]{2}(?::[0-9A-Fa-f]{2}){5}|[0-9A-Fa-f]{12}", texto)
-
-    def una(parte):
-        if not parte:
-            return None
-        limpio = re.sub(r"[^0-9A-Fa-f]", "", parte).upper()
-        return limpio[:20] if len(limpio) >= 8 else None
-
-    wifi = una(partes[0]) if partes else None
-    eth = una(partes[1]) if len(partes) > 1 else None
+    limpio = re.sub(r"[^0-9A-Fa-f]", "", texto).upper()
+    if len(limpio) < 12:
+        return None, None
+    wifi = limpio[:12]
+    eth = limpio[12:24] if len(limpio) >= 24 else None
     return wifi, eth
 
 
