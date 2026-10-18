@@ -290,7 +290,7 @@ def aplicar(cnx, hojas):
         cur.execute(
             f"""DELETE t FROM {tabla} t
                 LEFT JOIN tmp_mac_sync s ON s.origen_fila = t.origen_fila
-                WHERE s.origen_fila IS NULL"""
+                WHERE s.origen_fila IS NULL AND t.origen_fila > 0"""
         )
         total += len(hoja["filas"])
         log.info("MAC %s: %s equipos", hoja["nombre"], len(hoja["filas"]))
