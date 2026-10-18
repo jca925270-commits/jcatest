@@ -177,29 +177,8 @@ def categoria_id(cur, cache, nombre, pais):
     return cache[clave]
 
 
-def partir_lite(valor):
-    import re
-    texto = str(valor or "").strip()
-    if not texto:
-        return None, None
-    hallado = re.search(r"\((EBD|D3)\s+con\s+2\.0\s+Lite\)", texto, re.I)
-    if not hallado:
-        return texto, None
-    marca = f"{hallado.group(1).upper()} con 2.0 Lite"
-    texto = re.sub(r"\s*\((EBD|D3)\s+con\s+2\.0\s+Lite\)\s*", " ", texto, flags=re.I)
-    texto = " ".join(texto.split())
-    return (texto or None), marca
-
-
 def aplicar(cnx, hojas):
     cur = cnx.cursor()
-    cur.execute(
-        """SELECT COUNT(*) FROM information_schema.COLUMNS
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'movimientos_cantidad'
-             AND COLUMN_NAME = 'con_2_0'"""
-    )
-    if cur.fetchone()[0] == 0:
-        cur.execute("ALTER TABLE movimientos_cantidad ADD COLUMN con_2_0 VARCHAR(40) NULL")
     cache = {}
     razones = set()
     total = 0
@@ -207,24 +186,22 @@ def aplicar(cnx, hojas):
         vistos = []
         for mov in hoja["movimientos"]:
             cat = categoria_id(cur, cache, mov["nombre"], hoja["pais"])
-            razon, marca = partir_lite(mov["razon"])
             cur.execute(
                 """INSERT INTO movimientos_cantidad
                    (categoria_id, fecha, estado, remito, factura, razon_social, ticket, motivo,
-                    ingreso, egreso, origen_hoja, origen_fila, con_2_0)
-                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                    ingreso, egreso, origen_hoja, origen_fila)
+                   VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                    ON DUPLICATE KEY UPDATE
                      fecha=VALUES(fecha), estado=VALUES(estado), remito=VALUES(remito),
                      factura=VALUES(factura), razon_social=VALUES(razon_social),
                      ticket=VALUES(ticket), motivo=VALUES(motivo),
-                     ingreso=VALUES(ingreso), egreso=VALUES(egreso),
-                     con_2_0=VALUES(con_2_0)""",
-                (cat, mov["fecha"], mov["estado"], mov["remito"], mov["factura"], razon,
-                 mov["ticket"], mov["motivo"], mov["ingreso"], mov["egreso"], hoja["hoja"], mov["fila"], marca),
+                     ingreso=VALUES(ingreso), egreso=VALUES(egreso)""",
+                (cat, mov["fecha"], mov["estado"], mov["remito"], mov["factura"], mov["razon"],
+                 mov["ticket"], mov["motivo"], mov["ingreso"], mov["egreso"], hoja["hoja"], mov["fila"]),
             )
             vistos.append((cat, mov["fila"]))
-            if razon:
-                razones.add(razon[:200])
+            if mov["razon"]:
+                razones.add(mov["razon"][:200])
             total += 1
 
         cur.execute(
@@ -256,21 +233,6 @@ def aplicar(cnx, hojas):
                 (categoria["stock"], cat),
             )
 
-    cur.execute(
-        """SELECT categoria_id,
-                  COALESCE(SUM(ingreso), 0) - COALESCE(SUM(egreso), 0) AS neto
-           FROM movimientos_cantidad
-           WHERE origen_hoja = 'SITIO'
-           GROUP BY categoria_id"""
-    )
-    for cat_id, neto in cur.fetchall():
-        if not neto:
-            continue
-        cur.execute(
-            "UPDATE categorias_stock SET cantidad_actual = COALESCE(cantidad_actual, 0) + %s WHERE id = %s",
-            (int(neto), cat_id),
-        )
-
     def esqueleto(valor):
         import re
         import unicodedata
@@ -280,7 +242,7 @@ def aplicar(cnx, hojas):
             aparte = "".join(letra for letra in aparte if unicodedata.category(letra) != "Mn")
             aparte = re.sub(r"[.,\-–—_/&'’]", " ", aparte)
             return " ".join(aparte.split())
-        notas = re.compile(r"factura|comodato|garantia|falla|debe |sin garant|lleva |carrito|en su lugar|patricio|2\.0", re.I)
+        notas = re.compile(r"factura|comodato|garantia|falla|debe |sin garant|lleva |carrito|en su lugar|patricio", re.I)
 
         def reemplazo(coincidencia):
             dentro = unicodedata.normalize("NFD", coincidencia.group(1))

@@ -229,19 +229,6 @@ def asegurar_tablas(cnx):
     cnx.commit()
 
 
-def partir_lite(valor):
-    texto = str(valor or "").strip()
-    if not texto:
-        return None, None
-    hallado = re.search(r"\((EBD|D3)\s+con\s+2\.0\s+Lite\)", texto, re.I)
-    if not hallado:
-        return texto, None
-    marca = f"{hallado.group(1).upper()} con 2.0 Lite"
-    texto = re.sub(r"\s*\((EBD|D3)\s+con\s+2\.0\s+Lite\)\s*", " ", texto, flags=re.I)
-    texto = " ".join(texto.split())
-    return (texto or None), marca
-
-
 def aplicar(cnx, hojas):
     cur = cnx.cursor()
     total = 0
@@ -268,17 +255,10 @@ def aplicar(cnx, hojas):
                 for f in hoja["filas"]
             ]
         else:
-            cur.execute(
-                """SELECT COUNT(*) FROM information_schema.COLUMNS
-                   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'con_2_0'""",
-                (tabla,),
-            )
-            if cur.fetchone()[0] == 0:
-                cur.execute(f"ALTER TABLE {tabla} ADD COLUMN con_2_0 VARCHAR(40) NULL")
             sql = f"""INSERT INTO {tabla}
                 (cliente, fecha_despacho, fecha_despacho_texto,
-                 mac_wifi, mac_eth, lote, caja, numero_equipo, origen_fila, con_2_0)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                 mac_wifi, mac_eth, lote, caja, numero_equipo, origen_fila)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE
                   cliente=VALUES(cliente),
                   fecha_despacho=VALUES(fecha_despacho),
@@ -287,15 +267,12 @@ def aplicar(cnx, hojas):
                   mac_eth=VALUES(mac_eth),
                   lote=VALUES(lote),
                   caja=VALUES(caja),
-                  numero_equipo=VALUES(numero_equipo),
-                  con_2_0=VALUES(con_2_0)"""
-            datos = []
-            for f in hoja["filas"]:
-                cliente, marca = partir_lite(f["cliente"])
-                datos.append(
-                    (cliente, f["fecha_despacho"], f["fecha_despacho_texto"],
-                     f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["numero_equipo"], f["origen_fila"], marca)
-                )
+                  numero_equipo=VALUES(numero_equipo)"""
+            datos = [
+                (f["cliente"], f["fecha_despacho"], f["fecha_despacho_texto"],
+                 f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["numero_equipo"], f["origen_fila"])
+                for f in hoja["filas"]
+            ]
         if not datos:
             log.warning("MAC %s no trajo equipos; no se borra la tabla", hoja["nombre"])
             continue
