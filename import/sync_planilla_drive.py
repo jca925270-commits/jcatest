@@ -233,6 +233,21 @@ def aplicar(cnx, hojas):
                 (categoria["stock"], cat),
             )
 
+    cur.execute(
+        """SELECT categoria_id,
+                  COALESCE(SUM(ingreso), 0) - COALESCE(SUM(egreso), 0) AS neto
+           FROM movimientos_cantidad
+           WHERE origen_hoja = 'SITIO'
+           GROUP BY categoria_id"""
+    )
+    for categoria_id, neto in cur.fetchall():
+        if not neto:
+            continue
+        cur.execute(
+            "UPDATE categorias_stock SET cantidad_actual = COALESCE(cantidad_actual, 0) + %s WHERE id = %s",
+            (int(neto), categoria_id),
+        )
+
     def esqueleto(valor):
         import re
         import unicodedata
