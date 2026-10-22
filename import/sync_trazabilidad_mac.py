@@ -23,7 +23,7 @@ from openpyxl import load_workbook
 from importar_stock_cantidad import a_fecha, limpiar_texto
 from sync_planilla_drive import conectar, descargar, leer_env, log
 
-SHEET_MAC_ID = "1YqSkbC5AMvVNrXlsQy_m1ElVbLUbXfcWRcRc-rofUK0"
+SHEET_MAC_ID = "1doNJ0X-qHquvw2ccdra5jWaVVMpLYvEO"
 
 HOJAS = (
     ("Ingreso EBD Oficina", "ingreso", "trazabilidad_ingreso_ebd"),
@@ -129,6 +129,8 @@ def fecha_o_texto(valor, largo=40):
 
 def clasificar(nombre):
     limpio = nombre.strip()
+    if limpio.lower().startswith("engreso pantalla"):
+        return "egreso", "trazabilidad_egreso_pantalla"
     for prefijo, tipo, tabla in HOJAS:
         if limpio == prefijo or limpio.startswith(prefijo):
             if prefijo.startswith("Egreso D3 2.0") and not limpio.startswith("Egreso D3 2.0 (venta"):

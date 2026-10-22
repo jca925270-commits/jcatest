@@ -352,14 +352,7 @@ def probar(ruta):
 
 def sincronizar_mac(destino=None):
     from sync_trazabilidad_mac import aplicar_archivo, sheet_id as mac_sheet_id
-    cambio = False
-    try:
-        from espejo_mac import replicar_hacia_nativa
-        resultado = replicar_hacia_nativa()
-        cambio = bool(resultado["filas"] or resultado["celdas"])
-    except Exception as error:
-        log.warning("No se pudo copiar el Excel de MAC sobre la planilla nativa: %s", error)
-    if destino is None or cambio:
+    if destino is None:
         destino = os.path.join(tempfile.gettempdir(), "stock-mac.xlsx")
         descargar(mac_sheet_id(), destino)
     aplicar_archivo(destino)
