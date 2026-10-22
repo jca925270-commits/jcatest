@@ -1,11 +1,15 @@
 """
 Sincroniza la planilla BASE MAC ADDRESS hacia tablas propias de trazabilidad.
 
-Solo estas pestañas:
+Estas pestañas:
     Ingreso EBD Oficina
     Egreso EBD 2.0
     Ingreso D3 Oficina
     Egreso D3 2.0 (venta/comodato desde Comercial)
+    Ingreso EBD REPARADO (Testeados)
+    Egreso EBD REPARADO (Venta/Migracion/Garantia)
+    Ingreso Pantallas Colectivo Oficina
+    Egreso Pantallas Colectivo Oficina
 
 El resto de la planilla no se importa.
 """
@@ -26,7 +30,17 @@ HOJAS = (
     ("Egreso EBD 2.0", "egreso", "trazabilidad_egreso_ebd"),
     ("Ingreso D3 Oficina", "ingreso", "trazabilidad_ingreso_d3"),
     ("Egreso D3 2.0 (venta", "egreso", "trazabilidad_egreso_d3"),
+    ("Ingreso EBD REPARADO", "ingreso", "trazabilidad_ingreso_ebd_reparado"),
+    ("Egreso EBD REPARADO", "egreso", "trazabilidad_egreso_ebd_reparado"),
+    ("Ingreso Pantallas", "ingreso", "trazabilidad_ingreso_pantalla"),
+    ("Egreso Pantallas", "egreso", "trazabilidad_egreso_pantalla"),
 )
+REQUERIDAS = {
+    "trazabilidad_ingreso_ebd",
+    "trazabilidad_egreso_ebd",
+    "trazabilidad_ingreso_d3",
+    "trazabilidad_egreso_d3",
+}
 
 ALIASES = {
     "FECHA DE LLEGADA": "fecha_llegada",
@@ -36,6 +50,7 @@ ALIASES = {
     "LOTE": "lote",
     "CAJA N": "caja",
     "CAJA": "caja",
+    "REPARADO N": "caja",
     "CLIENTE": "cliente",
     "FECHA DE DESPACHO": "fecha_despacho",
 }
@@ -199,8 +214,9 @@ def parsear(ruta):
             hojas.append({"nombre": nombre, "tipo": tipo, "tabla": tabla, "filas": filas})
     finally:
         libro.close()
-    if len(hojas) != 4:
-        raise RuntimeError(f"La planilla de MAC no trajo las 4 pestañas (llegaron {len(hojas)})")
+    faltan = REQUERIDAS - {hoja["tabla"] for hoja in hojas}
+    if faltan:
+        raise RuntimeError(f"Faltan pestañas de MAC: {', '.join(sorted(faltan))}")
     return hojas
 
 
@@ -218,6 +234,10 @@ def asegurar_tablas(cnx):
         "trazabilidad_ingreso_d3",
         "trazabilidad_egreso_ebd",
         "trazabilidad_egreso_d3",
+        "trazabilidad_ingreso_ebd_reparado",
+        "trazabilidad_egreso_ebd_reparado",
+        "trazabilidad_ingreso_pantalla",
+        "trazabilidad_egreso_pantalla",
     ):
         cur.execute(
             """SELECT COUNT(*) FROM information_schema.COLUMNS
