@@ -27,20 +27,14 @@ SHEET_MAC_ID = "1YqSkbC5AMvVNrXlsQy_m1ElVbLUbXfcWRcRc-rofUK0"
 
 HOJAS = (
     ("Ingreso EBD Oficina", "ingreso", "trazabilidad_ingreso_ebd"),
+    ("Ingreso EBD REPARADO", "ingreso", "trazabilidad_ingreso_ebd_reparado"),
+    ("Ingreso Pantallas", "ingreso", "trazabilidad_ingreso_pantalla"),
     ("Egreso EBD 2.0", "egreso", "trazabilidad_egreso_ebd"),
+    ("Egreso EBD REPARADO", "egreso", "trazabilidad_egreso_ebd_reparado"),
+    ("Egreso Pantallas", "egreso", "trazabilidad_egreso_pantalla"),
     ("Ingreso D3 Oficina", "ingreso", "trazabilidad_ingreso_d3"),
     ("Egreso D3 2.0 (venta", "egreso", "trazabilidad_egreso_d3"),
-    ("Ingreso EBD REPARADO", "ingreso", "trazabilidad_ingreso_ebd_reparado"),
-    ("Egreso EBD REPARADO", "egreso", "trazabilidad_egreso_ebd_reparado"),
-    ("Ingreso Pantallas", "ingreso", "trazabilidad_ingreso_pantalla"),
-    ("Egreso Pantallas", "egreso", "trazabilidad_egreso_pantalla"),
 )
-REQUERIDAS = {
-    "trazabilidad_ingreso_ebd",
-    "trazabilidad_egreso_ebd",
-    "trazabilidad_ingreso_d3",
-    "trazabilidad_egreso_d3",
-}
 
 ALIASES = {
     "FECHA DE LLEGADA": "fecha_llegada",
@@ -214,9 +208,19 @@ def parsear(ruta):
             hojas.append({"nombre": nombre, "tipo": tipo, "tabla": tabla, "filas": filas})
     finally:
         libro.close()
-    faltan = REQUERIDAS - {hoja["tabla"] for hoja in hojas}
-    if faltan:
-        raise RuntimeError(f"Faltan pestañas de MAC: {', '.join(sorted(faltan))}")
+    requeridas = {
+        "trazabilidad_ingreso_ebd",
+        "trazabilidad_egreso_ebd",
+        "trazabilidad_ingreso_d3",
+        "trazabilidad_egreso_d3",
+        "trazabilidad_ingreso_ebd_reparado",
+        "trazabilidad_egreso_ebd_reparado",
+        "trazabilidad_ingreso_pantalla",
+        "trazabilidad_egreso_pantalla",
+    }
+    faltan = requeridas - {hoja["tabla"] for hoja in hojas}
+    if faltan or len(hojas) != len(requeridas):
+        raise RuntimeError(f"Faltan pestañas de MAC: {', '.join(sorted(faltan)) or 'hay pestañas de más'}")
     return hojas
 
 
@@ -232,11 +236,11 @@ def asegurar_tablas(cnx):
     for tabla in (
         "trazabilidad_ingreso_ebd",
         "trazabilidad_ingreso_d3",
+        "trazabilidad_ingreso_ebd_reparado",
+        "trazabilidad_ingreso_pantalla",
         "trazabilidad_egreso_ebd",
         "trazabilidad_egreso_d3",
-        "trazabilidad_ingreso_ebd_reparado",
         "trazabilidad_egreso_ebd_reparado",
-        "trazabilidad_ingreso_pantalla",
         "trazabilidad_egreso_pantalla",
     ):
         cur.execute(
