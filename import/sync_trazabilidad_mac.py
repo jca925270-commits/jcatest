@@ -23,7 +23,7 @@ from openpyxl import load_workbook
 from importar_stock_cantidad import a_fecha, limpiar_texto
 from sync_planilla_drive import conectar, descargar, leer_env, log
 
-SHEET_MAC_ID = "1doNJ0X-qHquvw2ccdra5jWaVVMpLYvEO"
+SHEET_MAC_ID = "1fNSvCBnYOqBd-IwC6lAdQw6cepZbsAIg8lHj2uGgloU"
 
 HOJAS = (
     ("Ingreso EBD Oficina", "ingreso", "trazabilidad_ingreso_ebd"),

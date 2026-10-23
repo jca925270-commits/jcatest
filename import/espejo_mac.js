@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
-const NATIVA = process.env.GOOGLE_SHEET_MAC_ID || "1YqSkbC5AMvVNrXlsQy_m1ElVbLUbXfcWRcRc-rofUK0";
+const NATIVA = process.env.GOOGLE_SHEET_MAC_ID || "1fNSvCBnYOqBd-IwC6lAdQw6cepZbsAIg8lHj2uGgloU";
 
 function cuenta() {
   if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {

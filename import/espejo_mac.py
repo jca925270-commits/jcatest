@@ -1,10 +1,4 @@
-"""Copia hacia la planilla nativa de MAC los equipos que solo están en el Excel.
-
-El archivo Excel (id 1doNJ0X) no es una hoja de cálculo de Google: la API de
-Sheets no puede escribirlo. Este paso lee los dos archivos y agrega en la
-planilla nativa las MAC que faltan, y completa celdas vacías. Si las dos
-tienen un dato distinto en la misma celda, no pisa ninguna.
-"""
+"""La base de MAC es una sola hoja de cálculo. Este paso ya no copia otro archivo."""
 
 import datetime as dt
 import json
@@ -22,7 +16,7 @@ from importar_stock_cantidad import limpiar_texto  # noqa: E402
 from sync_planilla_drive import log  # noqa: E402
 from sync_trazabilidad_mac import HOJAS, clasificar, mac, norm_header, sheet_id  # noqa: E402
 
-EXCEL_ID = "1doNJ0X-qHquvw2ccdra5jWaVVMpLYvEO"
+EXCEL_ID = "1fNSvCBnYOqBd-IwC6lAdQw6cepZbsAIg8lHj2uGgloU"
 PREFIJO = {tabla: prefijo for prefijo, _tipo, tabla in HOJAS}
 TOPE_FILAS = 80
 TOPE_CELDAS = 200
@@ -148,61 +142,8 @@ def armar_plan(nativa, excel):
 
 
 def replicar_hacia_nativa(seco=False):
-    carpeta = tempfile.gettempdir()
-    ruta_n = os.path.join(carpeta, "espejo-nativa.xlsx")
-    ruta_e = os.path.join(carpeta, "espejo-excel.xlsx")
-    descargar(sheet_id(), ruta_n)
-    descargar(excel_id(), ruta_e)
-    try:
-        copiar, completar, distintas, solo_nativa = armar_plan(leer(ruta_n), leer(ruta_e))
-    finally:
-        for ruta in (ruta_n, ruta_e):
-            if os.path.exists(ruta):
-                os.remove(ruta)
-    log.info(
-        "MAC espejo: %s equipos nuevos y %s celdas vacías van a la planilla nativa. %s celdas con datos distintos quedan sin tocar. %s equipos están solo en la nativa.",
-        len(copiar), len(completar), distintas, solo_nativa,
-    )
-    if len(copiar) > TOPE_FILAS or len(completar) > TOPE_CELDAS:
-        raise RuntimeError("El espejo de MAC superó el tope de cambios y no escribió nada.")
-    if not copiar and not completar:
-        return {"filas": 0, "celdas": 0}
-    nodo = shutil.which("node")
-    if not nodo:
-        raise RuntimeError("No está node para escribir la planilla nativa.")
-    plan = os.path.join(carpeta, "espejo-mac-plan.json")
-    with open(plan, "w", encoding="utf-8") as archivo:
-        json.dump({"copiar": copiar, "completar": completar}, archivo, ensure_ascii=False)
-    try:
-        entorno = os.environ.copy()
-        if seco:
-            entorno["ESPEJO_SECO"] = "1"
-        proceso = subprocess.run(
-            [nodo, os.path.join(os.path.dirname(__file__), "espejo_mac.js"), plan],
-            check=False,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            env=entorno,
-        )
-    finally:
-        if os.path.exists(plan):
-            os.remove(plan)
-    if proceso.stdout.strip():
-        log.info("MAC espejo: %s", proceso.stdout.strip().replace("\n", " | "))
-    if proceso.returncode == 2:
-        log.warning("MAC espejo: faltan las credenciales de Google para copiar el Excel.")
-        return {"filas": 0, "celdas": 0}
-    if proceso.returncode != 0:
-        detalle = (proceso.stderr or proceso.stdout or "falló la escritura").strip().splitlines()
-        raise RuntimeError(detalle[-1][:200] if detalle else "falló la escritura")
-    escritas = celdas = 0
-    for linea in proceso.stdout.splitlines():
-        partes = linea.split()
-        if len(partes) == 5 and partes[0] == "escritas":
-            escritas, celdas = int(partes[2]), int(partes[4])
-    return {"filas": escritas, "celdas": celdas}
+    log.info("MAC espejo: la base de MAC es una sola planilla y no se copia desde otro archivo.")
+    return {"filas": 0, "celdas": 0}
 
 
 if __name__ == "__main__":
