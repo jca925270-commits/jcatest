@@ -117,6 +117,39 @@ CREATE TABLE IF NOT EXISTS trazabilidad_ingreso_pantalla (
     KEY idx_mac_eth (mac_eth)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS trazabilidad_ingreso_ebd_interno (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha_llegada DATE NULL,
+    fecha_llegada_texto VARCHAR(40) NULL,
+    fecha_carga DATE NULL,
+    fecha_carga_texto VARCHAR(40) NULL,
+    mac_wifi VARCHAR(20) NOT NULL,
+    mac_eth VARCHAR(20) NULL,
+    lote VARCHAR(80) NULL,
+    caja VARCHAR(40) NULL,
+    numero_equipo VARCHAR(20) NULL,
+    origen_fila INT NOT NULL,
+    UNIQUE KEY uq_fila (origen_fila),
+    KEY idx_mac_wifi (mac_wifi),
+    KEY idx_mac_eth (mac_eth)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS trazabilidad_egreso_ebd_interno (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente VARCHAR(255) NULL,
+    fecha_despacho DATE NULL,
+    fecha_despacho_texto VARCHAR(80) NULL,
+    mac_wifi VARCHAR(20) NOT NULL,
+    mac_eth VARCHAR(20) NULL,
+    lote VARCHAR(80) NULL,
+    caja VARCHAR(40) NULL,
+    numero_equipo VARCHAR(20) NULL,
+    origen_fila INT NOT NULL,
+    UNIQUE KEY uq_fila (origen_fila),
+    KEY idx_mac_wifi (mac_wifi),
+    KEY idx_mac_eth (mac_eth)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS trazabilidad_egreso_pantalla (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente VARCHAR(255) NULL,

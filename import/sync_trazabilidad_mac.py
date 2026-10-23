@@ -10,6 +10,8 @@ Estas pestañas:
     Egreso EBD REPARADO (Venta/Migracion/Garantia)
     Ingreso Pantallas Colectivo Oficina
     Egreso Pantallas Colectivo Oficina
+    Ingreso EBD uso INTERNO
+    Egreso EBD uso INTERNO
 
 El resto de la planilla no se importa.
 """
@@ -32,6 +34,8 @@ HOJAS = (
     ("Egreso EBD 2.0", "egreso", "trazabilidad_egreso_ebd"),
     ("Egreso EBD REPARADO", "egreso", "trazabilidad_egreso_ebd_reparado"),
     ("Egreso Pantallas", "egreso", "trazabilidad_egreso_pantalla"),
+    ("Ingreso EBD uso INTERNO", "ingreso", "trazabilidad_ingreso_ebd_interno"),
+    ("Egreso EBD uso INTERNO", "egreso", "trazabilidad_egreso_ebd_interno"),
     ("Ingreso D3 Oficina", "ingreso", "trazabilidad_ingreso_d3"),
     ("Egreso D3 2.0 (venta", "egreso", "trazabilidad_egreso_d3"),
 )
@@ -41,6 +45,8 @@ ALIASES = {
     "FECHA DE CARGA": "fecha_carga",
     "MAC WIFI": "mac_wifi",
     "MAC ETH": "mac_eth",
+    "MAC WIFI SACADA DE SISTEMA": "mac_wifi_sacada",
+    "MAC ETH SACADA DE SISTEMA": "mac_eth_sacada",
     "LOTE": "lote",
     "CAJA N": "caja",
     "CAJA": "caja",
@@ -78,7 +84,7 @@ def mac(valor):
 
 def texto_corto(valor, largo):
     texto = limpiar_texto(valor)
-    if not texto or texto == "-":
+    if not texto or texto == "-" or texto.upper() == "#N/A":
         return None
     return texto[:largo]
 
@@ -105,7 +111,7 @@ def caja(valor):
         return None
     texto = re.sub(r"\(?\s*equipo\s*\(?\s*\d+\s*\)?", " ", texto, flags=re.I)
     texto = re.sub(r"\s+", " ", texto).strip(" -")
-    if not texto or texto == "-":
+    if not texto or texto == "-" or texto.upper() == "#N/A":
         return None
     return texto[:40]
 
@@ -115,7 +121,7 @@ def fecha_o_texto(valor, largo=40):
     if iso:
         return iso, None
     texto = limpiar_texto(valor)
-    if not texto or texto == "-":
+    if not texto or texto == "-" or texto.upper() == "#N/A":
         return None, None
     coincidencia = re.match(r"^(\d{1,2})/(\d{1,2})/(\d{4})$", texto)
     if coincidencia:
@@ -158,6 +164,7 @@ def parsear(ruta):
             tipo, tabla = clasificacion
             hoja = libro[nombre]
             columnas = {}
+            sacada = {}
             filas = []
             for numero, row in enumerate(hoja.iter_rows(values_only=True), start=1):
                 vals = list(row)
@@ -167,10 +174,22 @@ def parsear(ruta):
                         clave = ALIASES.get(norm_header(valor))
                         if clave and clave not in columnas:
                             columnas[clave] = indice
+                    for clave, indice in sacada.items():
+                        columnas.setdefault(clave, indice)
                     continue
-                if "mac_wifi" not in columnas:
+                for indice, valor in enumerate(vals):
+                    clave = ALIASES.get(norm_header(valor))
+                    if clave in ("mac_wifi_sacada", "mac_eth_sacada"):
+                        sacada[clave] = indice
+                if "mac_wifi" not in columnas and "mac_wifi_sacada" not in columnas:
                     continue
                 wifi = mac(celda(vals, columnas.get("mac_wifi")))
+                eth = mac(celda(vals, columnas.get("mac_eth")))
+                if tabla.endswith("_ebd_interno"):
+                    if not wifi:
+                        wifi = mac(celda(vals, columnas.get("mac_wifi_sacada")))
+                    if not eth:
+                        eth = mac(celda(vals, columnas.get("mac_eth_sacada")))
                 if not wifi:
                     continue
                 if tipo == "ingreso":
@@ -182,7 +201,7 @@ def parsear(ruta):
                         "fecha_carga": carga,
                         "fecha_carga_texto": carga_texto,
                         "mac_wifi": wifi,
-                        "mac_eth": mac(celda(vals, columnas.get("mac_eth"))),
+                        "mac_eth": eth,
                         "lote": texto_corto(celda(vals, columnas.get("lote")), 80),
                         "caja": caja(celda(vals, columnas.get("caja"))),
                         "numero_equipo": numero_equipo(celda(vals, columnas.get("caja"))),
@@ -195,7 +214,7 @@ def parsear(ruta):
                         "fecha_despacho": despacho,
                         "fecha_despacho_texto": despacho_texto,
                         "mac_wifi": wifi,
-                        "mac_eth": mac(celda(vals, columnas.get("mac_eth"))),
+                        "mac_eth": eth,
                         "lote": texto_corto(celda(vals, columnas.get("lote")), 80),
                         "caja": caja(celda(vals, columnas.get("caja"))),
                         "numero_equipo": numero_equipo(
@@ -219,6 +238,8 @@ def parsear(ruta):
         "trazabilidad_egreso_ebd_reparado",
         "trazabilidad_ingreso_pantalla",
         "trazabilidad_egreso_pantalla",
+        "trazabilidad_ingreso_ebd_interno",
+        "trazabilidad_egreso_ebd_interno",
     }
     faltan = requeridas - {hoja["tabla"] for hoja in hojas}
     if faltan or len(hojas) != len(requeridas):
@@ -240,10 +261,12 @@ def asegurar_tablas(cnx):
         "trazabilidad_ingreso_d3",
         "trazabilidad_ingreso_ebd_reparado",
         "trazabilidad_ingreso_pantalla",
+        "trazabilidad_ingreso_ebd_interno",
         "trazabilidad_egreso_ebd",
         "trazabilidad_egreso_d3",
         "trazabilidad_egreso_ebd_reparado",
         "trazabilidad_egreso_pantalla",
+        "trazabilidad_egreso_ebd_interno",
     ):
         cur.execute(
             """SELECT COUNT(*) FROM information_schema.COLUMNS
