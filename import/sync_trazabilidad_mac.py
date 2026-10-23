@@ -200,6 +200,7 @@ def parsear(ruta):
                         "fecha_llegada_texto": llegada_texto,
                         "fecha_carga": carga,
                         "fecha_carga_texto": carga_texto,
+                        "cliente": texto_corto(celda(vals, columnas.get("cliente")), 255),
                         "mac_wifi": wifi,
                         "mac_eth": eth,
                         "lote": texto_corto(celda(vals, columnas.get("lote")), 80),
@@ -275,6 +276,13 @@ def asegurar_tablas(cnx):
         )
         if cur.fetchone()[0] == 0:
             cur.execute(f"ALTER TABLE {tabla} ADD COLUMN numero_equipo VARCHAR(20) NULL")
+    cur.execute(
+        """SELECT COUNT(*) FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'trazabilidad_ingreso_ebd_interno'
+             AND COLUMN_NAME = 'cliente'"""
+    )
+    if cur.fetchone()[0] == 0:
+        cur.execute("ALTER TABLE trazabilidad_ingreso_ebd_interno ADD COLUMN cliente VARCHAR(255) NULL")
     cnx.commit()
 
 
@@ -283,7 +291,28 @@ def aplicar(cnx, hojas):
     total = 0
     for hoja in hojas:
         tabla = hoja["tabla"]
-        if hoja["tipo"] == "ingreso":
+        if hoja["tipo"] == "ingreso" and tabla == "trazabilidad_ingreso_ebd_interno":
+            sql = f"""INSERT INTO {tabla}
+                (cliente, fecha_llegada, fecha_llegada_texto, fecha_carga, fecha_carga_texto,
+                 mac_wifi, mac_eth, lote, caja, numero_equipo, origen_fila)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE
+                  cliente=VALUES(cliente),
+                  fecha_llegada=VALUES(fecha_llegada),
+                  fecha_llegada_texto=VALUES(fecha_llegada_texto),
+                  fecha_carga=VALUES(fecha_carga),
+                  fecha_carga_texto=VALUES(fecha_carga_texto),
+                  mac_wifi=VALUES(mac_wifi),
+                  mac_eth=VALUES(mac_eth),
+                  lote=VALUES(lote),
+                  caja=VALUES(caja),
+                  numero_equipo=VALUES(numero_equipo)"""
+            datos = [
+                (f.get("cliente"), f["fecha_llegada"], f["fecha_llegada_texto"], f["fecha_carga"], f["fecha_carga_texto"],
+                 f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["numero_equipo"], f["origen_fila"])
+                for f in hoja["filas"]
+            ]
+        elif hoja["tipo"] == "ingreso":
             sql = f"""INSERT INTO {tabla}
                 (fecha_llegada, fecha_llegada_texto, fecha_carga, fecha_carga_texto,
                  mac_wifi, mac_eth, lote, caja, numero_equipo, origen_fila)

@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS trazabilidad_ingreso_pantalla (
 
 CREATE TABLE IF NOT EXISTS trazabilidad_ingreso_ebd_interno (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    cliente VARCHAR(255) NULL,
     fecha_llegada DATE NULL,
     fecha_llegada_texto VARCHAR(40) NULL,
     fecha_carga DATE NULL,
