@@ -15,6 +15,7 @@ import hashlib
 import logging
 import os
 import re
+import subprocess
 import sys
 import tempfile
 import time
@@ -350,6 +351,41 @@ def probar(ruta):
             print(f"  {categoria['stock']}\t{categoria['nombre']}")
 
 
+def migrar_finalizados():
+    """Pasa a la planilla de MAC los finalizados del relevamiento que todavía no están."""
+    script = os.path.join(os.path.dirname(__file__), "sync_relevamiento_reparados.js")
+    credenciales = os.path.join(os.path.dirname(__file__), "credenciales_google.json")
+    if not os.path.exists(script):
+        return 0
+    if not os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip() and not os.path.exists(credenciales):
+        return 0
+    try:
+        resultado = subprocess.run(
+            ["node", script],
+            check=False,
+            timeout=180,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+    except Exception as error:
+        log.error("No se migraron los finalizados del relevamiento: %s", error)
+        return 0
+    for linea in (resultado.stdout or "").splitlines():
+        if linea.startswith("relevamiento "):
+            log.info(linea)
+    if resultado.returncode:
+        detalle = (resultado.stderr or resultado.stdout or "").strip().splitlines()
+        log.error(
+            "No se migraron los finalizados del relevamiento: %s",
+            (detalle[-1] if detalle else resultado.returncode)[:200],
+        )
+        return 0
+    hallado = re.search(r"nuevos=(\d+)", resultado.stdout or "")
+    return int(hallado.group(1)) if hallado else 0
+
+
 def sincronizar_mac(destino=None):
     from sync_trazabilidad_mac import aplicar_archivo, sheet_id as mac_sheet_id
     if destino is None:
@@ -450,6 +486,8 @@ def una_vez():
     destino = os.path.join(tempfile.gettempdir(), "stock-planilla.xlsx")
     descargar(sheet_id, destino)
     sincronizar_archivo(destino)
+    if migrar_finalizados():
+        time.sleep(5)
     sincronizar_mac()
     sincronizar_soporte()
     sincronizar_testeo()
