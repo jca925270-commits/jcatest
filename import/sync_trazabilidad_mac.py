@@ -53,6 +53,9 @@ ALIASES = {
     "REPARADO N": "caja",
     "CLIENTE": "cliente",
     "FECHA DE DESPACHO": "fecha_despacho",
+    "WIFI": "estado_wifi",
+    "PANTALLA": "estado_pantalla",
+    "AUDIO": "estado_audio",
 }
 
 
@@ -208,6 +211,10 @@ def parsear(ruta):
                         "numero_equipo": numero_equipo(celda(vals, columnas.get("caja"))),
                         "origen_fila": numero,
                     }
+                    if tabla == "trazabilidad_ingreso_pantalla":
+                        registro["estado_wifi"] = texto_corto(celda(vals, columnas.get("estado_wifi")), 40)
+                        registro["estado_pantalla"] = texto_corto(celda(vals, columnas.get("estado_pantalla")), 40)
+                        registro["estado_audio"] = texto_corto(celda(vals, columnas.get("estado_audio")), 40)
                 else:
                     despacho, despacho_texto = fecha_o_texto(celda(vals, columnas.get("fecha_despacho")), 80)
                     registro = {
@@ -276,6 +283,17 @@ def asegurar_tablas(cnx):
         )
         if cur.fetchone()[0] == 0:
             cur.execute(f"ALTER TABLE {tabla} ADD COLUMN numero_equipo VARCHAR(20) NULL")
+    for columna in ("estado_wifi", "estado_pantalla", "estado_audio"):
+        cur.execute(
+            """SELECT COUNT(*) FROM information_schema.COLUMNS
+               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'trazabilidad_ingreso_pantalla'
+                 AND COLUMN_NAME = %s""",
+            (columna,),
+        )
+        if cur.fetchone()[0] == 0:
+            cur.execute(
+                f"ALTER TABLE trazabilidad_ingreso_pantalla ADD COLUMN {columna} VARCHAR(40) NULL"
+            )
     cur.execute(
         """SELECT COUNT(*) FROM information_schema.COLUMNS
            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'trazabilidad_ingreso_ebd_interno'
@@ -310,6 +328,31 @@ def aplicar(cnx, hojas):
             datos = [
                 (f.get("cliente"), f["fecha_llegada"], f["fecha_llegada_texto"], f["fecha_carga"], f["fecha_carga_texto"],
                  f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["numero_equipo"], f["origen_fila"])
+                for f in hoja["filas"]
+            ]
+        elif hoja["tipo"] == "ingreso" and tabla == "trazabilidad_ingreso_pantalla":
+            sql = f"""INSERT INTO {tabla}
+                (fecha_llegada, fecha_llegada_texto, fecha_carga, fecha_carga_texto,
+                 mac_wifi, mac_eth, lote, caja, numero_equipo, origen_fila,
+                 estado_wifi, estado_pantalla, estado_audio)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE
+                  fecha_llegada=VALUES(fecha_llegada),
+                  fecha_llegada_texto=VALUES(fecha_llegada_texto),
+                  fecha_carga=VALUES(fecha_carga),
+                  fecha_carga_texto=VALUES(fecha_carga_texto),
+                  mac_wifi=VALUES(mac_wifi),
+                  mac_eth=VALUES(mac_eth),
+                  lote=VALUES(lote),
+                  caja=VALUES(caja),
+                  numero_equipo=VALUES(numero_equipo),
+                  estado_wifi=VALUES(estado_wifi),
+                  estado_pantalla=VALUES(estado_pantalla),
+                  estado_audio=VALUES(estado_audio)"""
+            datos = [
+                (f["fecha_llegada"], f["fecha_llegada_texto"], f["fecha_carga"], f["fecha_carga_texto"],
+                 f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["numero_equipo"], f["origen_fila"],
+                 f.get("estado_wifi"), f.get("estado_pantalla"), f.get("estado_audio"))
                 for f in hoja["filas"]
             ]
         elif hoja["tipo"] == "ingreso":
