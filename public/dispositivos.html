@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
 <title>Dispositivos — Sistema de Stock</title>
-<script src="assets/js/theme-init.js"></script>
+<script src="assets/js/theme-init.js?v=fijo"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
@@ -21,7 +22,7 @@
   };
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link href="assets/css/banner.css" rel="stylesheet">
+<link href="assets/css/banner.css?v=reloj1" rel="stylesheet">
 <style type="text/tailwindcss">
   @layer components {
     .nav-link { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 border-l-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
@@ -45,61 +46,89 @@
   <aside class="sidebar w-64 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
     <div class="px-5 pt-5 pb-4 border-b border-slate-200 dark:border-slate-800">
       <div class="font-bold text-slate-900 dark:text-white text-[15px]">Sistema de Stock</div>
-      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Trazabilidad por MAC</div>
+      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">SOPORTE Y LOGISTICA</div>
     </div>
     <nav class="flex-1 overflow-y-auto py-2">
-      <a href="index.html" class="nav-link" >📊 Dashboard</a>
-      <a href="busqueda.html" class="nav-link" >🔍 Búsqueda</a>
-      <a href="dispositivos.html" class="nav-link active" >📦 Dispositivos</a>
-      <a href="reparados.html" class="nav-link" >🔧 Reparados y Reutilizados</a>
-
-      <details class="nav-group" >
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <details class="nav-group">
+        <summary><span class="nav-icono" aria-hidden="true">devices</span> Dispositivo</summary>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">build</span> Reparados y Reutilizados</summary>
+          <a href="reparados.html" class="sub-link">Reparados y Reutilizados</a>
+          <a href="reparados.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+          <a href="reparados.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+          <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        </details>
+      </details>
+      <details class="nav-group">
         <summary>🔄 Movimientos</summary>
-        <a href="movimientos.html" class="sub-link">Todos</a>
-        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
-        <a href="movimientos.html?vista=ingreso" class="sub-link">Ingreso</a>
-        <a href="movimientos.html?vista=egreso" class="sub-link">Egreso</a>
-        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
-        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
-        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+        <a href="registrar-movimiento.html" class="sub-link"><span class="nav-icono" aria-hidden="true">edit_note</span> Registrar Movimiento</a>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">flag</span> Estado</summary>
+          <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+          <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+          <a href="estado.html?estado=comodato" class="sub-link">Comodato</a>
+          <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+          <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+          <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+          <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+          <a href="estado.html?estado=movimiento" class="sub-link">Movimiento</a>
+          <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+          <a href="ingresar-mac.html" class="sub-link"><span class="nav-icono" aria-hidden="true">playlist_add</span> Ingresar Equipos por MAC</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+          <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+          <a href="trazabilidad.html?hoja=devolucion_ebd" class="sub-link">Devolución EBD</a>
+          <a href="trazabilidad.html?hoja=devolucion_d3" class="sub-link">Devolución D3</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_reparado" class="sub-link">Ingreso EBD REPARADO (Testeados)</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_reparado" class="sub-link">Egreso EBD REPARADO (Venta/Migracion/Garantia)</a>
+          <a href="trazabilidad.html?hoja=ingreso_pantalla" class="sub-link">Ingreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_pantalla" class="sub-link">Egreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_interno" class="sub-link">Ingreso EBD uso INTERNO</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_interno" class="sub-link">Egreso EBD uso INTERNO</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">support_agent</span> Soporte Técnico</summary>
+          <a href="ingreso.html" class="sub-link">Ingresos Soporte</a>
+          <a href="egreso.html" class="sub-link">Egresos Soporte</a>
+          <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
+          <a href="cargar-egreso.html" class="sub-link">Cargar Egreso</a>
+        </details>
       </details>
 
-      <a href="soporte.html" class="nav-link" >🛠️ Soporte Técnico</a>
-
-      <details class="nav-group" >
-        <summary>🏭 Depósito</summary>
-        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
-        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
-        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
-        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      <details class="nav-group">
+        <summary>🏭 Depósitos</summary>
+        <a href="dispositivo.html?ubicacion=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="dispositivo.html?ubicacion=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="dispositivo.html?ubicacion=Oficina" class="sub-link">Oficina</a>
+        <a href="dispositivo.html?ubicacion=Showroom" class="sub-link">Showroom</a>
       </details>
-
-      <details class="nav-group" >
-        <summary>🏷️ Estado</summary>
-        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
-        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
-        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
-        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
-        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
-        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
-        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
-        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
-        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
-      </details>
-
-      <details class="nav-group" >
+      <details class="nav-group">
         <summary>📚 Stock</summary>
-        <a href="accesorios.html" class="sub-link ">Accesorios</a>
-        <a href="dispositivos.html" class="sub-link">Dispositivos</a>
-        <a href="deposito.html" class="sub-link">Depósito</a>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
       </details>
-
-      <a href="clientes.html" class="nav-link" >🧾 Clientes</a>
-      <a href="reportes.html" class="nav-link" >📈 Reportes</a>
-      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <details class="nav-group">
+        <summary>📈 Reportes</summary>
+        <a href="reportes.html" class="sub-link">Reportes</a>
+        <a href="stock-mensual.html" class="sub-link">Stock mensual</a>
+        <details class="nav-group">
+          <summary class="sub-link">Corrección de máximo y mínimos</summary>
+          <a href="correccion-accesorios.html" class="sub-link">Accesorios</a>
+        </details>
+      </details>
+      <details class="nav-group" data-solo-admin>
+        <summary>👤 Usuarios</summary>
+        <a href="usuarios.html" class="sub-link">Usuarios</a>
+        <a href="estado-movimientos.html" class="sub-link">Estado de movimientos</a>
+      </details>
     </nav>
     <div class="px-5 py-4 border-t border-slate-200 dark:border-slate-800 text-sm">
-      <button id="btn-tema" onclick="alternarTema()" class="mb-3 text-xs font-medium px-2.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400"></button>
       <div class="text-[10px] uppercase tracking-wide text-orange-600 dark:text-orange-400 font-semibold" id="usuario-rol">—</div>
       <div class="text-slate-700 dark:text-slate-200" id="usuario-nombre">—</div>
       <a href="#" id="btn-logout" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">Cerrar sesión</a>
@@ -233,9 +262,8 @@
     </div>
   </div>
 </div>
-<script src="assets/js/api.js"></script>
-<script src="assets/js/auth-guard.js"></script>
-<script src="assets/js/theme.js"></script>
+<script src="assets/js/api.js?v=fuente"></script>
+<script src="assets/js/auth-guard.js?v=reloj4"></script>
 <script src="assets/js/modal.js"></script>
 <script src="assets/js/ui.js"></script>
 <script src="assets/js/dispositivos.js"></script>

@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/conteo-mensual",
+      "schedule": "0 15 * * *"
+    }
+  ]
+}

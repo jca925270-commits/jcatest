@@ -1,10 +1,10 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const pool = require("../config/db");
+const { anotar } = require("../lib/registro-usuarios");
 
 const router = express.Router();
 
-// GET /api/auth?accion=me
 router.get("/", async (req, res) => {
   if (req.query.accion === "me") {
     return res.json({ usuario: req.session.usuario || null });
@@ -12,7 +12,6 @@ router.get("/", async (req, res) => {
   res.status(404).json({ error: "Acción no encontrada" });
 });
 
-// POST /api/auth?accion=login | ?accion=logout
 router.post("/", async (req, res) => {
   const accion = req.query.accion;
 
@@ -31,11 +30,19 @@ router.post("/", async (req, res) => {
       );
       const u = rows[0];
 
-      if (!u || !u.activo || !(await bcrypt.compare(pass, u.password_hash))) {
-        return res.status(401).json({ error: "Credenciales inválidas" });
+      if (!u || !u.activo) {
+        return res.status(401).json({ error: "Usuario o contraseña incorrectos." });
+      }
+      if (!(await bcrypt.compare(pass, u.password_hash))) {
+        return res.status(401).json({
+          error: "La contraseña es incorrecta. Pedile al administrador que te la cambie desde Usuarios.",
+        });
       }
 
       req.session.usuario = { id: u.id, nombre: u.nombre, rol: u.rol };
+      try {
+        await anotar({ usuario: req.session.usuario, tipo: "ingreso", detalle: "Ingresó al sistema" });
+      } catch (_) { /* el ingreso no depende del registro */ }
       res.json({ usuario: req.session.usuario });
     } catch (e) {
       res.status(500).json({ error: "Error de servidor: " + e.message });
@@ -44,9 +51,37 @@ router.post("/", async (req, res) => {
   }
 
   if (accion === "logout") {
-    req.session.destroy(() => {
+    const usuario = req.session.usuario;
+    const cerrar = () => req.session.destroy(() => res.json({ ok: true }));
+    if (!usuario) return cerrar();
+    anotar({ usuario, tipo: "salida", detalle: "Cerró sesión" }).finally(cerrar);
+    return;
+  }
+
+  if (accion === "cambiar") {
+    if (!req.session.usuario) return res.status(401).json({ error: "Sesión no iniciada" });
+    const actual = req.body.actual || "";
+    const nueva = String(req.body.nueva || "");
+    if (nueva.length < 6) {
+      return res.status(400).json({ error: "La contraseña nueva tiene que tener al menos 6 caracteres." });
+    }
+    try {
+      const [rows] = await pool.query(
+        "SELECT password_hash FROM usuarios WHERE id = ? AND activo = 1",
+        [req.session.usuario.id]
+      );
+      if (!rows[0] || !(await bcrypt.compare(actual, rows[0].password_hash))) {
+        return res.status(400).json({ error: "La contraseña actual es incorrecta." });
+      }
+      const hash = await bcrypt.hash(nueva, 10);
+      await pool.query("UPDATE usuarios SET password_hash = ? WHERE id = ?", [hash, req.session.usuario.id]);
+      try {
+        await anotar({ usuario: req.session.usuario, tipo: "cambio", detalle: "Cambió su contraseña" });
+      } catch (_) { /* el cambio de clave no depende del registro */ }
       res.json({ ok: true });
-    });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
     return;
   }
 

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Testeo — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css?v=reloj1" rel="stylesheet">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>SOPORTE Y LOGISTICA</small></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <details class="nav-group">
+        <summary><span class="nav-icono" aria-hidden="true">devices</span> Dispositivo</summary>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">build</span> Reparados y Reutilizados</summary>
+          <a href="reparados.html" class="sub-link">Reparados y Reutilizados</a>
+          <a href="reparados.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+          <a href="reparados.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+          <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        </details>
+      </details>
+      <details class="nav-group">
+        <summary>🔄 Movimientos</summary>
+        <a href="registrar-movimiento.html" class="sub-link"><span class="nav-icono" aria-hidden="true">edit_note</span> Registrar Movimiento</a>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">flag</span> Estado</summary>
+          <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+          <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+          <a href="estado.html?estado=comodato" class="sub-link">Comodato</a>
+          <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+          <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+          <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+          <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+          <a href="estado.html?estado=movimiento" class="sub-link">Movimiento</a>
+          <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+          <a href="ingresar-mac.html" class="sub-link"><span class="nav-icono" aria-hidden="true">playlist_add</span> Ingresar Equipos por MAC</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+          <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+          <a href="trazabilidad.html?hoja=devolucion_ebd" class="sub-link">Devolución EBD</a>
+          <a href="trazabilidad.html?hoja=devolucion_d3" class="sub-link">Devolución D3</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_reparado" class="sub-link">Ingreso EBD REPARADO (Testeados)</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_reparado" class="sub-link">Egreso EBD REPARADO (Venta/Migracion/Garantia)</a>
+          <a href="trazabilidad.html?hoja=ingreso_pantalla" class="sub-link">Ingreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_pantalla" class="sub-link">Egreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_interno" class="sub-link">Ingreso EBD uso INTERNO</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_interno" class="sub-link">Egreso EBD uso INTERNO</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">support_agent</span> Soporte Técnico</summary>
+          <a href="ingreso.html" class="sub-link">Ingresos Soporte</a>
+          <a href="egreso.html" class="sub-link">Egresos Soporte</a>
+          <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
+          <a href="cargar-egreso.html" class="sub-link">Cargar Egreso</a>
+        </details>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏭 Depósitos</summary>
+        <a href="dispositivo.html?ubicacion=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="dispositivo.html?ubicacion=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="dispositivo.html?ubicacion=Oficina" class="sub-link">Oficina</a>
+        <a href="dispositivo.html?ubicacion=Showroom" class="sub-link">Showroom</a>
+      </details>
+      <details class="nav-group">
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+      </details>
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <details class="nav-group">
+        <summary>📈 Reportes</summary>
+        <a href="reportes.html" class="sub-link">Reportes</a>
+        <a href="stock-mensual.html" class="sub-link">Stock mensual</a>
+        <details class="nav-group">
+          <summary class="sub-link">Corrección de máximo y mínimos</summary>
+          <a href="correccion-accesorios.html" class="sub-link">Accesorios</a>
+        </details>
+      </details>
+      <details class="nav-group" data-solo-admin>
+        <summary>👤 Usuarios</summary>
+        <a href="usuarios.html" class="sub-link">Usuarios</a>
+        <a href="estado-movimientos.html" class="sub-link">Estado de movimientos</a>
+      </details>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="page-title" id="titulo">Testeo</h1>
+    <p class="page-subtitle" id="subtitulo">Equipos reparados y reutilizados de la planilla.</p>
+    <p class="page-subtitle" id="resumen"></p>
+
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+
+    <div id="totales" class="row g-2 mb-3"></div>
+
+    <div class="row g-2 mb-3">
+      <div class="col-md-5">
+        <input type="search" class="form-control" id="buscador" placeholder="Buscar por MAC, observación, entidad o estado">
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="tabla-scroll">
+          <table class="table table-sm table-hover">
+            <thead class="table-light" id="thead-tabla"></thead>
+            <tbody id="tabla"></tbody>
+          </table>
+        </div>
+        <div id="paginacion-testeo"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="assets/js/api.js?v=fuente"></script>
+<script src="assets/js/auth-guard.js?v=reloj4"></script>
+<script>
+const hoja = new URLSearchParams(location.search).get("hoja") || "ebd";
+let filas = [];
+let etiquetaTipo = "Tipo de fuente";
+let etiquetaLugar = "Ubicación";
+let pagina = 1;
+
+document.querySelectorAll('a.sub-link[href*="testeo.html"]').forEach((enlace) => {
+  const url = new URL(enlace.getAttribute("href"), location.href);
+  if (url.searchParams.get("hoja") === hoja) {
+    enlace.classList.add("active");
+    const grupo = enlace.closest("details");
+    if (grupo) grupo.open = true;
+  }
+});
+
+function macVisible(valor) {
+  const macs = macsEnTexto(valor);
+  if (macs.length) return textoPlano(macs[0]);
+  return textoPlano(valor);
+}
+
+function fechaCorta(f) {
+  if (!f) return "";
+  const m = String(f).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${Number(m[3])}/${Number(m[2])}/${m[1]}`;
+  return String(f);
+}
+
+function fecha(valor, texto) {
+  if (texto) return textoPlano(texto);
+  return fechaCorta(valor) || "—";
+}
+
+function pintarTotales(totales) {
+  const caja = document.getElementById("totales");
+  if (!totales || !totales.length) {
+    caja.innerHTML = "";
+    caja.classList.add("d-none");
+    return;
+  }
+  caja.classList.remove("d-none");
+  caja.innerHTML = totales.map((t) => `
+    <div class="col-6 col-lg">
+      <div class="card-kpi h-100">
+        <div class="valor">${textoPlano(t.cantidad)}</div>
+        <div class="etiqueta">${textoPlano(t.etiqueta)}</div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function pintar() {
+  const q = document.getElementById("buscador").value.trim().toLowerCase();
+  const visibles = filas.filter((f) => {
+    if (!q) return true;
+    return textoIncluyeMac([f.mac_wifi, f.mac_eth], q) || [f.numero, f.mac_wifi, f.mac_eth, f.observaciones, f.entidad, f.ubicacion, f.estado, f.tipo, f.wifi, f.eth]
+      .some((v) => String(v || "").toLowerCase().includes(q));
+  });
+  const corte = paginar(visibles, pagina);
+  pagina = corte.pagina;
+  document.getElementById("resumen").textContent = q
+    ? `${visibles.length} de ${filas.length} equipos · página ${corte.pagina} de ${corte.total}`
+    : `${filas.length} equipos · página ${corte.pagina} de ${corte.total}`;
+  document.getElementById("paginacion-testeo").innerHTML = htmlPaginacion(corte.pagina, corte.total);
+  document.getElementById("thead-tabla").innerHTML =
+    `<tr><th>Nº</th><th>Fecha comienzo</th><th>Semanas</th><th>Fecha fin</th><th>MAC WIFI</th><th>MAC ETH</th><th>WiFi</th><th>ETH</th><th>${etiquetaTipo}</th><th>Observaciones</th><th>Entidad de prueba</th><th>${etiquetaLugar}</th><th>Estado</th></tr>`;
+  document.getElementById("tabla").innerHTML = corte.filas.map((f) => `
+    <tr>
+      <td>${textoPlano(f.numero)}</td>
+      <td>${fecha(f.fecha_comienzo, f.fecha_comienzo_texto)}</td>
+      <td>${textoPlano(f.semanas)}</td>
+      <td>${fecha(f.fecha_fin, f.fecha_fin_texto)}</td>
+      <td class="font-monospace">${macVisible(f.mac_wifi)}</td>
+      <td class="font-monospace">${macVisible(f.mac_eth)}</td>
+      <td>${textoPlano(f.wifi)}</td>
+      <td>${textoPlano(f.eth)}</td>
+      <td>${etiquetaTipo.toLowerCase().includes("fuente") ? htmlTipoFuente(f.tipo) : htmlFotoEquipo(f.tipo)}</td>
+      <td class="col-texto">${textoPlano(f.observaciones)}</td>
+      <td>${textoPlano(f.entidad)}</td>
+      <td>${textoPlano(f.ubicacion)}</td>
+      <td>${textoPlano(f.estado)}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="13" class="text-center text-muted py-4">Sin equipos en esta pestaña</td></tr>`;
+}
+
+async function cargar() {
+  const data = await apiFetch("testeo", { params: { hoja } });
+  filas = data.filas || [];
+  etiquetaTipo = data.etiquetaTipo || etiquetaTipo;
+  etiquetaLugar = data.etiquetaLugar || etiquetaLugar;
+  document.getElementById("titulo").textContent = data.titulo;
+  document.getElementById("subtitulo").textContent = data.titulo;
+  document.title = `${data.titulo} — Testeo`;
+  pintarTotales(data.totales);
+  pintar();
+}
+
+document.getElementById("buscador").addEventListener("input", () => {
+  pagina = 1;
+  pintar();
+});
+document.getElementById("paginacion-testeo").addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-pagina]");
+  if (!boton || boton.disabled) return;
+  pagina = Number(boton.dataset.pagina);
+  pintar();
+});
+cargar().catch((err) => mostrarError("msg-error", err.message));
+</script>
+</body>
+</html>

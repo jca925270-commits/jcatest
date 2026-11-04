@@ -110,7 +110,7 @@ class Catalogos:
         nombre = nombre.strip()
         if nombre not in self.depositos:
             cur = self.cnx.cursor()
-            cur.execute("SELECT id FROM depositos WHERE nombre = %s", (nombre,))
+            cur.execute("SELECT id_deposito FROM depositos WHERE nombre = %s", (nombre,))
             row = cur.fetchone()
             if not row:
                 cur.execute("INSERT INTO depositos (nombre) VALUES (%s)", (nombre,))

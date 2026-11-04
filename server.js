@@ -10,6 +10,7 @@ if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
   throw new Error("Configurá SESSION_SECRET con una clave aleatoria de al menos 32 caracteres.");
 }
 const pool = require("./config/db");
+const { observarCambios } = require("./lib/registro-usuarios");
 const app = express();
 const production = process.env.NODE_ENV === "production";
 app.disable("x-powered-by");
@@ -48,6 +49,7 @@ app.use(session({
   },
 }));
 
+app.use(observarCambios);
 app.get("/health", (req, res) => res.json({ status: "ok" }));
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/catalogos", require("./routes/catalogos"));
@@ -60,6 +62,12 @@ app.use("/api/accesorios", require("./routes/accesorios"));
 app.use("/api/stock", require("./routes/stock"));
 app.use("/api/deposito", require("./routes/deposito"));
 app.use("/api/estado", require("./routes/estado"));
+app.use("/api/trazabilidad", require("./routes/trazabilidad"));
+app.use("/api/soporte-planilla", require("./routes/soporte-planilla"));
+app.use("/api/testeo", require("./routes/testeo"));
+app.use("/api/busqueda", require("./routes/busqueda"));
+app.use("/api/conteo-mensual", require("./routes/conteo-mensual"));
+app.use("/api/planilla-stock", require("./routes/planilla-stock"));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use((err, req, res, next) => {

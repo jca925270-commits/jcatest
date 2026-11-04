@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
 <title>Reparados y Reutilizados — Sistema de Stock</title>
-<script src="assets/js/theme-init.js"></script>
+<script src="assets/js/theme-init.js?v=fijo"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
@@ -21,7 +22,7 @@
   };
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link href="assets/css/banner.css" rel="stylesheet">
+<link href="assets/css/banner.css?v=reloj1" rel="stylesheet">
 <style type="text/tailwindcss">
   @layer components {
     .nav-link { @apply flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 dark:text-slate-300 border-l-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
@@ -34,7 +35,14 @@
     .input-tw { @apply w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500; }
     .btn-primary-tw { @apply bg-orange-600 hover:bg-orange-700 text-white font-semibold text-sm rounded-lg px-4 py-2 transition; }
     .btn-secondary-tw { @apply border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm font-medium rounded-lg px-4 py-2 transition; }
-    .th-tw { @apply px-3 py-2 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide bg-slate-50 dark:bg-slate-800/60; }
+    .btn-paginacion { @apply px-3 py-1.5 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition text-slate-700 dark:text-slate-200; }
+    .btn-paginacion-num { @apply px-3 py-1 text-xs font-medium rounded-md border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200; }
+    .th-tw { @apply px-3 py-2 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide whitespace-nowrap; }
+    .tabla-planilla { max-height: calc(100vh - 280px); overflow: auto; }
+    .tabla-planilla table { width: max-content; min-width: 100%; }
+    .tabla-planilla th, .tabla-planilla td { white-space: nowrap; vertical-align: middle; }
+    .tabla-planilla .col-texto { white-space: normal; min-width: 220px; max-width: 320px; }
+    .tabla-planilla thead th { position: sticky; top: 0; z-index: 2; background: #262221; }
     .modal-backdrop-tw { @apply hidden fixed inset-0 z-50 items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4; }
     .modal-panel-tw { @apply w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl; }
   }
@@ -45,63 +53,89 @@
   <aside class="sidebar w-64 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
     <div class="px-5 pt-5 pb-4 border-b border-slate-200 dark:border-slate-800">
       <div class="font-bold text-slate-900 dark:text-white text-[15px]">Sistema de Stock</div>
-      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Trazabilidad por MAC</div>
+      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">SOPORTE Y LOGISTICA</div>
     </div>
     <nav class="flex-1 overflow-y-auto py-2">
-      <a href="index.html" class="nav-link" >📊 Dashboard</a>
-      <a href="busqueda.html" class="nav-link" >🔍 Búsqueda</a>
-      <a href="dispositivo.html" class="nav-link" >📦 dispositivo</a>
-      <a href="reparados.html" class="nav-link active" >🔧 Reparados y Reutilizados</a>
-      <a href="ingreso.html" class="nav-link">📥 Ingreso</a>
-      <a href="egreso.html" class="nav-link">📤 Egreso</a>
-
-      <details class="nav-group" >
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <details class="nav-group">
+        <summary><span class="nav-icono" aria-hidden="true">devices</span> Dispositivo</summary>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">build</span> Reparados y Reutilizados</summary>
+          <a href="reparados.html" class="sub-link">Reparados y Reutilizados</a>
+          <a href="reparados.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+          <a href="reparados.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+          <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        </details>
+      </details>
+      <details class="nav-group">
         <summary>🔄 Movimientos</summary>
-        <a href="movimientos.html" class="sub-link">Todos</a>
-        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
-        <a href="movimientos.html?vista=ingreso" class="sub-link">Ingreso</a>
-        <a href="movimientos.html?vista=egreso" class="sub-link">Egreso</a>
-        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
-        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
-        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+        <a href="registrar-movimiento.html" class="sub-link"><span class="nav-icono" aria-hidden="true">edit_note</span> Registrar Movimiento</a>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">flag</span> Estado</summary>
+          <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+          <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+          <a href="estado.html?estado=comodato" class="sub-link">Comodato</a>
+          <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+          <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+          <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+          <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+          <a href="estado.html?estado=movimiento" class="sub-link">Movimiento</a>
+          <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+          <a href="ingresar-mac.html" class="sub-link"><span class="nav-icono" aria-hidden="true">playlist_add</span> Ingresar Equipos por MAC</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+          <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+          <a href="trazabilidad.html?hoja=devolucion_ebd" class="sub-link">Devolución EBD</a>
+          <a href="trazabilidad.html?hoja=devolucion_d3" class="sub-link">Devolución D3</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_reparado" class="sub-link">Ingreso EBD REPARADO (Testeados)</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_reparado" class="sub-link">Egreso EBD REPARADO (Venta/Migracion/Garantia)</a>
+          <a href="trazabilidad.html?hoja=ingreso_pantalla" class="sub-link">Ingreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_pantalla" class="sub-link">Egreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_interno" class="sub-link">Ingreso EBD uso INTERNO</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_interno" class="sub-link">Egreso EBD uso INTERNO</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">support_agent</span> Soporte Técnico</summary>
+          <a href="ingreso.html" class="sub-link">Ingresos Soporte</a>
+          <a href="egreso.html" class="sub-link">Egresos Soporte</a>
+          <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
+          <a href="cargar-egreso.html" class="sub-link">Cargar Egreso</a>
+        </details>
       </details>
 
-      <a href="soporte.html" class="nav-link" >🛠️ Soporte Técnico</a>
-
-      <details class="nav-group" >
-        <summary>🏭 Depósito</summary>
-        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
-        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
-        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
-        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+      <details class="nav-group">
+        <summary>🏭 Depósitos</summary>
+        <a href="dispositivo.html?ubicacion=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="dispositivo.html?ubicacion=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="dispositivo.html?ubicacion=Oficina" class="sub-link">Oficina</a>
+        <a href="dispositivo.html?ubicacion=Showroom" class="sub-link">Showroom</a>
       </details>
-
-      <details class="nav-group" >
-        <summary>🏷️ Estado</summary>
-        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
-        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
-        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
-        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
-        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
-        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
-        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
-        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
-        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
-      </details>
-
-      <details class="nav-group" >
+      <details class="nav-group">
         <summary>📚 Stock</summary>
-        <a href="accesorios.html" class="sub-link ">Accesorios</a>
-        <a href="dispositivo.html" class="sub-link">dispositivo</a>
-        <a href="deposito.html" class="sub-link">Depósito</a>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
       </details>
-
-      <a href="clientes.html" class="nav-link" >🧾 Clientes</a>
-      <a href="reportes.html" class="nav-link" >📈 Reportes</a>
-      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <details class="nav-group">
+        <summary>📈 Reportes</summary>
+        <a href="reportes.html" class="sub-link">Reportes</a>
+        <a href="stock-mensual.html" class="sub-link">Stock mensual</a>
+        <details class="nav-group">
+          <summary class="sub-link">Corrección de máximo y mínimos</summary>
+          <a href="correccion-accesorios.html" class="sub-link">Accesorios</a>
+        </details>
+      </details>
+      <details class="nav-group" data-solo-admin>
+        <summary>👤 Usuarios</summary>
+        <a href="usuarios.html" class="sub-link">Usuarios</a>
+        <a href="estado-movimientos.html" class="sub-link">Estado de movimientos</a>
+      </details>
     </nav>
     <div class="px-5 py-4 border-t border-slate-200 dark:border-slate-800 text-sm">
-      <button id="btn-tema" onclick="alternarTema()" class="mb-3 text-xs font-medium px-2.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400"></button>
       <div class="text-[10px] uppercase tracking-wide text-orange-600 dark:text-orange-400 font-semibold" id="usuario-rol">—</div>
       <div class="text-slate-700 dark:text-slate-200" id="usuario-nombre">—</div>
       <a href="#" id="btn-logout" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">Cerrar sesión</a>
@@ -109,133 +143,205 @@
   </aside>
   <main class="flex-1 min-w-0 p-7">
     <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Reparados y Reutilizados</h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-5">Buscá escaneando el código de barras o tipeando la MAC — funciona igual con ambos.</p>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-5" id="subtitulo">Equipos de la planilla de testeo.</p>
 
     <div id="msg-error" class="hidden mb-4 rounded-lg border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 px-4 py-3 text-sm"></div>
-    <div id="msg-exito" class="hidden mb-4 rounded-lg border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 px-4 py-3 text-sm"></div>
 
-    <div class="card-tw p-4 mb-4">
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-        <div class="md:col-span-5">
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Buscar (MAC WiFi, MAC Ethernet o código de barras)</label>
-          <input type="text" id="buscador" placeholder="Escaneá o tipeá y presioná Enter" class="input-tw font-mono">
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Estado</label>
-          <select id="filtro-estado" class="input-tw">
-            <option value="a_reparar,reparado,prueba,devuelto">Todos (en circuito)</option>
-            <option value="a_reparar">A reparar</option>
-            <option value="reparado">Reparado</option>
-            <option value="prueba">En prueba</option>
-            <option value="devuelto">Devuelto</option>
-            <option value="comodato">Comodato</option>
-            <option value="">Todos los estados (incluye stock/vendidos)</option>
-          </select>
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tipo</label>
-          <select id="filtro-tipo" class="input-tw"><option value="">—</option></select>
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Depósito</label>
-          <select id="filtro-deposito" class="input-tw"><option value="">—</option></select>
-        </div>
-        <div class="md:col-span-1">
-          <button id="btn-buscar" class="btn-primary-tw w-full">Buscar</button>
-        </div>
-      </div>
+    <div id="totales" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4"></div>
+
+    <div class="flex flex-wrap gap-2 mb-4" id="pestanas">
+      <button type="button" class="btn-paginacion" data-hoja="ebd">Testeo EBD Reparados</button>
+      <button type="button" class="btn-paginacion" data-hoja="d3">D3 reutilizados/devueltos/sin antena wifi</button>
+      <button type="button" class="btn-paginacion" data-hoja="no_pasaron">No pasaron prueba</button>
     </div>
 
-    <div class="flex justify-between items-center mb-2">
-      <span class="text-xs text-slate-400" id="contador-resultados"></span>
-      <button class="btn-primary-tw text-xs py-1.5" data-requiere-escritura onclick="abrirModalNuevo()">+ Registrar equipo en reparación</button>
+    <div class="card-tw p-4 mb-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <input type="search" id="buscador" placeholder="Buscar por MAC, observación, entidad o estado" class="input-tw max-w-md">
+        <span class="text-xs text-slate-400" id="resumen"></span>
+      </div>
     </div>
 
     <div class="card-tw overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr>
-              <th class="th-tw">MAC WiFi</th><th class="th-tw">MAC Ethernet</th><th class="th-tw">Tipo</th><th class="th-tw">Estado</th>
-              <th class="th-tw">Depósito</th><th class="th-tw">Cliente</th><th class="th-tw">Caja</th><th class="th-tw"></th>
-            </tr>
-          </thead>
-          <tbody id="tabla-dispositivo"></tbody>
+      <div class="tabla-planilla">
+        <table class="text-sm">
+          <thead id="thead-tabla"></thead>
+          <tbody id="tabla"></tbody>
         </table>
       </div>
+      <div class="flex justify-end flex-wrap gap-2 p-3" id="paginacion"></div>
     </div>
   </main>
 </div>
+<script src="assets/js/api.js?v=fuente"></script>
+<script src="assets/js/auth-guard.js?v=reloj4"></script>
+<script>
+const hojasValidas = ["ebd", "d3", "no_pasaron"];
+let hoja = hojasValidas.includes(new URLSearchParams(location.search).get("hoja"))
+  ? new URLSearchParams(location.search).get("hoja")
+  : "ebd";
+let filas = [];
+let etiquetaTipo = "Tipo de fuente";
+let etiquetaLugar = "Ubicación";
+let pagina = 1;
+const estadosFiltro = {
+  deposito: "En depósito",
+  funcionamiento: "En funcionamiento",
+  prueba: "En prueba",
+  falla: "Con falla",
+};
+let filtroEstado = estadosFiltro[new URLSearchParams(location.search).get("estado")]
+  ? new URLSearchParams(location.search).get("estado")
+  : "";
 
-<div id="modal-dispositivo" data-modal-backdrop class="modal-backdrop-tw">
-  <div class="modal-panel-tw max-w-md">
-    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800">
-      <h3 class="font-semibold text-slate-900 dark:text-white" id="modal-titulo">Registrar equipo en reparación</h3>
-      <button data-cerrar-modal class="text-slate-400 hover:text-slate-700 dark:hover:text-white text-xl leading-none">&times;</button>
+function grupoEstado(valor) {
+  const n = String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+  if (n === "falla" || n.startsWith("falla")) return "falla";
+  if (n.includes("prueba")) return "prueba";
+  if (n.includes("funcion")) return "funcionamiento";
+  if (n === "finalizado" || n.includes("deposito")) return "deposito";
+  return "";
+}
+
+function macVisible(valor) {
+  const macs = macsEnTexto(valor);
+  if (macs.length) return textoPlano(macs[0]);
+  return textoPlano(valor);
+}
+
+function fechaCorta(valor) {
+  const m = String(valor || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${Number(m[3])}/${Number(m[2])}/${m[1]}` : "";
+}
+
+function fecha(valor, texto) {
+  if (texto) return textoPlano(texto);
+  return fechaCorta(valor) || "—";
+}
+
+function marcarPestana() {
+  document.querySelectorAll("#pestanas [data-hoja]").forEach((boton) => {
+    boton.classList.toggle("btn-paginacion-num", true);
+    boton.classList.toggle("activa", boton.dataset.hoja === hoja);
+  });
+}
+
+function pintarPaginacion(actual, total) {
+  const caja = document.getElementById("paginacion");
+  if (total <= 1) {
+    caja.innerHTML = "";
+    return;
+  }
+  const desde = Math.max(1, actual - 2);
+  const hasta = Math.min(total, actual + 2);
+  const numeros = [];
+  for (let i = desde; i <= hasta; i++) {
+    numeros.push(`<button type="button" class="btn-paginacion-num ${i === actual ? "activa" : ""}" data-pagina="${i}">${i}</button>`);
+  }
+  caja.innerHTML = `
+    <button type="button" class="btn-paginacion" data-pagina="${actual - 1}" ${actual <= 1 ? "disabled" : ""}>Anterior</button>
+    ${numeros.join("")}
+    <button type="button" class="btn-paginacion" data-pagina="${actual + 1}" ${actual >= total ? "disabled" : ""}>Siguiente</button>`;
+}
+
+function pintarTotales(totales) {
+  const caja = document.getElementById("totales");
+  if (!totales || !totales.length) {
+    caja.innerHTML = "";
+    caja.classList.add("hidden");
+    return;
+  }
+  caja.classList.remove("hidden");
+  caja.innerHTML = totales.map((t) => `
+    <div class="card-tw px-4 py-3">
+      <div class="text-2xl font-bold font-mono">${textoPlano(t.cantidad)}</div>
+      <div class="text-xs mt-1">${textoPlano(t.etiqueta)}</div>
     </div>
-    <div class="px-5 py-4 max-h-[70vh] overflow-y-auto">
-      <form id="form-dispositivo" class="grid grid-cols-2 gap-3">
-        <input type="hidden" id="disp-id">
-        <div class="col-span-2">
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">MAC WiFi</label>
-          <input type="text" id="disp-mac-wifi" class="input-tw font-mono">
-        </div>
-        <div class="col-span-2">
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">MAC Ethernet</label>
-          <input type="text" id="disp-mac-eth" class="input-tw font-mono">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tipo de equipo</label>
-          <select id="disp-tipo" required class="input-tw"></select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Depósito</label>
-          <select id="disp-deposito" class="input-tw"></select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Lote</label>
-          <select id="disp-lote" class="input-tw"><option value="">—</option></select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Caja n°</label>
-          <input type="text" id="disp-caja" class="input-tw">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Código de fábrica</label>
-          <input type="text" id="disp-cod-fabrica" class="input-tw font-mono">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Estado</label>
-          <select id="disp-estado" class="input-tw">
-            <option value="en_stock">En stock</option>
-            <option value="vendido">Vendido</option>
-            <option value="comodato">Comodato</option>
-            <option value="garantia">Garantía</option>
-            <option value="a_reparar">A reparar</option>
-            <option value="reparado">Reparado</option>
-            <option value="devuelto">Devuelto</option>
-            <option value="prueba">Prueba</option>
-            <option value="actualizacion">Actualización</option>
-            <option value="de_baja">De baja</option>
-          </select>
-        </div>
-        <div class="col-span-2">
-          <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Observaciones</label>
-          <textarea id="disp-obs" rows="2" class="input-tw"></textarea>
-        </div>
-      </form>
-    </div>
-    <div class="px-5 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
-      <button data-cerrar-modal class="btn-secondary-tw">Cancelar</button>
-      <button id="btn-guardar-dispositivo" class="btn-primary-tw">Guardar</button>
-    </div>
-  </div>
-</div>
-<script src="assets/js/api.js"></script>
-<script src="assets/js/auth-guard.js"></script>
-<script src="assets/js/theme.js"></script>
-<script src="assets/js/modal.js"></script>
-<script src="assets/js/ui.js"></script>
-<script src="assets/js/reparados.js"></script>
+  `).join("");
+}
+
+function pintar() {
+  const q = document.getElementById("buscador").value.trim().toLowerCase();
+  const delEstado = filtroEstado ? filas.filter((f) => grupoEstado(f.estado) === filtroEstado) : filas;
+  const visibles = delEstado.filter((f) => !q || textoIncluyeMac([f.mac_wifi, f.mac_eth], q) || [f.numero, f.mac_wifi, f.mac_eth, f.observaciones, f.entidad, f.ubicacion, f.estado, f.tipo, f.wifi, f.eth]
+    .some((v) => String(v || "").toLowerCase().includes(q)));
+  const corte = paginar(visibles, pagina);
+  pagina = corte.pagina;
+  const alcance = filtroEstado ? `${estadosFiltro[filtroEstado]} · ${delEstado.length} equipos` : `${filas.length} equipos`;
+  document.getElementById("resumen").textContent = q
+    ? `${visibles.length} de ${delEstado.length} · ${alcance} · página ${corte.pagina} de ${corte.total}`
+    : `${alcance} · página ${corte.pagina} de ${corte.total}`;
+  pintarPaginacion(corte.pagina, corte.total);
+  document.getElementById("thead-tabla").innerHTML =
+    `<tr><th class="th-tw">Nº</th><th class="th-tw">Fecha comienzo</th><th class="th-tw">Semanas</th><th class="th-tw">Fecha fin</th><th class="th-tw">MAC WIFI</th><th class="th-tw">MAC ETH</th><th class="th-tw">WiFi</th><th class="th-tw">ETH</th><th class="th-tw">${etiquetaTipo}</th><th class="th-tw">Observaciones</th><th class="th-tw">Entidad de prueba</th><th class="th-tw">${etiquetaLugar}</th><th class="th-tw">Estado</th></tr>`;
+  document.getElementById("tabla").innerHTML = corte.filas.map((f) => `
+    <tr class="border-t border-slate-200 dark:border-slate-800">
+      <td class="px-3 py-2">${textoPlano(f.numero)}</td>
+      <td class="px-3 py-2">${fecha(f.fecha_comienzo, f.fecha_comienzo_texto)}</td>
+      <td class="px-3 py-2">${textoPlano(f.semanas)}</td>
+      <td class="px-3 py-2">${fecha(f.fecha_fin, f.fecha_fin_texto)}</td>
+      <td class="px-3 py-2 font-mono">${macVisible(f.mac_wifi)}</td>
+      <td class="px-3 py-2 font-mono">${macVisible(f.mac_eth)}</td>
+      <td class="px-3 py-2">${textoPlano(f.wifi)}</td>
+      <td class="px-3 py-2">${textoPlano(f.eth)}</td>
+      <td class="px-3 py-2">${etiquetaTipo.toLowerCase().includes("fuente") ? htmlTipoFuente(f.tipo) : htmlFotoEquipo(f.tipo)}</td>
+      <td class="px-3 py-2 col-texto">${textoPlano(f.observaciones)}</td>
+      <td class="px-3 py-2">${textoPlano(f.entidad)}</td>
+      <td class="px-3 py-2">${textoPlano(f.ubicacion)}</td>
+      <td class="px-3 py-2">${textoPlano(f.estado)}</td>
+    </tr>
+  `).join("") || `<tr><td colspan="13" class="px-3 py-8 text-center text-slate-400">Sin equipos en esta pestaña</td></tr>`;
+}
+
+async function cargar() {
+  marcarPestana();
+  const data = await apiFetch("testeo", { params: { hoja } });
+  filas = data.filas || [];
+  etiquetaTipo = data.etiquetaTipo || etiquetaTipo;
+  etiquetaLugar = data.etiquetaLugar || etiquetaLugar;
+  document.getElementById("subtitulo").textContent = data.titulo;
+  pintarTotales(data.totales);
+  pintar();
+}
+
+document.getElementById("pestanas").addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-hoja]");
+  if (!boton || boton.dataset.hoja === hoja) return;
+  hoja = boton.dataset.hoja;
+  pagina = 1;
+  document.getElementById("buscador").value = "";
+  const url = new URL(location.href);
+  url.searchParams.set("hoja", hoja);
+  history.replaceState(null, "", url);
+  cargar().catch((err) => {
+  const aviso = document.getElementById("msg-error");
+  aviso.textContent = err.message;
+  aviso.classList.remove("hidden");
+});
+});
+
+document.getElementById("buscador").addEventListener("input", () => {
+  pagina = 1;
+  pintar();
+});
+
+document.getElementById("paginacion").addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-pagina]");
+  if (!boton || boton.disabled) return;
+  pagina = Number(boton.dataset.pagina);
+  pintar();
+});
+
+cargar().catch((err) => {
+  const aviso = document.getElementById("msg-error");
+  aviso.textContent = err.message;
+  aviso.classList.remove("hidden");
+});
+</script>
 </body>
 </html>

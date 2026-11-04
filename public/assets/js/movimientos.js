@@ -50,11 +50,25 @@ async function obtenerOcrearClienteId(nombre) {
 }
 
 const VISTA = new URLSearchParams(location.search).get("vista");
+const TIPOS_DISPOSITIVO = {
+  ingreso: "Ingreso",
+  venta: "Venta",
+  comodato: "Comodato",
+  garantia: "Garantía",
+  devolucion: "Devolución",
+  a_reparar: "A reparar",
+  reparado: "Reparado",
+  prueba: "Prueba",
+  movimiento_interno: "Movimiento interno",
+  ajuste: "Ajuste",
+};
+const TIPO = new URLSearchParams(location.search).get("tipo");
 
 async function cargarHistorial() {
-  const query = { limite: 100 };
+  const query = { limite: 5000 };
   if (VISTA === "ingreso") query.tipo_movimiento = "ingreso";
-  if (VISTA === "egreso") query.tipo_movimiento = "venta,comodato,garantia,devolucion,a_reparar,reparado,actualizacion";
+  if (VISTA === "egreso") query.tipo_movimiento = "venta,comodato,garantia,devolucion,a_reparar,reparado";
+  if (VISTA === "estado" && TIPOS_DISPOSITIVO[TIPO]) query.tipo_movimiento = TIPO;
 
   const filas = await apiFetch("movimientos.php", { params: query });
   document.getElementById("tabla-movimientos").innerHTML = filas.map(m => `
@@ -75,11 +89,17 @@ function aplicarNotaVista() {
     ingreso: "Mostrando solo movimientos de tipo Ingreso.",
     egreso: "Mostrando movimientos de egreso (venta, comodato, garantía, devolución, reparación, actualización).",
     fecha: "Para filtrar por rango de fechas con más detalle, usá la sección Búsqueda del menú.",
-    estado: "Para ver movimientos agrupados por estado del dispositivo, usá la sección Estado del menú.",
-    instancia: "La instancia de gestión (Finalizado / En proceso / Pendiente) se ve en el detalle de cada movimiento de Soporte Técnico.",
+    estado: "Esta lista sale de los movimientos de cada dispositivo. El menú Estado muestra la planilla de cantidades y no se mezcla con esta.",
+    instancia: "La instancia de cada ingreso o egreso de soporte se ve y se edita en Soporte Técnico → Por instancia.",
   };
+  if (VISTA === "estado" && TIPOS_DISPOSITIVO[TIPO]) {
+    const titulo = document.querySelector("main h1, main .page-title");
+    if (titulo) titulo.textContent = TIPOS_DISPOSITIVO[TIPO];
+    const sub = document.querySelector("main .page-subtitle, main p");
+    if (sub) sub.textContent = `Movimientos de dispositivos · ${TIPOS_DISPOSITIVO[TIPO]}.`;
+  }
   if (VISTA && notas[VISTA]) {
-    document.querySelector("main .page-subtitle").insertAdjacentHTML("afterend",
+    document.querySelector("main .page-subtitle, main p").insertAdjacentHTML("afterend",
       `<div class="alert alert-secondary py-2 px-3 small mb-3">${notas[VISTA]}</div>`);
   }
 }

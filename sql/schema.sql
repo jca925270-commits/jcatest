@@ -13,10 +13,12 @@ USE stock_db;
 CREATE TABLE usuarios (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     nombre          VARCHAR(120) NOT NULL,
-    email           VARCHAR(150) NOT NULL UNIQUE,
+    email           VARCHAR(150) NULL UNIQUE,
     password_hash   VARCHAR(255) NOT NULL,
     rol             ENUM('admin','operador','lectura') NOT NULL DEFAULT 'operador',
     activo          TINYINT(1) NOT NULL DEFAULT 1,
+    reset_token     CHAR(64) NULL,
+    reset_expira    DATETIME NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 

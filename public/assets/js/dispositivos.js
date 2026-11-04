@@ -1,4 +1,20 @@
 let CATALOGOS = { tipos_equipo: [], depositos: [], lotes: [] };
+const UBICACION = new URLSearchParams(location.search).get("ubicacion") || "";
+
+function nombrePlano(valor) {
+  return String(valor || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/_/g, " ");
+}
+
+function mismoDeposito(nombre) {
+  const n = nombrePlano(nombre);
+  const u = nombrePlano(UBICACION);
+  if (!u) return false;
+  if (u.includes("campi")) return n.includes("campi");
+  if (u.includes("casa")) return n.includes("casa");
+  if (u.includes("show")) return n.includes("show");
+  if (u.includes("oficina")) return n.includes("oficina");
+  return n.includes(u);
+}
 
 function llenarSelect(select, opciones, incluirVacio = true) {
   select.innerHTML = (incluirVacio ? '<option value="">—</option>' : "") +
@@ -9,6 +25,11 @@ async function cargarCatalogos() {
   CATALOGOS = await apiFetch("catalogos.php");
   llenarSelect(document.getElementById("filtro-tipo"), CATALOGOS.tipos_equipo);
   llenarSelect(document.getElementById("filtro-deposito"), CATALOGOS.depositos);
+  if (UBICACION) {
+    const sel = document.getElementById("filtro-deposito");
+    const opcion = [...sel.options].find((o) => o.value && mismoDeposito(o.textContent));
+    if (opcion) sel.value = opcion.value;
+  }
   llenarSelect(document.getElementById("disp-tipo"), CATALOGOS.tipos_equipo, false);
   llenarSelect(document.getElementById("disp-deposito"), CATALOGOS.depositos);
   llenarSelect(document.getElementById("disp-lote"), CATALOGOS.lotes);
@@ -133,10 +154,11 @@ async function cargarStockUbicacion() {
     if (!grupos.has(ubi)) grupos.set(ubi, []);
     grupos.get(ubi).push(f);
   }
-  cont.innerHTML = orden.filter((u) => grupos.has(u)).map((ubi) => {
+  const visibles = orden.filter((u) => grupos.has(u) && (!UBICACION || u === UBICACION));
+  cont.innerHTML = visibles.map((ubi) => {
     const items = grupos.get(ubi).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
     const detalle = items.map((f) => {
-      const src = fotoEquipo(tipoPlanilla(f.nombre));
+      const src = fotoEquipo(f.nombre);
       const foto = src ? `<img src="${src}" alt="" class="equipo-foto">` : "";
       return `<div class="flex items-center justify-between gap-3 py-2 border-t border-slate-200/10">
         <div class="flex items-center gap-2 min-w-0 text-sm">${foto}<span class="truncate">${f.nombre}</span></div>
@@ -151,6 +173,13 @@ async function cargarStockUbicacion() {
 }
 
 (async () => {
+  if (UBICACION) {
+    document.title = `${UBICACION} — Sistema de Stock`;
+    const titulo = document.querySelector("main h1");
+    const detalle = document.querySelector("main p");
+    if (titulo) titulo.textContent = UBICACION;
+    if (detalle) detalle.textContent = `Dispositivos y cantidades de ${UBICACION}.`;
+  }
   await cargarStockUbicacion();
   await cargarCatalogos();
   const qURL = new URLSearchParams(location.search).get("q");

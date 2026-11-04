@@ -5,6 +5,10 @@ on:
     - cron: "*/5 * * * *"
   workflow_dispatch:
 
+permissions:
+  actions: write
+  contents: read
+
 concurrency:
   group: sync-planilla
   cancel-in-progress: false
@@ -38,3 +42,19 @@ jobs:
           GOOGLE_SHEET_TESTEO_ID: "16Ag2IJwMRHQSkrRIO8pC9ea4dxcSab6EC3TGKg0XmTI"
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: python import/sync_planilla_drive.py --una-vez
+
+  seguir:
+    needs: sync
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Programar la próxima revisión
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sleep 240
+          cola=$(gh run list --workflow sync-planilla.yml --limit 30 --json status --jq '[.[] | select(.status=="queued" or .status=="waiting" or .status=="pending" or .status=="requested")] | length')
+          if [ "$cola" = "0" ]; then
+            gh workflow run sync-planilla.yml --ref main
+          fi

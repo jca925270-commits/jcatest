@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Stock mensual — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css?v=reloj1" rel="stylesheet">
+<style>
+.carta-conteo { max-width: 980px; }
+.intro-conteo { color: var(--text-muted); margin-bottom: 1.1rem; }
+.grupo-conteo {
+  color: var(--orange);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin: 1.2rem 0 .55rem;
+}
+.bloque-seccion { margin-bottom: .85rem; }
+.titulo-seccion { font-weight: 600; margin-bottom: .45rem; }
+.grilla-seccion {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: .7rem;
+}
+.item-conteo {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: .8rem .9rem .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  margin: 0;
+}
+.item-tope { display: flex; justify-content: space-between; align-items: center; gap: .5rem; }
+.item-etiqueta { display: inline-flex; align-items: center; gap: .45rem; color: var(--text-muted); font-size: .8rem; min-width: 0; }
+.item-etiqueta .equipo-foto { width: 36px; height: 36px; }
+.item-cantidad {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: .1rem 0 .2rem;
+}
+.item-cantidad:focus { outline: none; border-bottom-color: var(--orange); }
+.item-sistema { color: var(--text-muted); font-size: .75rem; }
+.item-finalizado { display: flex; align-items: center; gap: .3rem; margin: 0; font-size: .75rem; color: var(--text-muted); white-space: nowrap; }
+.item-finalizado input { accent-color: var(--orange); }
+.item-conteo .btn { align-self: flex-start; margin-top: .2rem; }
+.cierre-conteo { white-space: pre-line; color: var(--text-muted); margin: 1.1rem 0 0; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>SOPORTE Y LOGISTICA</small></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <details class="nav-group">
+        <summary><span class="nav-icono" aria-hidden="true">devices</span> Dispositivo</summary>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">build</span> Reparados y Reutilizados</summary>
+          <a href="reparados.html" class="sub-link">Reparados y Reutilizados</a>
+          <a href="reparados.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+          <a href="reparados.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+          <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        </details>
+      </details>
+      <details class="nav-group">
+        <summary>🔄 Movimientos</summary>
+        <a href="registrar-movimiento.html" class="sub-link"><span class="nav-icono" aria-hidden="true">edit_note</span> Registrar Movimiento</a>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">flag</span> Estado</summary>
+          <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+          <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+          <a href="estado.html?estado=comodato" class="sub-link">Comodato</a>
+          <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+          <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+          <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+          <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+          <a href="estado.html?estado=movimiento" class="sub-link">Movimiento</a>
+          <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+          <a href="ingresar-mac.html" class="sub-link"><span class="nav-icono" aria-hidden="true">playlist_add</span> Ingresar Equipos por MAC</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+          <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+          <a href="trazabilidad.html?hoja=devolucion_ebd" class="sub-link">Devolución EBD</a>
+          <a href="trazabilidad.html?hoja=devolucion_d3" class="sub-link">Devolución D3</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_reparado" class="sub-link">Ingreso EBD REPARADO (Testeados)</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_reparado" class="sub-link">Egreso EBD REPARADO (Venta/Migracion/Garantia)</a>
+          <a href="trazabilidad.html?hoja=ingreso_pantalla" class="sub-link">Ingreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_pantalla" class="sub-link">Egreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_interno" class="sub-link">Ingreso EBD uso INTERNO</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_interno" class="sub-link">Egreso EBD uso INTERNO</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">support_agent</span> Soporte Técnico</summary>
+          <a href="ingreso.html" class="sub-link">Ingresos Soporte</a>
+          <a href="egreso.html" class="sub-link">Egresos Soporte</a>
+          <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
+          <a href="cargar-egreso.html" class="sub-link">Cargar Egreso</a>
+        </details>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏭 Depósitos</summary>
+        <a href="dispositivo.html?ubicacion=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="dispositivo.html?ubicacion=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="dispositivo.html?ubicacion=Oficina" class="sub-link">Oficina</a>
+        <a href="dispositivo.html?ubicacion=Showroom" class="sub-link">Showroom</a>
+      </details>
+      <details class="nav-group">
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+      </details>
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <details class="nav-group">
+        <summary>📈 Reportes</summary>
+        <a href="reportes.html" class="sub-link">Reportes</a>
+        <a href="stock-mensual.html" class="sub-link">Stock mensual</a>
+        <details class="nav-group">
+          <summary class="sub-link">Corrección de máximo y mínimos</summary>
+          <a href="correccion-accesorios.html" class="sub-link">Accesorios</a>
+        </details>
+      </details>
+      <details class="nav-group" data-solo-admin>
+        <summary>👤 Usuarios</summary>
+        <a href="usuarios.html" class="sub-link">Usuarios</a>
+        <a href="estado-movimientos.html" class="sub-link">Estado de movimientos</a>
+      </details>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <h1 class="page-title">Stock mensual</h1>
+    <p class="page-subtitle">Cada tarjeta muestra el número de la base. El conteo físico se corrige acá, queda guardado en este formulario y no modifica el stock de la página.</p>
+
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+    <div id="msg-exito" class="alert d-none"></div>
+
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+          <h2 class="h6 mb-0">Conteo general del stock</h2>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-teal" id="btn-bajar-word">Bajar Word</button>
+            <button type="button" class="btn btn-teal" id="btn-bajar-pdf">Bajar PDF</button>
+            <button type="button" class="btn btn-teal" id="btn-informe-stock">Bajar informe PDF</button>
+          </div>
+        </div>
+        <p class="small text-muted mb-3">Este es el reporte que se baja. Corregí los números del conteo físico acá; el Word y el PDF usan esos mismos datos para copiarlos en el mail. Bajar informe PDF es el mismo archivo del dashboard. El stock del sitio no cambia.</p>
+        <div id="carta-conteo" class="carta-conteo mb-4"></div>
+
+        <button type="button" class="btn btn-outline-secondary" id="btn-usar-stock" data-requiere-escritura>Volver a los números de la base</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js?v=fuente"></script>
+<script src="assets/js/auth-guard.js?v=reloj4"></script>
+<script>
+const guardadosPendientes = new Map();
+
+function puedeEditar() {
+  return Boolean(document.getElementById("btn-usar-stock"));
+}
+
+function aplicarStock(items) {
+  items.forEach((item) => {
+    const fila = document.querySelector(`.item-conteo[data-item="${item.key}"]`);
+    if (!fila) return;
+    fila.dataset.stock = item.stock;
+    fila.querySelector(".item-sistema").textContent = `En la base: ${item.stock}`;
+    const input = fila.querySelector("input[type=number]");
+    const check = fila.querySelector("input[type=checkbox]");
+    if (input.dataset.pendiente === "1" || document.activeElement === input) return;
+    input.value = item.cantidad;
+    if (document.activeElement !== check) check.checked = Boolean(item.finalizado);
+  });
+}
+
+async function guardarItemConteo(fila) {
+  const input = fila.querySelector("input[type=number]");
+  const check = fila.querySelector("input[type=checkbox]");
+  const cantidad = Number(input.value);
+  const finalizado = check.checked;
+  if (!Number.isInteger(cantidad) || cantidad < 0) return;
+  try {
+    await apiFetch("reportes.php", {
+      method: "POST",
+      params: { accion: "conteo_borrador" },
+      body: { clave: fila.dataset.item, cantidad, finalizado },
+      silencioso: true,
+    });
+    if (Number(input.value) === cantidad && check.checked === finalizado) input.dataset.pendiente = "0";
+    else programarGuardado(fila, false);
+  } catch (err) {
+    mostrarError("msg-error", err.message);
+  }
+}
+
+function programarGuardado(fila, inmediato) {
+  if (!puedeEditar()) return;
+  const input = fila.querySelector("input[type=number]");
+  input.dataset.pendiente = "1";
+  const clave = fila.dataset.item;
+  clearTimeout(guardadosPendientes.get(clave));
+  if (inmediato) {
+    guardadosPendientes.delete(clave);
+    return guardarItemConteo(fila);
+  }
+  guardadosPendientes.set(clave, setTimeout(() => {
+    guardadosPendientes.delete(clave);
+    guardarItemConteo(fila);
+  }, 400));
+}
+
+function pintarConteo(data) {
+  const carta = document.getElementById("carta-conteo");
+  carta.replaceChildren();
+
+  const intro = document.createElement("p");
+  intro.className = "intro-conteo";
+  intro.append(document.createTextNode("Estimados, a continuación se detalla el stock correspondiente al mes de "));
+  const mes = document.createElement("strong");
+  mes.textContent = `${data.mesNombre} ${data.anio}`;
+  intro.append(mes, document.createTextNode("."));
+  carta.appendChild(intro);
+
+  let grupo = "";
+  let seccion = "";
+  let grilla = null;
+  data.items.forEach((item) => {
+    if (item.grupo !== grupo) {
+      grupo = item.grupo;
+      seccion = "";
+      grilla = null;
+      const titulo = document.createElement("div");
+      titulo.className = "grupo-conteo";
+      titulo.textContent = item.grupo === "paraguay" ? "Paraguay" : "Argentina";
+      carta.appendChild(titulo);
+    }
+    if (item.seccion !== seccion) {
+      seccion = item.seccion;
+      const bloque = document.createElement("div");
+      bloque.className = "bloque-seccion";
+      if (item.seccion !== "Paraguay") {
+        const titulo = document.createElement("div");
+        titulo.className = "titulo-seccion";
+        titulo.textContent = item.seccion;
+        bloque.appendChild(titulo);
+      }
+      grilla = document.createElement("div");
+      grilla.className = "grilla-seccion";
+      bloque.appendChild(grilla);
+      carta.appendChild(bloque);
+    }
+
+    const fila = document.createElement("div");
+    fila.className = "item-conteo";
+    fila.dataset.item = item.key;
+    fila.dataset.stock = item.stock;
+
+    const tope = document.createElement("div");
+    tope.className = "item-tope";
+    const etiqueta = document.createElement("span");
+    etiqueta.className = "item-etiqueta";
+    const srcFoto = fotoEquipo(`${item.seccion} ${item.etiqueta}`);
+    if (srcFoto) {
+      const foto = document.createElement("img");
+      foto.src = srcFoto;
+      foto.alt = "";
+      foto.className = "equipo-foto";
+      etiqueta.appendChild(foto);
+    }
+    etiqueta.appendChild(document.createTextNode(item.etiqueta));
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.checked = Boolean(item.finalizado);
+    const marca = document.createElement("label");
+    marca.className = "item-finalizado";
+    marca.append(check, document.createTextNode(" Finalizado"));
+    tope.append(etiqueta, marca);
+
+    const cantidad = document.createElement("input");
+    cantidad.type = "number";
+    cantidad.min = "0";
+    cantidad.step = "1";
+    cantidad.className = "item-cantidad";
+    cantidad.value = item.cantidad;
+    cantidad.disabled = !puedeEditar();
+    check.disabled = !puedeEditar();
+
+    const sistema = document.createElement("span");
+    sistema.className = "item-sistema";
+    sistema.textContent = `En la base: ${item.stock}`;
+
+    check.addEventListener("change", () => programarGuardado(fila, true));
+    cantidad.addEventListener("input", () => programarGuardado(fila, false));
+
+    fila.append(tope, cantidad, sistema);
+    grilla.appendChild(fila);
+  });
+
+  pintarPantallas(data.pantallas, carta);
+
+  const cierre = document.createElement("p");
+  cierre.className = "cierre-conteo";
+  cierre.textContent = "Quedo a disposición ante cualquier consulta.\nSaludos cordiales.";
+  carta.appendChild(cierre);
+}
+
+function pintarPantallas(pantallas, carta) {
+  const destino = carta || document.getElementById("carta-conteo");
+  const cierre = destino.querySelector(".cierre-conteo");
+  let bloque = destino.querySelector(".bloque-pantallas");
+  if (!bloque) {
+    bloque = document.createElement("div");
+    bloque.className = "bloque-seccion bloque-pantallas";
+    const titulo = document.createElement("div");
+    titulo.className = "titulo-seccion";
+    titulo.textContent = "Pantallas Colectivos (24 Pulgadas)";
+    const grilla = document.createElement("div");
+    grilla.className = "grilla-seccion";
+    bloque.append(titulo, grilla);
+    if (cierre) destino.insertBefore(bloque, cierre);
+    else destino.appendChild(bloque);
+  }
+  const grilla = bloque.querySelector(".grilla-seccion");
+  grilla.replaceChildren();
+  const datos = pantallas || {};
+  [
+    ["En oficina", datos.total || 0],
+    ["Comprobadas OK", datos.comprobadas_ok || 0],
+    ["Vendidas", datos.vendidas || 0],
+    ["Sin comprobar", datos.sin_comprobar || 0],
+    ["Con falla/para repuestos", datos.con_falla || 0],
+  ].forEach(([nombre, cantidad]) => {
+    const fila = document.createElement("div");
+    fila.className = "item-conteo item-pantalla";
+    const tope = document.createElement("div");
+    tope.className = "item-tope";
+    const etiqueta = document.createElement("span");
+    etiqueta.className = "item-etiqueta";
+    if (nombre === "En oficina") {
+      const srcFoto = fotoEquipo("Pantallas Colectivos");
+      if (srcFoto) {
+        const foto = document.createElement("img");
+        foto.src = srcFoto;
+        foto.alt = "";
+        foto.className = "equipo-foto";
+        etiqueta.appendChild(foto);
+      }
+    }
+    etiqueta.appendChild(document.createTextNode(nombre));
+    tope.appendChild(etiqueta);
+    const numero = document.createElement("div");
+    numero.className = "item-cantidad";
+    numero.textContent = cantidad;
+    const sistema = document.createElement("span");
+    sistema.className = "item-sistema";
+    sistema.textContent = "Sale de la planilla y de la trazabilidad";
+    fila.append(tope, numero, sistema);
+    grilla.appendChild(fila);
+  });
+}
+
+async function cargarConteo() {
+  const data = await apiFetch("reportes.php", { params: { accion: "conteo" } });
+  if (document.querySelector(".item-conteo")) {
+    aplicarStock(data.items);
+    pintarPantallas(data.pantallas);
+  } else pintarConteo(data);
+}
+
+document.getElementById("btn-usar-stock").addEventListener("click", async () => {
+  guardadosPendientes.forEach((id) => clearTimeout(id));
+  guardadosPendientes.clear();
+  document.querySelectorAll(".item-conteo input[type=number]").forEach((input) => {
+    input.dataset.pendiente = "0";
+  });
+  try {
+    await apiFetch("reportes.php", {
+      method: "POST",
+      params: { accion: "conteo_borrador" },
+      body: { reset: true },
+      silencioso: true,
+    });
+    await cargarConteo();
+    mostrarExito("msg-exito", "El formulario volvió a los números de la base. El stock de la página no cambió.");
+  } catch (err) {
+    mostrarError("msg-error", err.message);
+  }
+});
+
+function crc32(bytes) {
+  let c = ~0;
+  for (let i = 0; i < bytes.length; i++) {
+    c ^= bytes[i];
+    for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1));
+  }
+  return ~c >>> 0;
+}
+
+function zipAlmacenado(archivos) {
+  const encoder = new TextEncoder();
+  const locales = [];
+  const centrales = [];
+  let offset = 0;
+  const dosFecha = ((2026 - 1980) << 9) | (10 << 5) | 8;
+  const dosHora = (2 << 11) | (24 << 5);
+  for (const archivo of archivos) {
+    const nombre = encoder.encode(archivo.nombre);
+    const datos = encoder.encode(archivo.texto);
+    const crc = crc32(datos);
+    const local = new Uint8Array(30 + nombre.length + datos.length);
+    const vista = new DataView(local.buffer);
+    vista.setUint32(0, 0x04034b50, true);
+    vista.setUint16(4, 20, true);
+    vista.setUint16(8, 0, true);
+    vista.setUint16(10, dosHora, true);
+    vista.setUint16(12, dosFecha, true);
+    vista.setUint32(14, crc, true);
+    vista.setUint32(18, datos.length, true);
+    vista.setUint32(22, datos.length, true);
+    vista.setUint16(26, nombre.length, true);
+    local.set(nombre, 30);
+    local.set(datos, 30 + nombre.length);
+    locales.push(local);
+
+    const central = new Uint8Array(46 + nombre.length);
+    const vistaCentral = new DataView(central.buffer);
+    vistaCentral.setUint32(0, 0x02014b50, true);
+    vistaCentral.setUint16(4, 20, true);
+    vistaCentral.setUint16(6, 20, true);
+    vistaCentral.setUint16(10, 0, true);
+    vistaCentral.setUint16(12, dosHora, true);
+    vistaCentral.setUint16(14, dosFecha, true);
+    vistaCentral.setUint32(16, crc, true);
+    vistaCentral.setUint32(20, datos.length, true);
+    vistaCentral.setUint32(24, datos.length, true);
+    vistaCentral.setUint16(28, nombre.length, true);
+    vistaCentral.setUint32(42, offset, true);
+    central.set(nombre, 46);
+    centrales.push(central);
+    offset += local.length;
+  }
+  const tamanoCentral = centrales.reduce((total, parte) => total + parte.length, 0);
+  const cierre = new Uint8Array(22);
+  const vistaCierre = new DataView(cierre.buffer);
+  vistaCierre.setUint32(0, 0x06054b50, true);
+  vistaCierre.setUint16(8, archivos.length, true);
+  vistaCierre.setUint16(10, archivos.length, true);
+  vistaCierre.setUint32(12, tamanoCentral, true);
+  vistaCierre.setUint32(16, offset, true);
+  const salida = new Uint8Array(offset + tamanoCentral + cierre.length);
+  let cursor = 0;
+  locales.forEach((parte) => { salida.set(parte, cursor); cursor += parte.length; });
+  centrales.forEach((parte) => { salida.set(parte, cursor); cursor += parte.length; });
+  salida.set(cierre, cursor);
+  return salida;
+}
+
+function escaparXml(valor) {
+  return String(valor)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function parrafoWord(texto, negrita) {
+  if (!texto) return "<w:p/>";
+  const marca = negrita ? "<w:rPr><w:b/></w:rPr>" : "";
+  return `<w:p><w:r>${marca}<w:t xml:space="preserve">${escaparXml(texto)}</w:t></w:r></w:p>`;
+}
+
+function parrafosDelConteo() {
+  const mes = document.querySelector(".intro-conteo strong")?.textContent || "";
+  const parrafos = [
+    { texto: "Estimados,", negrita: false },
+    { texto: `A continuación, se detalla el stock correspondiente al mes de ${mes}:`, negrita: false },
+    { texto: "", negrita: false },
+  ];
+  document.querySelectorAll("#carta-conteo > *").forEach((nodo) => {
+    if (nodo.classList.contains("grupo-conteo")) {
+      parrafos.push({
+        texto: nodo.textContent === "Paraguay" ? "🇵🇾 PARAGUAY" : "🇦🇷 ARGENTINA",
+        negrita: true,
+      });
+    } else if (nodo.classList.contains("bloque-seccion")) {
+      const titulo = nodo.querySelector(".titulo-seccion");
+      if (titulo) parrafos.push({ texto: titulo.textContent, negrita: true });
+      nodo.querySelectorAll(".item-conteo").forEach((fila) => {
+        const etiqueta = fila.querySelector(".item-etiqueta").textContent;
+        const input = fila.querySelector("input[type=number]");
+        const cantidad = input ? (input.value || "0") : (fila.querySelector(".item-cantidad").textContent || "0");
+        parrafos.push({ texto: `${etiqueta}: ${cantidad}`, negrita: false });
+      });
+      parrafos.push({ texto: "", negrita: false });
+    } else if (nodo.classList.contains("cierre-conteo")) {
+      nodo.textContent.split("\n").forEach((linea) => parrafos.push({ texto: linea, negrita: false }));
+    }
+  });
+  return parrafos;
+}
+
+const WINANSI = {
+  "á": "\\341", "é": "\\351", "í": "\\355", "ó": "\\363", "ú": "\\372",
+  "Á": "\\301", "É": "\\311", "Í": "\\315", "Ó": "\\323", "Ú": "\\332",
+  "ñ": "\\361", "Ñ": "\\321", "ü": "\\374", "Ü": "\\334",
+  "¿": "\\277", "¡": "\\241",
+};
+
+function textoPdf(valor) {
+  let salida = "";
+  for (const char of String(valor)) {
+    if (char === "\\" || char === "(" || char === ")") salida += "\\" + char;
+    else if (WINANSI[char]) salida += WINANSI[char];
+    else if (char.charCodeAt(0) < 128) salida += char;
+  }
+  return salida.replace(/^\s+/, "");
+}
+
+function armarPdf(parrafos) {
+  const porPagina = 42;
+  const paginas = [];
+  for (let i = 0; i < parrafos.length; i += porPagina) paginas.push(parrafos.slice(i, i + porPagina));
+  const contenidos = paginas.map((lineas) => {
+    const partes = ["BT", "56 800 Td"];
+    lineas.forEach((linea, indice) => {
+      if (indice) partes.push("0 -16 Td");
+      partes.push(linea.negrita ? "/F2 12 Tf" : "/F1 11 Tf");
+      partes.push(`(${textoPdf(linea.texto)}) Tj`);
+    });
+    partes.push("ET");
+    return partes.join("\n");
+  });
+  const fuenteNormal = 3 + contenidos.length * 2;
+  const fuenteNegrita = fuenteNormal + 1;
+  const objetos = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    `<< /Type /Pages /Kids [${contenidos.map((_, i) => `${3 + i * 2} 0 R`).join(" ")}] /Count ${contenidos.length} >>`,
+  ];
+  contenidos.forEach((contenido, i) => {
+    objetos.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents ${4 + i * 2} 0 R /Resources << /Font << /F1 ${fuenteNormal} 0 R /F2 ${fuenteNegrita} 0 R >> >> >>`);
+    objetos.push(`<< /Length ${contenido.length} >>\nstream\n${contenido}\nendstream`);
+  });
+  objetos.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
+  objetos.push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+  let cuerpo = "%PDF-1.4\n";
+  const offsets = [0];
+  objetos.forEach((objeto, i) => {
+    offsets.push(cuerpo.length);
+    cuerpo += `${i + 1} 0 obj\n${objeto}\nendobj\n`;
+  });
+  const xref = cuerpo.length;
+  cuerpo += `xref\n0 ${objetos.length + 1}\n`;
+  cuerpo += "0000000000 65535 f \n";
+  offsets.slice(1).forEach((offset) => {
+    cuerpo += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  });
+  cuerpo += `trailer\n<< /Size ${objetos.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return cuerpo;
+}
+
+function bajarArchivo(datos, nombre, tipo) {
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(new Blob([datos], { type: tipo }));
+  enlace.download = nombre;
+  enlace.click();
+  setTimeout(() => URL.revokeObjectURL(enlace.href), 1500);
+}
+
+function descargarWord() {
+  if (!document.querySelector(".item-conteo")) {
+    mostrarError("msg-error", "El formulario todavía no cargó.");
+    return;
+  }
+  const mes = document.querySelector(".intro-conteo strong")?.textContent || "STOCK";
+  const cuerpo = parrafosDelConteo().map((parrafo) => parrafoWord(parrafo.texto, parrafo.negrita)).join("");
+  const documento = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>${cuerpo}<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body>
+</w:document>`;
+  const zip = zipAlmacenado([
+    {
+      nombre: "[Content_Types].xml",
+      texto: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`,
+    },
+    {
+      nombre: "_rels/.rels",
+      texto: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`,
+    },
+    { nombre: "word/document.xml", texto: documento },
+  ]);
+  bajarArchivo(zip, `Stock ${mes}.docx`, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+}
+
+function descargarPdf() {
+  if (!document.querySelector(".item-conteo")) {
+    mostrarError("msg-error", "El formulario todavía no cargó.");
+    return;
+  }
+  const mes = document.querySelector(".intro-conteo strong")?.textContent || "STOCK";
+  bajarArchivo(armarPdf(parrafosDelConteo()), `Stock ${mes}.pdf`, "application/pdf");
+}
+
+document.getElementById("btn-bajar-word").addEventListener("click", descargarWord);
+document.getElementById("btn-bajar-pdf").addEventListener("click", descargarPdf);
+document.getElementById("btn-informe-stock").addEventListener("click", async () => {
+  const boton = document.getElementById("btn-informe-stock");
+  boton.disabled = true;
+  try {
+    const resp = await fetch("api/reportes?accion=informe_pdf", { credentials: "same-origin" });
+    if (resp.status === 401) {
+      window.location.href = "login.html";
+      return;
+    }
+    if (!resp.ok) throw new Error("No se pudo generar el informe.");
+    const blob = await resp.blob();
+    const dispuesto = resp.headers.get("Content-Disposition") || "";
+    const hallado = /filename="([^"]+)"/.exec(dispuesto);
+    const enlace = document.createElement("a");
+    enlace.href = URL.createObjectURL(blob);
+    enlace.download = hallado ? hallado[1] : "Informe-stock.pdf";
+    enlace.click();
+    setTimeout(() => URL.revokeObjectURL(enlace.href), 1500);
+  } catch (error) {
+    mostrarError("msg-error", error.message || "No se pudo bajar el informe.");
+  } finally {
+    boton.disabled = false;
+  }
+});
+
+(async () => {
+  await cargarConteo();
+  setInterval(() => {
+    cargarConteo().catch(() => {});
+  }, 15000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") cargarConteo().catch(() => {});
+  });
+})();
+</script>
+</body>
+</html>

@@ -3,68 +3,95 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
 <title>Estado — Sistema de Stock</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link href="assets/css/styles.css" rel="stylesheet">
+<link href="assets/css/styles.css?v=reloj1" rel="stylesheet">
 </head>
 <body>
 <div class="app-shell">
   <aside class="sidebar">
-    <div class="brand">Sistema de Stock <small>Trazabilidad por MAC</small></div>
+    <div class="brand">Sistema de Stock <small>SOPORTE Y LOGISTICA</small></div>
     <nav>
       <a href="index.html" class="nav-link">📊 Dashboard</a>
       <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
-      <a href="dispositivo.html" class="nav-link">📦 dispositivo</a>
-      <a href="reparados.html" class="nav-link">🔧 Reparados y Reutilizados</a>
-
-      <a href="ingreso.html" class="nav-link">📥 Ingreso</a>
-      <a href="egreso.html" class="nav-link">📤 Egreso</a>
-
+      <details class="nav-group">
+        <summary><span class="nav-icono" aria-hidden="true">devices</span> Dispositivo</summary>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">build</span> Reparados y Reutilizados</summary>
+          <a href="reparados.html" class="sub-link">Reparados y Reutilizados</a>
+          <a href="reparados.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+          <a href="reparados.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+          <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        </details>
+      </details>
       <details class="nav-group">
         <summary>🔄 Movimientos</summary>
-        <a href="movimientos.html" class="sub-link">Todos</a>
-        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
-        <a href="movimientos.html?vista=ingreso" class="sub-link">Ingreso</a>
-        <a href="movimientos.html?vista=egreso" class="sub-link">Egreso</a>
-        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
-        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
-        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+        <a href="registrar-movimiento.html" class="sub-link"><span class="nav-icono" aria-hidden="true">edit_note</span> Registrar Movimiento</a>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">flag</span> Estado</summary>
+          <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+          <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+          <a href="estado.html?estado=comodato" class="sub-link">Comodato</a>
+          <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+          <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+          <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+          <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+          <a href="estado.html?estado=movimiento" class="sub-link">Movimiento</a>
+          <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+          <a href="ingresar-mac.html" class="sub-link"><span class="nav-icono" aria-hidden="true">playlist_add</span> Ingresar Equipos por MAC</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+          <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+          <a href="trazabilidad.html?hoja=devolucion_ebd" class="sub-link">Devolución EBD</a>
+          <a href="trazabilidad.html?hoja=devolucion_d3" class="sub-link">Devolución D3</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_reparado" class="sub-link">Ingreso EBD REPARADO (Testeados)</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_reparado" class="sub-link">Egreso EBD REPARADO (Venta/Migracion/Garantia)</a>
+          <a href="trazabilidad.html?hoja=ingreso_pantalla" class="sub-link">Ingreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_pantalla" class="sub-link">Egreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_interno" class="sub-link">Ingreso EBD uso INTERNO</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_interno" class="sub-link">Egreso EBD uso INTERNO</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">support_agent</span> Soporte Técnico</summary>
+          <a href="ingreso.html" class="sub-link">Ingresos Soporte</a>
+          <a href="egreso.html" class="sub-link">Egresos Soporte</a>
+          <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
+          <a href="cargar-egreso.html" class="sub-link">Cargar Egreso</a>
+        </details>
       </details>
-
-      <a href="soporte.html" class="nav-link">🛠️ Soporte Técnico</a>
 
       <details class="nav-group">
-        <summary>🏭 Depósito</summary>
-        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
-        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
-        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
-        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+        <summary>🏭 Depósitos</summary>
+        <a href="dispositivo.html?ubicacion=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="dispositivo.html?ubicacion=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="dispositivo.html?ubicacion=Oficina" class="sub-link">Oficina</a>
+        <a href="dispositivo.html?ubicacion=Showroom" class="sub-link">Showroom</a>
       </details>
-
-      <details class="nav-group" open>
-        <summary>🏷️ Estado</summary>
-        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
-        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
-        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
-        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
-        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
-        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
-        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
-        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
-        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
-      </details>
-
       <details class="nav-group">
         <summary>📚 Stock</summary>
         <a href="accesorios.html" class="sub-link">Accesorios</a>
-        <a href="dispositivo.html" class="sub-link">dispositivo</a>
-        <a href="deposito.html" class="sub-link">Depósito</a>
       </details>
-
       <a href="clientes.html" class="nav-link">🧾 Clientes</a>
-      <a href="reportes.html" class="nav-link">📈 Reportes</a>
-      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+      <details class="nav-group">
+        <summary>📈 Reportes</summary>
+        <a href="reportes.html" class="sub-link">Reportes</a>
+        <a href="stock-mensual.html" class="sub-link">Stock mensual</a>
+        <details class="nav-group">
+          <summary class="sub-link">Corrección de máximo y mínimos</summary>
+          <a href="correccion-accesorios.html" class="sub-link">Accesorios</a>
+        </details>
+      </details>
+      <details class="nav-group" data-solo-admin>
+        <summary>👤 Usuarios</summary>
+        <a href="usuarios.html" class="sub-link">Usuarios</a>
+        <a href="estado-movimientos.html" class="sub-link">Estado de movimientos</a>
+      </details>
     </nav>
     <div class="user-box">
       <div class="rol" id="usuario-rol">—</div>
@@ -76,9 +103,14 @@
   <main class="main-content">
     <h1 class="page-title">Estado</h1>
     <p class="page-subtitle" id="subtitulo">Movimientos de la planilla por estado.</p>
+    <ul class="nav nav-tabs mb-3" id="tabs-pais">
+      <li class="nav-item"><button type="button" class="nav-link active" data-pais="ARGENTINA">Argentina</button></li>
+      <li class="nav-item"><button type="button" class="nav-link" data-pais="PARAGUAY">Paraguay</button></li>
+    </ul>
     <p class="page-subtitle" id="resumen-estado"></p>
 
     <div id="msg-error" class="alert alert-danger d-none"></div>
+    <div id="msg-exito" class="alert alert-success d-none"></div>
 
     <div class="card border-0 shadow-sm">
       <div class="card-body">
@@ -93,17 +125,68 @@
   </main>
 </div>
 
-<script src="assets/js/api.js"></script>
-<script src="assets/js/auth-guard.js"></script>
+<div class="modal fade" id="modal-movimiento" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar movimiento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-movimiento" class="modal-body">
+        <input type="hidden" id="mov-id">
+        <div class="row g-2">
+          <div class="col-6"><label class="form-label" for="mov-fecha">Fecha</label><input class="form-control" id="mov-fecha" type="date"></div>
+          <div class="col-6"><label class="form-label" for="mov-estado">Estado</label><input class="form-control" id="mov-estado" maxlength="50"></div>
+          <div class="col-12"><label class="form-label" for="mov-razon">Razón social</label><input class="form-control" id="mov-razon" maxlength="255"></div>
+          <div class="col-6"><label class="form-label" for="mov-remito">N° remito</label><input class="form-control" id="mov-remito" maxlength="50"></div>
+          <div class="col-6"><label class="form-label" for="mov-factura">N° factura</label><input class="form-control" id="mov-factura" maxlength="50"></div>
+          <div class="col-6"><label class="form-label" for="mov-ticket">Ticket</label><input class="form-control" id="mov-ticket" maxlength="50"></div>
+          <div class="col-6"><label class="form-label" for="mov-motivo">Motivo</label><input class="form-control" id="mov-motivo" maxlength="255"></div>
+          <div class="col-6"><label class="form-label" for="mov-ingreso">Ingreso</label><input class="form-control" id="mov-ingreso" type="number" min="0"></div>
+          <div class="col-6"><label class="form-label" for="mov-egreso">Egreso</label><input class="form-control" id="mov-egreso" type="number" min="0"></div>
+          <div class="col-12 form-check ms-2"><input class="form-check-input" id="mov-lite" type="checkbox"><label class="form-check-label" for="mov-lite">Con 2.0 Lite</label></div>
+          <div class="col-12"><p class="page-subtitle mb-0" id="aviso-mac"></p></div>
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="form-movimiento" class="btn btn-teal">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js?v=fuente"></script>
+<script src="assets/js/auth-guard.js?v=reloj4"></script>
 <script>
 const NOMBRES_ESTADO = {
-  vendido: "Venta", garantia: "Garantía", reparado: "Reparado", a_reparar: "A reparar",
+  vendido: "Venta", garantia: "Garantía", comodato: "Comodato", reparado: "Reparado", a_reparar: "A reparar",
   devuelto: "Devolución", prueba: "Prueba", actualizacion: "Actualización",
-  de_baja: "Baja", soporte_tecnico: "Soporte técnico",
+  de_baja: "Baja", soporte_tecnico: "Soporte técnico", movimiento: "Movimiento",
 };
+const NOMBRES_PAIS = { ARGENTINA: "Argentina", PARAGUAY: "Paraguay" };
+let movimientos = [];
+
+function esAdmin() {
+  return window.usuarioSesion && window.usuarioSesion.rol === "admin";
+}
+
+function paisActual() {
+  return new URLSearchParams(location.search).get("pais") === "PARAGUAY" ? "PARAGUAY" : "ARGENTINA";
+}
+
+function marcarPais() {
+  const pais = paisActual();
+  document.querySelectorAll("#tabs-pais .nav-link").forEach((b) => {
+    b.classList.toggle("active", b.dataset.pais === pais);
+  });
+}
 
 function fechaCorta(f) {
   if (!f) return "—";
+  const m = String(f).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${Number(m[3])}/${Number(m[2])}/${m[1]}`;
   const d = new Date(f);
   if (isNaN(d)) return String(f).slice(0, 10);
   return d.toLocaleDateString("es-AR");
@@ -113,51 +196,140 @@ function cantidad(n) {
   return n == null || n === "" ? "—" : n;
 }
 
+function razonVisible(fila) {
+  const nombre = fila.razon_social || "";
+  if (!fila.con_2_0 || !nombre || nombre.toUpperCase().includes(String(fila.con_2_0).toUpperCase())) {
+    return nombre || fila.motivo || "—";
+  }
+  return `${nombre} (${fila.con_2_0})`;
+}
+
+function acciones(id) {
+  if (!esAdmin()) return "";
+  return `<td class="text-nowrap">
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-editar="${id}">Editar</button>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-borrar="${id}">Eliminar</button>
+  </td>`;
+}
+
+function textoEquipos(equipos, fila) {
+  if (!equipos || !equipos.familia) return "Esta categoría no tiene equipos de MAC.";
+  const nombres = { EBD: "EBD", D3: "D3", EBD_REP: "EBD reparado", PANTALLA: "pantalla", EBD_INT: "EBD uso interno" };
+  const familia = nombres[equipos.familia] || equipos.familia;
+  const partes = [];
+  if (equipos.egreso.length) partes.push(`${equipos.egreso.length} egreso ${familia}`);
+  if (equipos.ingreso.length) partes.push(`${equipos.ingreso.length} ingreso ${familia}`);
+  if (!partes.length) return "No hay equipos de MAC ligados a este movimiento.";
+  const macs = [...equipos.egreso, ...equipos.ingreso].map((sufijo) => `…${sufijo}`).join(", ");
+  return `Al guardar, se actualiza el cliente y la fecha de ${partes.join(" y ")} (${macs}). La MAC queda en la misma fila. Si bajás la cantidad, los últimos vuelven a EN DEPOSITO y quedan libres.`;
+}
+
+function abrirEdicion(id) {
+  const fila = movimientos.find((item) => String(item.id) === String(id));
+  if (!fila) return;
+  document.getElementById("aviso-mac").textContent = "Buscando los equipos de esta cantidad…";
+  document.getElementById("mov-id").value = fila.id;
+  document.getElementById("mov-fecha").value = String(fila.fecha || "").slice(0, 10);
+  document.getElementById("mov-estado").value = fila.estado || "";
+  document.getElementById("mov-razon").value = fila.razon_social || "";
+  document.getElementById("mov-remito").value = fila.remito || "";
+  document.getElementById("mov-factura").value = fila.factura || "";
+  document.getElementById("mov-ticket").value = fila.ticket || "";
+  document.getElementById("mov-motivo").value = fila.motivo || "";
+  document.getElementById("mov-ingreso").value = fila.ingreso == null ? "" : fila.ingreso;
+  document.getElementById("mov-egreso").value = fila.egreso == null ? "" : fila.egreso;
+  document.getElementById("mov-lite").checked = Boolean(fila.con_2_0);
+  bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-movimiento")).show();
+  apiFetch(`estado/${fila.id}/equipos`).then((equipos) => {
+    document.getElementById("aviso-mac").textContent = textoEquipos(equipos, fila);
+  }).catch(() => {
+    document.getElementById("aviso-mac").textContent = "Al guardar, la trazabilidad de MAC sigue la categoría y la cantidad.";
+  });
+}
+
 async function cargar() {
+  await window.guardiaLista;
   const params = new URLSearchParams(location.search);
   const estado = params.get("estado") || "vendido";
+  const pais = paisActual();
+  marcarPais();
   const titulo = NOMBRES_ESTADO[estado] || estado;
-  document.getElementById("subtitulo").textContent = `Movimientos de la planilla — ${titulo}`;
+  document.getElementById("subtitulo").textContent = `Movimientos de la planilla — ${titulo} · ${NOMBRES_PAIS[pais]}`;
 
-  const filas = await apiFetch("estado", { params: { estado } });
-  const ingresos = filas.reduce((s, f) => s + Number(f.ingreso || 0), 0);
-  const egresos = filas.reduce((s, f) => s + Number(f.egreso || 0), 0);
-  document.getElementById("resumen-estado").textContent = estado === "actualizacion"
-    ? `${filas.length} movimientos en la base`
-    : `${filas.length} movimientos · ingresos ${ingresos} · egresos ${egresos}`;
-
-  if (estado === "actualizacion") {
-    document.getElementById("thead-tabla").innerHTML =
-      `<tr><th>Fecha</th><th>Razón social</th><th>Factura</th><th>Remito</th><th>MAC</th><th>Detalle</th></tr>`;
-    document.getElementById("tabla-estado").innerHTML = filas.map(f => `
-      <tr>
-        <td>${fechaCorta(f.fecha)}</td>
-        <td style="max-width:280px; white-space:normal;">${f.razon_social || "—"}</td>
-        <td>${f.factura || "—"}</td>
-        <td>${f.remito || "—"}</td>
-        <td class="mac">${f.mac_wifi || "—"}</td>
-        <td style="max-width:360px; white-space:normal;">${f.motivo || f.categoria || "—"}</td>
-      </tr>
-    `).join("") || `<tr><td colspan="6" class="text-center text-muted py-4">Sin movimientos de actualización en la base</td></tr>`;
-    return;
-  }
+  const filas = await apiFetch("estado", { params: { estado, pais } });
+  movimientos = filas || [];
+  const ingresos = movimientos.reduce((s, f) => s + Number(f.ingreso || 0), 0);
+  const egresos = movimientos.reduce((s, f) => s + Number(f.egreso || 0), 0);
+  document.getElementById("resumen-estado").textContent =
+    `${movimientos.length} movimientos de la planilla · ingresos ${ingresos} · egresos ${egresos}`;
 
   document.getElementById("thead-tabla").innerHTML =
-    `<tr><th>Fecha</th><th>Estado</th><th>Categoría</th><th>Razón social</th><th>Remito</th><th>Factura</th><th>Ingreso</th><th>Egreso</th></tr>`;
+    `<tr><th>Fecha</th><th>Estado</th><th>Categoría</th><th>Razón social</th><th>Remito</th><th>Factura</th><th>Ingreso</th><th>Egreso</th>${esAdmin() ? "<th></th>" : ""}</tr>`;
 
-  document.getElementById("tabla-estado").innerHTML = filas.map(f => `
+  document.getElementById("tabla-estado").innerHTML = movimientos.map(f => `
     <tr>
       <td>${fechaCorta(f.fecha)}</td>
       <td>${f.estado || "—"}</td>
-      <td>${f.categoria || "—"}${f.pais === "PARAGUAY" ? " · Paraguay" : ""}</td>
-      <td style="max-width:320px; white-space:normal;">${f.razon_social || f.motivo || "—"}</td>
+      <td>${htmlFotoEquipo(f.categoria)}${f.pais === "PARAGUAY" ? " · Paraguay" : ""}</td>
+      <td style="max-width:320px; white-space:normal;">${razonVisible(f)}</td>
       <td>${f.remito || "—"}</td>
       <td>${f.factura || "—"}</td>
       <td class="font-mono">${cantidad(f.ingreso)}</td>
       <td class="font-mono">${cantidad(f.egreso)}</td>
+      ${acciones(f.id)}
     </tr>
-  `).join("") || `<tr><td colspan="8" class="text-center text-muted py-4">Sin movimientos con este estado en la planilla</td></tr>`;
+  `).join("") || `<tr><td colspan="${esAdmin() ? 9 : 8}" class="text-center text-muted py-4">Sin movimientos con este estado en la planilla</td></tr>`;
 }
+
+document.getElementById("tabs-pais").addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-pais]");
+  if (!boton) return;
+  const params = new URLSearchParams(location.search);
+  if (!params.get("estado")) params.set("estado", "vendido");
+  params.set("pais", boton.dataset.pais);
+  history.replaceState(null, "", `${location.pathname}?${params}`);
+  cargar().catch(err => mostrarError("msg-error", err.message));
+});
+
+document.getElementById("tabla-estado").addEventListener("click", (evento) => {
+  const editar = evento.target.closest("[data-editar]");
+  const borrar = evento.target.closest("[data-borrar]");
+  if (editar) abrirEdicion(editar.dataset.editar);
+  if (!borrar) return;
+  if (!confirm("Se elimina este movimiento. Los equipos de esa cantidad vuelven a EN DEPOSITO y quedan libres. La MAC sigue en la misma fila.")) return;
+  apiFetch(`estado/${borrar.dataset.borrar}`, { method: "DELETE" })
+    .then(() => cargar())
+    .catch((err) => mostrarError("msg-error", err.message));
+});
+
+document.getElementById("form-movimiento").addEventListener("submit", (evento) => {
+  evento.preventDefault();
+  const id = document.getElementById("mov-id").value;
+  apiFetch(`estado/${id}`, {
+    method: "PUT",
+    body: {
+      fecha: document.getElementById("mov-fecha").value,
+      estado: document.getElementById("mov-estado").value,
+      razon_social: document.getElementById("mov-razon").value,
+      remito: document.getElementById("mov-remito").value,
+      factura: document.getElementById("mov-factura").value,
+      ticket: document.getElementById("mov-ticket").value,
+      motivo: document.getElementById("mov-motivo").value,
+      ingreso: document.getElementById("mov-ingreso").value,
+      egreso: document.getElementById("mov-egreso").value,
+      con_2_0: document.getElementById("mov-lite").checked,
+    },
+  }).then((respuesta) => {
+    bootstrap.Modal.getInstance(document.getElementById("modal-movimiento")).hide();
+    const equipos = Number(respuesta && respuesta.equipos || 0);
+    const liberados = Number(respuesta && respuesta.liberados || 0);
+    const detalle = equipos || liberados
+      ? ` Se actualizó la trazabilidad: ${equipos} equipo${equipos === 1 ? "" : "s"} y ${liberados} liberado${liberados === 1 ? "" : "s"}.`
+      : "";
+    mostrarExito("msg-exito", `Movimiento actualizado.${detalle}`);
+    return cargar();
+  }).catch((err) => mostrarError("msg-error", err.message));
+});
 
 cargar().catch(err => mostrarError("msg-error", err.message));
 </script>

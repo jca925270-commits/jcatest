@@ -78,11 +78,11 @@ async function cargarHistorialIngresos() {
   document.getElementById("tabla-ingresos").innerHTML = filas.map(m => `
     <tr>
       <td>${formatearFecha(m.fecha)}</td>
-      <td class="mac">${m.mac_wifi || m.mac_eth || "—"}</td>
+      <td class="mac">${m.mac_wifi || "—"}</td>
+      <td class="mac">${m.mac_eth || "—"}</td>
       <td>${m.tipo_movimiento}</td>
       <td>${m.destino_nombre || "—"}</td>
       <td>${m.remito || "—"}</td>
-      <td>${m.ticket || "—"}</td>
       <td>${m.usuario_nombre || "—"}</td>
     </tr>
   `).join("") || `<tr><td colspan="7" class="text-center text-muted py-3">Todavía no se registraron ingresos</td></tr>`;
@@ -174,10 +174,84 @@ document.getElementById("btn-registrar-ingreso").addEventListener("click", async
   resumenEl.textContent = "";
 });
 
+let planillaIngresos = [];
+let paginaPlanillaIngreso = 1;
+
+function fechaPlanilla(valor, texto) {
+  if (texto) return textoPlano(texto);
+  const m = String(valor || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${Number(m[3])}/${Number(m[2])}/${m[1]}`;
+  return "—";
+}
+
+function pintarPlanillaIngresos() {
+  const q = document.getElementById("buscar-planilla-ingreso").value.trim().toLowerCase();
+  const visibles = planillaIngresos.filter((f) => !q || [f.razsocial_agreg, f.razon_social, f.dispositivo, f.mac, f.mac_wifi, f.mac_eth, f.estado, f.deposito, f.caja, f.contacto, f.motivo, f.correo]
+    .some((v) => String(v || "").toLowerCase().includes(q)));
+  const corte = paginar(visibles, paginaPlanillaIngreso);
+  paginaPlanillaIngreso = corte.pagina;
+  document.getElementById("resumen-planilla-ingreso").textContent = q
+    ? `${visibles.length} de ${planillaIngresos.length} ingresos · página ${corte.pagina} de ${corte.total}`
+    : `${visibles.length} ingresos · página ${corte.pagina} de ${corte.total}`;
+  document.getElementById("paginacion-planilla-ingreso").innerHTML = htmlPaginacion(corte.pagina, corte.total);
+  const editar = puedeEditarPlanilla();
+  document.getElementById("tabla-planilla-ingreso").innerHTML = corte.filas.map((f) => `
+    <tr>
+      <td>${fechaPlanilla(f.fecha, f.fecha_texto)}</td>
+      <td class="col-texto">${textoPlano(f.razsocial_agreg)}</td>
+      <td class="col-texto">${textoPlano(f.razon_social)}</td>
+      <td>${htmlFotoEquipo(f.dispositivo)}</td>
+      <td>${textoPlano(f.estado)}</td>
+      <td>${textoPlano(f.seguimiento)}</td>
+      <td>${textoPlano(f.correo)}</td>
+      <td class="col-texto">${textoPlano(f.observacion)}</td>
+      <td class="col-texto">${textoPlano(f.contacto)}</td>
+      <td>${textoPlano(f.motivo)}</td>
+      <td>${textoPlano(f.instancia_gestion)}</td>
+      <td>${textoPlano(f.deposito)}</td>
+      <td>${textoPlano(f.caja)}</td>
+      <td class="font-monospace">${textoPlano(f.mac_wifi)}</td>
+      <td class="font-monospace">${textoPlano(f.mac_eth)}</td>
+      ${editar ? `<td class="text-end"><button type="button" class="btn btn-sm btn-outline-secondary" data-editar="${f.id}">Editar</button></td>` : "<td></td>"}
+    </tr>
+  `).join("") || `<tr><td colspan="16" class="text-center text-muted py-4">Sin ingresos en la planilla</td></tr>`;
+}
+
+async function cargarPlanillaIngresos() {
+  if (window.guardiaLista) await window.guardiaLista;
+  planillaIngresos = (await apiFetch("soporte-planilla", { params: { tipo: "ingreso" } }) || []).filter((f) => !esEstadoVenta(f.estado));
+  pintarPlanillaIngresos();
+}
+
+document.getElementById("buscar-planilla-ingreso").addEventListener("input", () => {
+  paginaPlanillaIngreso = 1;
+  pintarPlanillaIngresos();
+});
+document.getElementById("paginacion-planilla-ingreso").addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-pagina]");
+  if (!boton || boton.disabled) return;
+  paginaPlanillaIngreso = Number(boton.dataset.pagina);
+  pintarPlanillaIngresos();
+});
+
+document.getElementById("tabla-planilla-ingreso").addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-editar]");
+  if (!boton) return;
+  const fila = planillaIngresos.find((item) => String(item.id) === boton.dataset.editar);
+  if (!fila) return;
+  abrirEdicionPlanilla({
+    tipo: "ingreso",
+    fila,
+    filas: planillaIngresos,
+    alGuardar: cargarPlanillaIngresos,
+  });
+});
+
 (async () => {
   const hoy = new Date().toISOString().slice(0, 10);
   document.getElementById("ing-fecha").value = hoy;
   await cargarCatalogos();
   agregarFilaEquipo();
   await cargarHistorialIngresos();
+  await cargarPlanillaIngresos();
 })();

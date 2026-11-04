@@ -61,7 +61,7 @@ router.get("/", async (req, res) => {
     }
 
     const where = condiciones.length ? "WHERE " + condiciones.join(" AND ") : "";
-    const limite = Math.min(parseInt(req.query.limite) || 100, 500);
+    const limite = Math.min(parseInt(req.query.limite) || 100, 5000);
 
     const [rows] = await pool.query(
       `SELECT m.*, d.mac_wifi, d.mac_eth, c.razon_social AS cliente_nombre,

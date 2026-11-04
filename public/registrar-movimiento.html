@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<title>Registrar Movimiento — Sistema de Stock</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="assets/css/styles.css?v=reloj1" rel="stylesheet">
+<style>
+  .card:has(.razon-panel:not(.d-none)) { overflow: visible; position: relative; z-index: 40; }
+  .razon-buscar { position: relative; }
+  .razon-panel {
+    position: absolute; z-index: 30; left: 0; right: 0; margin-top: .35rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: .35rem; box-shadow: 0 16px 40px rgba(0, 0, 0, .45);
+  }
+  .razon-lista { max-height: 240px; overflow: auto; }
+  .razon-opcion {
+    display: block; width: 100%; text-align: left; background: transparent; border: 0;
+    color: var(--text); border-radius: 8px; padding: .45rem .6rem; font-size: .92rem;
+  }
+  .razon-opcion:hover, .razon-opcion.activa { background: var(--surface-alt); color: #fff; }
+  .razon-vacio { color: var(--text-muted); font-size: .85rem; padding: .45rem .6rem; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">Sistema de Stock <small>SOPORTE Y LOGISTICA</small></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
+      <details class="nav-group">
+        <summary><span class="nav-icono" aria-hidden="true">devices</span> Dispositivo</summary>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">build</span> Reparados y Reutilizados</summary>
+          <a href="reparados.html" class="sub-link">Reparados y Reutilizados</a>
+          <a href="reparados.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+          <a href="reparados.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+          <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        </details>
+      </details>
+      <details class="nav-group">
+        <summary>🔄 Movimientos</summary>
+        <a href="registrar-movimiento.html" class="sub-link"><span class="nav-icono" aria-hidden="true">edit_note</span> Registrar Movimiento</a>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">flag</span> Estado</summary>
+          <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+          <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+          <a href="estado.html?estado=comodato" class="sub-link">Comodato</a>
+          <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+          <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+          <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+          <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+          <a href="estado.html?estado=movimiento" class="sub-link">Movimiento</a>
+          <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+          <a href="ingresar-mac.html" class="sub-link"><span class="nav-icono" aria-hidden="true">playlist_add</span> Ingresar Equipos por MAC</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+          <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+          <a href="trazabilidad.html?hoja=devolucion_ebd" class="sub-link">Devolución EBD</a>
+          <a href="trazabilidad.html?hoja=devolucion_d3" class="sub-link">Devolución D3</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_reparado" class="sub-link">Ingreso EBD REPARADO (Testeados)</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_reparado" class="sub-link">Egreso EBD REPARADO (Venta/Migracion/Garantia)</a>
+          <a href="trazabilidad.html?hoja=ingreso_pantalla" class="sub-link">Ingreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_pantalla" class="sub-link">Egreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_interno" class="sub-link">Ingreso EBD uso INTERNO</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_interno" class="sub-link">Egreso EBD uso INTERNO</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">support_agent</span> Soporte Técnico</summary>
+          <a href="ingreso.html" class="sub-link">Ingresos Soporte</a>
+          <a href="egreso.html" class="sub-link">Egresos Soporte</a>
+          <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
+          <a href="cargar-egreso.html" class="sub-link">Cargar Egreso</a>
+        </details>
+      </details>
+
+      <details class="nav-group">
+        <summary>🏭 Depósitos</summary>
+        <a href="dispositivo.html?ubicacion=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="dispositivo.html?ubicacion=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="dispositivo.html?ubicacion=Oficina" class="sub-link">Oficina</a>
+        <a href="dispositivo.html?ubicacion=Showroom" class="sub-link">Showroom</a>
+      </details>
+      <details class="nav-group">
+        <summary>📚 Stock</summary>
+        <a href="accesorios.html" class="sub-link">Accesorios</a>
+      </details>
+      <a href="clientes.html" class="nav-link">🧾 Clientes</a>
+      <details class="nav-group">
+        <summary>📈 Reportes</summary>
+        <a href="reportes.html" class="sub-link">Reportes</a>
+        <a href="stock-mensual.html" class="sub-link">Stock mensual</a>
+        <details class="nav-group">
+          <summary class="sub-link">Corrección de máximo y mínimos</summary>
+          <a href="correccion-accesorios.html" class="sub-link">Accesorios</a>
+        </details>
+      </details>
+      <details class="nav-group" data-solo-admin>
+        <summary>👤 Usuarios</summary>
+        <a href="usuarios.html" class="sub-link">Usuarios</a>
+        <a href="estado-movimientos.html" class="sub-link">Estado de movimientos</a>
+      </details>
+    </nav>
+    <div class="user-box">
+      <div class="rol" id="usuario-rol">—</div>
+      <div id="usuario-nombre">—</div>
+      <a href="#" id="btn-logout" class="text-decoration-none text-white-50">Cerrar sesión</a>
+    </div>
+  </aside>
+
+
+  <main class="main-content">
+    <h1 class="page-title">Registrar Movimiento</h1>
+    <p class="page-subtitle">El mismo renglón de la planilla STOCK 2026. Con venta, prueba, garantía o cualquier otro estado, cada equipo también se carga en la pestaña de ingreso o de egreso de la base de MAC que corresponde a ese dispositivo: EBD, EBD reparado, pantallas, EBD de uso interno o D3.</p>
+    <div id="msg-error" class="alert alert-danger d-none"></div>
+    <div id="msg-exito" class="alert d-none"></div>
+    <form id="form-planilla" class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-lg-2 col-md-3">
+            <label class="form-label small" for="fecha">Fecha</label>
+            <input class="form-control" id="fecha" type="date">
+          </div>
+          <div class="col-lg-4 col-md-5 razon-buscar">
+            <label class="form-label small" for="razon-boton">Razón social</label>
+            <button type="button" class="form-select text-start" id="razon-boton" aria-expanded="false">Seleccionar…</button>
+            <div id="razon-panel" class="razon-panel d-none">
+              <input type="text" class="form-control form-control-sm" id="razon-filtro" placeholder="Buscar" autocomplete="off">
+              <label class="form-label small" for="razon-nueva">Nueva razón social</label>
+              <input type="text" class="form-control form-control-sm" id="razon-nueva" maxlength="255" autocomplete="off">
+              <div id="razon-lista" class="razon-lista"></div>
+            </div>
+            <input type="hidden" id="razon" value="">
+          </div>
+          <div class="col-lg-3 col-md-4 d-flex align-items-end">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="marca-2">
+              <label class="form-check-label" for="marca-2">2.0</label>
+            </div>
+          </div>
+          <div class="col-12 d-none" id="aviso-2">
+            <p class="page-subtitle mb-0">En la planilla queda <span id="texto-2"></span>. En MySQL esa marca va en una columna aparte, sin unirse al cliente.</p>
+          </div>
+          <div class="col-lg-3 col-md-4">
+            <label class="form-label small" for="estado">Estado</label>
+            <select class="form-select" id="estado"></select>
+          </div>
+          <div class="col-lg-3 col-md-4">
+            <label class="form-label small" for="remito">Nº remito</label>
+            <input class="form-control" id="remito" maxlength="50" placeholder="Número">
+            <div class="form-check mt-1">
+              <input class="form-check-input" type="checkbox" id="sin-remito">
+              <label class="form-check-label small" for="sin-remito">Sin Remito</label>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-4">
+            <label class="form-label small" for="factura">Nº factura</label>
+            <input class="form-control" id="factura" maxlength="50" placeholder="Número">
+            <div class="form-check mt-1">
+              <input class="form-check-input" type="checkbox" id="sin-factura">
+              <label class="form-check-label small" for="sin-factura">Sin Factura</label>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-4">
+            <label class="form-label small" for="ticket">Ticket</label>
+            <select class="form-select" id="ticket">
+              <option value="">Elegí el ticket</option>
+              <option value="CRM">CRM</option>
+              <option value="SIN TICKET">SIN TICKET</option>
+              <option value="NUMERO">Número de ticket</option>
+            </select>
+            <input class="form-control mt-2 d-none" id="ticket-numero" maxlength="50" placeholder="Número de ticket">
+          </div>
+          <div class="col-lg-2 col-md-3">
+            <label class="form-label small" for="pais">País</label>
+            <select class="form-select" id="pais">
+              <option value="ARGENTINA">Argentina</option>
+              <option value="PARAGUAY">Paraguay</option>
+            </select>
+          </div>
+          <div class="col-lg-4 col-md-5">
+            <label class="form-label small" for="categoria">Dispositivo</label>
+            <select class="form-select" id="categoria"></select>
+          </div>
+          <div class="col-lg-3 col-md-2">
+            <label class="form-label small" for="ingreso">Ingreso</label>
+            <input class="form-control" id="ingreso" type="number" min="0" step="1" placeholder="0">
+          </div>
+          <div class="col-lg-3 col-md-2">
+            <label class="form-label small" for="egreso">Egreso</label>
+            <input class="form-control" id="egreso" type="number" min="0" step="1" placeholder="0">
+          </div>
+        </div>
+        <div class="d-none" aria-hidden="true">
+          <input id="cant-ing-ebd" type="number" value="0">
+          <input id="cant-ing-int" type="number" value="0">
+          <input id="cant-ing-rep" type="number" value="0">
+          <input id="cant-ing-pan" type="number" value="0">
+          <input id="cant-ing-d3" type="number" value="0">
+          <input id="cant-ebd" type="number" value="0">
+          <input id="cant-int" type="number" value="0">
+          <input id="cant-rep" type="number" value="0">
+          <input id="cant-pan" type="number" value="0">
+          <input id="cant-d3" type="number" value="0">
+        </div>
+        <p id="aviso-mac" class="small text-muted mt-3 mb-0"></p>
+        <div id="mac-formulario"></div>
+        <button class="btn btn-teal mt-3" id="btn-registrar" data-requiere-escritura>Registrar movimiento</button>
+      </div>
+    </form>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js?v=fuente"></script>
+<script src="assets/js/auth-guard.js?v=reloj4"></script>
+<script src="assets/js/registrar-movimiento.js?v=reg28"></script>
+</body>
+</html>

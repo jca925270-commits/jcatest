@@ -2,9 +2,29 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const pool = require("../config/db");
 const { requerirRol } = require("../middleware/auth");
+const { asegurarTabla } = require("../lib/registro-usuarios");
 
 const router = express.Router();
 router.use(requerirRol(["admin"]));
+
+router.get("/actividad", async (req, res) => {
+  res.set("Cache-Control", "no-store");
+  try {
+    await asegurarTabla();
+    const [rows] = await pool.query(
+      `SELECT id,
+              DATE_FORMAT(CONVERT_TZ(fecha, '+00:00', '-03:00'), '%d/%m/%Y') AS fecha,
+              DATE_FORMAT(CONVERT_TZ(fecha, '+00:00', '-03:00'), '%H:%i:%s') AS hora,
+              usuario_nombre, rol, tipo, detalle
+       FROM registro_usuarios
+       ORDER BY id DESC
+       LIMIT 300`
+    );
+    res.json(rows);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
 
 router.get("/", async (req, res) => {
   try {
@@ -21,6 +41,9 @@ router.post("/", async (req, res) => {
   const b = req.body;
   for (const campo of ["nombre", "password", "rol"]) {
     if (!b[campo]) return res.status(400).json({ error: `Falta ${campo}` });
+  }
+  if (String(b.password).length < 6) {
+    return res.status(400).json({ error: "La contraseña tiene que tener al menos 6 caracteres" });
   }
   try {
     const hash = await bcrypt.hash(b.password, 10);
@@ -45,6 +68,9 @@ router.put("/", async (req, res) => {
   const sets = ["nombre = ?", "rol = ?", "activo = ?"];
   const params = [b.nombre, b.rol, b.activo ? 1 : 0];
   if (b.password) {
+    if (String(b.password).length < 6) {
+      return res.status(400).json({ error: "La contraseña tiene que tener al menos 6 caracteres" });
+    }
     sets.push("password_hash = ?");
     params.push(await bcrypt.hash(b.password, 10));
   }

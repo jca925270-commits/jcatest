@@ -56,6 +56,9 @@ ALIASES = {
     "WIFI": "estado_wifi",
     "PANTALLA": "estado_pantalla",
     "AUDIO": "estado_audio",
+    "AUTO": "estado_auto",
+    "NUMERO DE PANTALLA": "numero_pantalla",
+    "NÚMERO DE PANTALLA": "numero_pantalla",
 }
 
 
@@ -215,6 +218,10 @@ def parsear(ruta):
                         registro["estado_wifi"] = texto_corto(celda(vals, columnas.get("estado_wifi")), 40)
                         registro["estado_pantalla"] = texto_corto(celda(vals, columnas.get("estado_pantalla")), 40)
                         registro["estado_audio"] = texto_corto(celda(vals, columnas.get("estado_audio")), 40)
+                        registro["estado_auto"] = texto_corto(celda(vals, columnas.get("estado_auto")), 40)
+                        numero_pantalla = texto_corto(celda(vals, columnas.get("numero_pantalla")), 20)
+                        if numero_pantalla:
+                            registro["numero_equipo"] = re.sub(r"\D", "", numero_pantalla)[:20] or numero_pantalla
                 else:
                     despacho, despacho_texto = fecha_o_texto(celda(vals, columnas.get("fecha_despacho")), 80)
                     registro = {
@@ -283,7 +290,7 @@ def asegurar_tablas(cnx):
         )
         if cur.fetchone()[0] == 0:
             cur.execute(f"ALTER TABLE {tabla} ADD COLUMN numero_equipo VARCHAR(20) NULL")
-    for columna in ("estado_wifi", "estado_pantalla", "estado_audio"):
+    for columna in ("estado_wifi", "estado_pantalla", "estado_audio", "estado_auto"):
         cur.execute(
             """SELECT COUNT(*) FROM information_schema.COLUMNS
                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'trazabilidad_ingreso_pantalla'
@@ -334,8 +341,8 @@ def aplicar(cnx, hojas):
             sql = f"""INSERT INTO {tabla}
                 (fecha_llegada, fecha_llegada_texto, fecha_carga, fecha_carga_texto,
                  mac_wifi, mac_eth, lote, caja, numero_equipo, origen_fila,
-                 estado_wifi, estado_pantalla, estado_audio)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                 estado_wifi, estado_pantalla, estado_audio, estado_auto)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE
                   fecha_llegada=VALUES(fecha_llegada),
                   fecha_llegada_texto=VALUES(fecha_llegada_texto),
@@ -348,11 +355,12 @@ def aplicar(cnx, hojas):
                   numero_equipo=VALUES(numero_equipo),
                   estado_wifi=VALUES(estado_wifi),
                   estado_pantalla=VALUES(estado_pantalla),
-                  estado_audio=VALUES(estado_audio)"""
+                  estado_audio=VALUES(estado_audio),
+                  estado_auto=VALUES(estado_auto)"""
             datos = [
                 (f["fecha_llegada"], f["fecha_llegada_texto"], f["fecha_carga"], f["fecha_carga_texto"],
                  f["mac_wifi"], f["mac_eth"], f["lote"], f["caja"], f["numero_equipo"], f["origen_fila"],
-                 f.get("estado_wifi"), f.get("estado_pantalla"), f.get("estado_audio"))
+                 f.get("estado_wifi"), f.get("estado_pantalla"), f.get("estado_audio"), f.get("estado_auto"))
                 for f in hoja["filas"]
             ]
         elif hoja["tipo"] == "ingreso":

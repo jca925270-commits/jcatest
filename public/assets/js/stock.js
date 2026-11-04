@@ -4,10 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function obtenerStock() {
   try {
-    const response = await fetch("/api/stock");
-    if (!response.ok) throw new Error("Error al consultar API de stock");
-
-    const datos = await response.json();
+    const datos = await apiFetch("stock");
+    if (!datos) return;
     const tbody = document.getElementById("tabla-stock");
     if (!tbody) return;
 
@@ -26,7 +24,7 @@ async function obtenerStock() {
         <td>${fila.remito || "-"}</td>
         <td>${fila.factura || "-"}</td>
         <td>${fila.Razon_Social || "-"}</td>
-        <td>${fila.dispositivo || "-"}</td>
+        <td>${htmlFotoEquipo(fila.dispositivo)}</td>
         <td>${fila.ticket || "-"}</td>
         <td style="color: #4CAF50; font-weight: bold;">${fila.ingreso || 0}</td>
         <td style="color: #F44336; font-weight: bold;">${fila.egreso || 0}</td>

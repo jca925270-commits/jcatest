@@ -7,7 +7,7 @@
 <title>Trazabilidad de Macs — Sistema de Stock</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link href="assets/css/styles.css" rel="stylesheet">
+<link href="assets/css/styles.css?v=reloj1" rel="stylesheet">
 </head>
 <body>
 <div class="app-shell">
@@ -16,64 +16,82 @@
     <nav>
       <a href="index.html" class="nav-link">📊 Dashboard</a>
       <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
-      <a href="dispositivo.html" class="nav-link">📦 dispositivo</a>
-      <a href="reparados.html" class="nav-link">🔧 Reparados y Reutilizados</a>
-
+      <details class="nav-group">
+        <summary><span class="nav-icono" aria-hidden="true">devices</span> Dispositivo</summary>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">build</span> Reparados y Reutilizados</summary>
+          <a href="reparados.html" class="sub-link">Reparados y Reutilizados</a>
+          <a href="reparados.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+          <a href="reparados.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+          <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        </details>
+      </details>
       <details class="nav-group">
         <summary>🔄 Movimientos</summary>
-        <a href="ingreso.html" class="sub-link">Ingreso</a>
-        <a href="egreso.html" class="sub-link">Egreso</a>
-        <a href="movimientos.html" class="sub-link">Todos</a>
-        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
-        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
-        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
-        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+        <a href="registrar-movimiento.html" class="sub-link"><span class="nav-icono" aria-hidden="true">edit_note</span> Registrar Movimiento</a>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">flag</span> Estado</summary>
+          <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+          <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+          <a href="estado.html?estado=comodato" class="sub-link">Comodato</a>
+          <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+          <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+          <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+          <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+          <a href="estado.html?estado=movimiento" class="sub-link">Movimiento</a>
+          <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+          <a href="ingresar-mac.html" class="sub-link"><span class="nav-icono" aria-hidden="true">playlist_add</span> Ingresar Equipos por MAC</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+          <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+          <a href="trazabilidad.html?hoja=devolucion_ebd" class="sub-link">Devolución EBD</a>
+          <a href="trazabilidad.html?hoja=devolucion_d3" class="sub-link">Devolución D3</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_reparado" class="sub-link">Ingreso EBD REPARADO (Testeados)</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_reparado" class="sub-link">Egreso EBD REPARADO (Venta/Migracion/Garantia)</a>
+          <a href="trazabilidad.html?hoja=ingreso_pantalla" class="sub-link">Ingreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_pantalla" class="sub-link">Egreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_interno" class="sub-link">Ingreso EBD uso INTERNO</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_interno" class="sub-link">Egreso EBD uso INTERNO</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">support_agent</span> Soporte Técnico</summary>
+          <a href="ingreso.html" class="sub-link">Ingresos Soporte</a>
+          <a href="egreso.html" class="sub-link">Egresos Soporte</a>
+          <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
+          <a href="cargar-egreso.html" class="sub-link">Cargar Egreso</a>
+        </details>
       </details>
-
-      <a href="soporte.html" class="nav-link">🛠️ Soporte Técnico</a>
 
       <details class="nav-group">
-        <summary>🏭 Depósito</summary>
-        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
-        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
-        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
-        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+        <summary>🏭 Depósitos</summary>
+        <a href="dispositivo.html?ubicacion=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="dispositivo.html?ubicacion=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="dispositivo.html?ubicacion=Oficina" class="sub-link">Oficina</a>
+        <a href="dispositivo.html?ubicacion=Showroom" class="sub-link">Showroom</a>
       </details>
-
-      <details class="nav-group">
-        <summary>🏷️ Estado</summary>
-        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
-        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
-        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
-        <a href="testeo.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
-        <a href="testeo.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
-        <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
-        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
-        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
-        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
-        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
-        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
-        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
-      </details>
-
       <details class="nav-group">
         <summary>📚 Stock</summary>
         <a href="accesorios.html" class="sub-link">Accesorios</a>
-        <a href="dispositivo.html" class="sub-link">dispositivo</a>
-        <a href="deposito.html" class="sub-link">Depósito</a>
       </details>
-
-      <details class="nav-group" open>
-        <summary><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
-        <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
-        <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
-        <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
-        <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
-      </details>
-
       <a href="clientes.html" class="nav-link">🧾 Clientes</a>
-      <a href="reportes.html" class="nav-link">📈 Reportes</a>
-      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+      <details class="nav-group">
+        <summary>📈 Reportes</summary>
+        <a href="reportes.html" class="sub-link">Reportes</a>
+        <a href="stock-mensual.html" class="sub-link">Stock mensual</a>
+        <details class="nav-group">
+          <summary class="sub-link">Corrección de máximo y mínimos</summary>
+          <a href="correccion-accesorios.html" class="sub-link">Accesorios</a>
+        </details>
+      </details>
+      <details class="nav-group" data-solo-admin>
+        <summary>👤 Usuarios</summary>
+        <a href="usuarios.html" class="sub-link">Usuarios</a>
+        <a href="estado-movimientos.html" class="sub-link">Estado de movimientos</a>
+      </details>
     </nav>
     <div class="user-box">
       <div class="rol" id="usuario-rol">—</div>
@@ -89,9 +107,12 @@
 
     <div id="msg-error" class="alert alert-danger d-none"></div>
 
-    <div class="row g-2 mb-3">
+    <div class="row g-2 mb-3 align-items-center">
       <div class="col-md-5">
         <input type="search" class="form-control" id="buscador" placeholder="Buscar por MAC, cliente, lote, caja o número de equipo">
+      </div>
+      <div class="col-md-auto d-none" id="caja-registrar" data-requiere-escritura>
+        <button type="button" class="btn btn-teal" id="btn-registrar">Agregar pantalla nueva</button>
       </div>
     </div>
 
@@ -106,15 +127,127 @@
         <div id="paginacion-trazabilidad"></div>
       </div>
     </div>
+
+    <div class="card border-0 shadow-sm mt-4 d-none" id="caja-falla">
+      <div class="card-body">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <div>
+            <h2 class="h6 mb-0">Con falla/para repuestos</h2>
+            <div class="text-muted small" id="conteo-falla"></div>
+          </div>
+          <button type="button" class="btn btn-outline-danger" id="btn-falla" data-requiere-escritura>Con falla/para repuestos</button>
+        </div>
+        <div class="tabla-scroll">
+          <table class="table table-sm table-hover mb-0">
+            <thead class="table-light" id="thead-falla"></thead>
+            <tbody id="tabla-falla"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
-<script src="assets/js/api.js"></script>
-<script src="assets/js/auth-guard.js"></script>
+<div class="modal fade" id="modal-equipo" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar equipo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-equipo" class="modal-body">
+        <input type="hidden" id="eq-id">
+        <div class="mb-2" id="caja-cliente"><label class="form-label" for="eq-cliente">Cliente</label><input class="form-control form-control-sm" id="eq-cliente" maxlength="255"></div>
+        <div class="d-flex flex-wrap align-items-end gap-2">
+          <div id="caja-llegada" style="flex:0 0 11rem;width:11rem;max-width:11rem"><label class="form-label small" for="eq-llegada">Fecha de llegada</label><input class="form-control form-control-sm" id="eq-llegada" type="date" style="min-width:0;width:100%"></div>
+          <div id="caja-carga" style="flex:0 0 11rem;width:11rem;max-width:11rem"><label class="form-label small" for="eq-carga">Fecha de carga</label><input class="form-control form-control-sm" id="eq-carga" type="date" style="min-width:0;width:100%"></div>
+          <div id="caja-despacho" style="flex:0 0 11rem;width:11rem;max-width:11rem"><label class="form-label small" for="eq-despacho">Fecha de despacho</label><input class="form-control form-control-sm" id="eq-despacho" type="date" style="min-width:0;width:100%"></div>
+          <div style="flex:1 1 8rem;min-width:7rem"><label class="form-label small" for="eq-lote">Lote</label><input class="form-control form-control-sm" id="eq-lote" maxlength="80"></div>
+          <div style="flex:1 1 8rem;min-width:7rem"><label class="form-label small" for="eq-caja" id="etiq-caja">Caja</label><input class="form-control form-control-sm" id="eq-caja" maxlength="40"></div>
+          <div style="flex:0 0 8rem;width:8rem;max-width:8rem"><label class="form-label small" for="eq-numero" id="etiq-numero">Número de equipo</label><input class="form-control form-control-sm" id="eq-numero" maxlength="20" inputmode="numeric"></div>
+        </div>
+        <div class="form-check mt-3" id="caja-lite"><input class="form-check-input" id="eq-lite" type="checkbox"><label class="form-check-label" for="eq-lite">Con 2.0 Lite</label></div>
+        <div class="d-none mt-3" id="caja-estados">
+          <div class="d-flex flex-wrap gap-2">
+            <div style="flex:1 1 10rem"><label class="form-label small" for="eq-estado-pantalla">Pantalla</label><select class="form-select form-select-sm" id="eq-estado-pantalla"><option value="">—</option><option>OK</option><option>Falla</option><option>Para repuestos</option></select></div>
+            <div style="flex:1 1 10rem"><label class="form-label small" for="eq-estado-auto">Auto</label><select class="form-select form-select-sm" id="eq-estado-auto"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          </div>
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="form-equipo" class="btn btn-teal">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal-pantalla" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Agregar pantalla nueva</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-pantalla" class="modal-body">
+        <div class="d-flex flex-wrap align-items-end gap-2">
+          <div style="flex:0 0 11rem;width:11rem;max-width:11rem"><label class="form-label small" for="reg-llegada">Fecha de llegada</label><input class="form-control form-control-sm" id="reg-llegada" type="date" required style="min-width:0;width:100%"></div>
+          <div style="flex:0 0 11rem;width:11rem;max-width:11rem"><label class="form-label small" for="reg-carga">Fecha de carga</label><input class="form-control form-control-sm" id="reg-carga" type="date" required style="min-width:0;width:100%"></div>
+          <div style="flex:1 1 11rem;min-width:9rem"><label class="form-label small" for="reg-wifi">MAC WIFI</label><input class="form-control form-control-sm font-monospace" id="reg-wifi" maxlength="20" required></div>
+          <div style="flex:1 1 11rem;min-width:9rem"><label class="form-label small" for="reg-eth">MAC ETH</label><input class="form-control form-control-sm font-monospace" id="reg-eth" maxlength="20" required></div>
+          <div style="flex:1 1 8rem;min-width:7rem"><label class="form-label small" for="reg-lote">Lote</label><input class="form-control form-control-sm" id="reg-lote" maxlength="80"></div>
+          <div style="flex:1 1 8rem;min-width:7rem"><label class="form-label small" for="reg-caja">Caja n°</label><input class="form-control form-control-sm" id="reg-caja" maxlength="40"></div>
+          <div style="flex:0 0 9rem;width:9rem;max-width:9rem"><label class="form-label small" for="reg-numero">Número de pantalla</label><input class="form-control form-control-sm" id="reg-numero" maxlength="20" inputmode="numeric" required></div>
+          <div style="flex:1 1 10rem"><label class="form-label small" for="reg-estado-pantalla">Pantalla</label><select class="form-select form-select-sm" id="reg-estado-pantalla" required><option value="">Elegir</option><option>OK</option><option>Falla</option></select></div>
+          <div style="flex:1 1 10rem"><label class="form-label small" for="reg-estado-auto">Auto</label><select class="form-select form-select-sm" id="reg-estado-auto" required><option value="">Elegir</option><option>Sí</option><option>No</option></select></div>
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="form-pantalla" class="btn btn-teal" id="btn-guardar-pantalla">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal-falla" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Con falla/para repuestos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form id="form-falla" class="modal-body">
+        <div class="d-flex flex-wrap align-items-end gap-2">
+          <div style="flex:0 0 11rem;width:11rem;max-width:11rem"><label class="form-label small" for="falla-llegada">Fecha de llegada</label><input class="form-control form-control-sm" id="falla-llegada" type="date" required style="min-width:0;width:100%"></div>
+          <div style="flex:0 0 11rem;width:11rem;max-width:11rem"><label class="form-label small" for="falla-carga">Fecha de carga</label><input class="form-control form-control-sm" id="falla-carga" type="date" required style="min-width:0;width:100%"></div>
+          <div style="flex:1 1 11rem;min-width:9rem"><label class="form-label small" for="falla-wifi">MAC WIFI</label><input class="form-control form-control-sm font-monospace" id="falla-wifi" maxlength="20" required></div>
+          <div style="flex:1 1 11rem;min-width:9rem"><label class="form-label small" for="falla-eth">MAC ETH</label><input class="form-control form-control-sm font-monospace" id="falla-eth" maxlength="20" required></div>
+          <div style="flex:1 1 8rem;min-width:7rem"><label class="form-label small" for="falla-lote">Lote</label><input class="form-control form-control-sm" id="falla-lote" maxlength="80"></div>
+          <div style="flex:1 1 8rem;min-width:7rem"><label class="form-label small" for="falla-caja">Caja n°</label><input class="form-control form-control-sm" id="falla-caja" maxlength="40"></div>
+          <div style="flex:0 0 9rem;width:9rem;max-width:9rem"><label class="form-label small" for="falla-numero">Número de pantalla</label><input class="form-control form-control-sm" id="falla-numero" maxlength="20" inputmode="numeric" required></div>
+          <div style="flex:1 1 10rem"><label class="form-label small" for="falla-estado">Pantalla</label><select class="form-select form-select-sm" id="falla-estado" required><option value="">Elegir</option><option>Falla</option><option>Para repuestos</option></select></div>
+          <div style="flex:1 1 10rem"><label class="form-label small" for="falla-auto">Auto</label><select class="form-select form-select-sm" id="falla-auto" required><option value="">Elegir</option><option>Sí</option><option>No</option></select></div>
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" form="form-falla" class="btn btn-outline-danger" id="btn-guardar-falla">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/api.js?v=fuente"></script>
+<script src="assets/js/auth-guard.js?v=reloj4"></script>
 <script>
 const hoja = new URLSearchParams(location.search).get("hoja") || "ingreso_ebd";
 let filas = [];
 let tipo = "ingreso";
+let cajaEtiqueta = "Caja";
+let conCliente = false;
+let sinLlegada = false;
 let pagina = 1;
 
 document.querySelectorAll('a.sub-link[href*="trazabilidad.html"]').forEach((enlace) => {
@@ -141,6 +274,27 @@ function texto(valor) {
   return valor || "—";
 }
 
+function clienteVisible(fila) {
+  const nombre = fila.cliente || "";
+  if (!fila.con_2_0 || !nombre || nombre.toUpperCase().includes(String(fila.con_2_0).toUpperCase())) return nombre;
+  return `${nombre} (${fila.con_2_0})`;
+}
+
+function cajaLimpia(valor) {
+  const limpio = String(valor || "")
+    .replace(/\(?\s*equipo\s*\(?\s*\d+\s*\)?/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^[-–]+|[-–]+$/g, "")
+    .trim();
+  return !limpio || limpio === "-" ? "" : limpio;
+}
+
+function numeroDeCaja(valor) {
+  const hallado = /equipo\s*\(?\s*(\d+)/i.exec(String(valor || ""));
+  return hallado ? hallado[1] : "";
+}
+
 function cajaVisible(valor) {
   if (!valor || String(valor).trim() === "-") return "—";
   const limpio = String(valor)
@@ -152,11 +306,43 @@ function cajaVisible(valor) {
   return !limpio || limpio === "-" ? "—" : limpio;
 }
 
+function esAdmin() {
+  return window.usuarioSesion && window.usuarioSesion.rol === "admin";
+}
+
+function acciones(id) {
+  if (!esAdmin()) return "";
+  return `<td class="text-nowrap">
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-editar="${id}">Editar</button>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-borrar="${id}">Eliminar</button>
+  </td>`;
+}
+
+function esFallaPantalla(fila) {
+  const estado = String(fila.estado_pantalla || "").trim().toLowerCase();
+  return estado === "falla" || estado === "con falla" || estado === "para repuestos";
+}
+
+function filaIngresoHtml(f) {
+  return `<tr>
+    ${conCliente ? `<td class="col-texto">${texto(f.cliente)}</td>` : ""}
+    ${sinLlegada ? "" : `<td>${fecha(f.fecha_llegada, f.fecha_llegada_texto)}</td>`}
+    <td>${fecha(f.fecha_carga, f.fecha_carga_texto)}</td>
+    <td class="font-monospace">${texto(f.mac_wifi)}</td>
+    <td class="font-monospace">${texto(f.mac_eth)}</td>
+    <td>${texto(f.lote)}</td>
+    <td>${cajaVisible(f.caja)}</td>
+    <td>${texto(f.numero_equipo)}</td>
+    ${hoja === "ingreso_pantalla" ? `<td>${texto(f.estado_pantalla)}</td><td>${texto(f.estado_auto)}</td>` : ""}
+    ${acciones(f.id)}
+  </tr>`;
+}
+
 function pintar() {
   const q = document.getElementById("buscador").value.trim().toLowerCase();
   const visibles = filas.filter((f) => {
     if (!q) return true;
-    return [f.mac_wifi, f.mac_eth, f.cliente, f.lote, f.caja, f.numero_equipo].some((v) => String(v || "").toLowerCase().includes(q));
+    return [f.mac_wifi, f.mac_eth, f.cliente, f.con_2_0, f.lote, f.caja, f.numero_equipo, f.estado_wifi, f.estado_pantalla, f.estado_audio, f.estado_auto].some((v) => String(v || "").toLowerCase().includes(q));
   });
   const corte = paginar(visibles, pagina);
   pagina = corte.pagina;
@@ -166,42 +352,119 @@ function pintar() {
   document.getElementById("paginacion-trazabilidad").innerHTML = htmlPaginacion(corte.pagina, corte.total);
 
   if (tipo === "ingreso") {
-    document.getElementById("thead-tabla").innerHTML =
-      "<tr><th>Fecha de llegada</th><th>Fecha de carga</th><th>MAC WIFI</th><th>MAC ETH</th><th>Lote</th><th>Caja</th><th>Número de equipo</th></tr>";
-    document.getElementById("tabla").innerHTML = corte.filas.map((f) => `
-      <tr>
-        <td>${fecha(f.fecha_llegada, f.fecha_llegada_texto)}</td>
-        <td>${fecha(f.fecha_carga, f.fecha_carga_texto)}</td>
-        <td class="font-monospace">${texto(f.mac_wifi)}</td>
-        <td class="font-monospace">${texto(f.mac_eth)}</td>
-        <td>${texto(f.lote)}</td>
-        <td>${cajaVisible(f.caja)}</td>
-        <td>${texto(f.numero_equipo)}</td>
-      </tr>
-    `).join("") || `<tr><td colspan="7" class="text-center text-muted py-4">Sin equipos en esta pestaña</td></tr>`;
+    const encabezados = [
+      ...(conCliente ? ["Cliente"] : []),
+      ...(sinLlegada ? [] : ["Fecha de llegada"]),
+      "Fecha de carga", "MAC WIFI", "MAC ETH", "Lote", cajaEtiqueta,
+      hoja === "ingreso_pantalla" ? "Número de pantalla" : "Número de equipo",
+      ...(hoja === "ingreso_pantalla" ? ["Pantalla", "Auto"] : []),
+    ];
+    const columnas = encabezados.length + (esAdmin() ? 1 : 0);
+    const encabezado = `<tr>${encabezados.map((titulo) => `<th>${titulo}</th>`).join("")}${esAdmin() ? "<th></th>" : ""}</tr>`;
+    const lista = hoja === "ingreso_pantalla" ? visibles.filter((f) => !esFallaPantalla(f)) : visibles;
+    const corteOk = hoja === "ingreso_pantalla" ? paginar(lista, pagina) : corte;
+    if (hoja === "ingreso_pantalla") {
+      pagina = corteOk.pagina;
+      document.getElementById("resumen").textContent = q
+        ? `${lista.length} de ${filas.filter((f) => !esFallaPantalla(f)).length} pantallas · página ${corteOk.pagina} de ${corteOk.total}`
+        : `${lista.length} pantallas · página ${corteOk.pagina} de ${corteOk.total}`;
+      document.getElementById("paginacion-trazabilidad").innerHTML = htmlPaginacion(corteOk.pagina, corteOk.total);
+    }
+    document.getElementById("thead-tabla").innerHTML = encabezado;
+    document.getElementById("tabla").innerHTML = corteOk.filas.map(filaIngresoHtml).join("")
+      || `<tr><td colspan="${columnas}" class="text-center text-muted py-4">${hoja === "ingreso_pantalla" ? "Sin pantallas en esta pestaña" : "Sin equipos en esta pestaña"}</td></tr>`;
+    const cajaFalla = document.getElementById("caja-falla");
+    if (hoja === "ingreso_pantalla") {
+      const fallas = visibles.filter(esFallaPantalla);
+      cajaFalla.classList.remove("d-none");
+      document.getElementById("conteo-falla").textContent = `${fallas.length} ${fallas.length === 1 ? "pantalla" : "pantallas"}`;
+      document.getElementById("thead-falla").innerHTML = encabezado;
+      document.getElementById("tabla-falla").innerHTML = fallas.map(filaIngresoHtml).join("")
+        || `<tr><td colspan="${columnas}" class="text-center text-muted py-4">Sin pantallas con falla o para repuestos</td></tr>`;
+    } else {
+      cajaFalla.classList.add("d-none");
+    }
     return;
   }
 
+  document.getElementById("caja-falla").classList.add("d-none");
+
   document.getElementById("thead-tabla").innerHTML =
-    "<tr><th>Cliente</th><th>Fecha de despacho</th><th>MAC WIFI</th><th>MAC ETH</th><th>Lote</th><th>Caja</th><th>Número de equipo</th></tr>";
+    `<tr><th>Cliente</th><th>Fecha de despacho</th><th>MAC WIFI</th><th>MAC ETH</th><th>Lote</th><th>${cajaEtiqueta}</th><th>Número de equipo</th>${esAdmin() ? "<th></th>" : ""}</tr>`;
   document.getElementById("tabla").innerHTML = corte.filas.map((f) => `
     <tr>
-      <td class="col-texto">${texto(f.cliente)}</td>
+      <td class="col-texto">${texto(clienteVisible(f))}</td>
       <td>${fecha(f.fecha_despacho, f.fecha_despacho_texto)}</td>
       <td class="font-monospace">${texto(f.mac_wifi)}</td>
       <td class="font-monospace">${texto(f.mac_eth)}</td>
       <td>${texto(f.lote)}</td>
       <td>${cajaVisible(f.caja)}</td>
       <td>${texto(f.numero_equipo)}</td>
+      ${acciones(f.id)}
     </tr>
-  `).join("") || `<tr><td colspan="7" class="text-center text-muted py-4">Sin equipos en esta pestaña</td></tr>`;
+  `).join("") || `<tr><td colspan="${esAdmin() ? 8 : 7}" class="text-center text-muted py-4">Sin equipos en esta pestaña</td></tr>`;
+}
+
+function abrirEquipo(id) {
+  const fila = filas.find((item) => String(item.id) === String(id));
+  if (!fila) return;
+  const ingreso = tipo === "ingreso";
+  document.getElementById("eq-id").value = fila.id;
+  document.getElementById("caja-cliente").classList.toggle("d-none", ingreso && !conCliente);
+  document.getElementById("caja-lite").classList.toggle("d-none", ingreso);
+  document.getElementById("caja-llegada").classList.toggle("d-none", !ingreso || sinLlegada);
+  document.getElementById("caja-carga").classList.toggle("d-none", !ingreso);
+  document.getElementById("caja-despacho").classList.toggle("d-none", ingreso);
+  document.getElementById("eq-cliente").value = fila.cliente || "";
+  document.getElementById("eq-llegada").value = String(fila.fecha_llegada || "").slice(0, 10);
+  document.getElementById("eq-carga").value = String(fila.fecha_carga || "").slice(0, 10);
+  document.getElementById("eq-despacho").value = String(fila.fecha_despacho || "").slice(0, 10);
+  document.getElementById("eq-lote").value = fila.lote || "";
+  document.getElementById("eq-caja").value = cajaLimpia(fila.caja);
+  document.getElementById("eq-numero").value = fila.numero_equipo || numeroDeCaja(fila.caja);
+  document.getElementById("eq-lite").checked = Boolean(fila.con_2_0);
+  document.getElementById("caja-estados").classList.toggle("d-none", hoja !== "ingreso_pantalla");
+  document.getElementById("etiq-numero").textContent = hoja === "ingreso_pantalla" ? "Número de pantalla" : "Número de equipo";
+  document.getElementById("eq-estado-pantalla").value = fila.estado_pantalla === "Con falla" ? "Falla" : (fila.estado_pantalla || "");
+  document.getElementById("eq-estado-auto").value = fila.estado_auto || "";
+  bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-equipo")).show();
+}
+
+function hoyArgentina() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function abrirRegistro() {
+  const hoy = hoyArgentina();
+  document.getElementById("reg-llegada").value = hoy;
+  document.getElementById("reg-carga").value = hoy;
+  document.getElementById("reg-wifi").value = "";
+  document.getElementById("reg-eth").value = "";
+  document.getElementById("reg-lote").value = "";
+  document.getElementById("reg-caja").value = "";
+  document.getElementById("reg-numero").value = "";
+  document.getElementById("reg-estado-pantalla").value = "";
+  document.getElementById("reg-estado-auto").value = "";
+  bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-pantalla")).show();
 }
 
 async function cargar() {
+  await window.guardiaLista;
+  const cajaRegistrar = document.getElementById("caja-registrar");
+  if (cajaRegistrar) cajaRegistrar.classList.toggle("d-none", hoja !== "ingreso_pantalla");
   const data = await apiFetch("trazabilidad", { params: { hoja } });
   tipo = data.tipo;
+  cajaEtiqueta = data.cajaEtiqueta || "Caja";
+  conCliente = Boolean(data.conCliente);
+  sinLlegada = Boolean(data.sinLlegada);
+  document.getElementById("etiq-caja").textContent = cajaEtiqueta;
   filas = data.filas || [];
-  document.getElementById("subtitulo").textContent = data.titulo;
+  document.getElementById("subtitulo").innerHTML = htmlFotoEquipo(data.titulo);
   document.title = `${data.titulo} — Trazabilidad de Macs`;
   pintar();
 }
@@ -216,6 +479,126 @@ document.getElementById("paginacion-trazabilidad").addEventListener("click", (ev
   pagina = Number(boton.dataset.pagina);
   pintar();
 });
+function alClickTabla(evento) {
+  const editar = evento.target.closest("[data-editar]");
+  const borrar = evento.target.closest("[data-borrar]");
+  if (editar) abrirEquipo(editar.dataset.editar);
+  if (!borrar) return;
+  const aviso = tipo === "ingreso" || hoja.startsWith("devolucion")
+    ? "Se elimina este registro de la planilla y de MySQL."
+    : "Se saca la razón social y el equipo vuelve a EN DEPOSITO.";
+  if (!confirm(aviso)) return;
+  apiFetch(`trazabilidad/${hoja}/${borrar.dataset.borrar}`, { method: "DELETE" })
+    .then(() => cargar())
+    .catch((err) => mostrarError("msg-error", err.message));
+}
+document.getElementById("tabla").addEventListener("click", alClickTabla);
+document.getElementById("tabla-falla").addEventListener("click", alClickTabla);
+
+const botonRegistrar = document.getElementById("btn-registrar");
+if (botonRegistrar) botonRegistrar.addEventListener("click", abrirRegistro);
+
+function abrirFalla() {
+  const hoy = hoyArgentina();
+  document.getElementById("falla-llegada").value = hoy;
+  document.getElementById("falla-carga").value = hoy;
+  document.getElementById("falla-wifi").value = "";
+  document.getElementById("falla-eth").value = "";
+  document.getElementById("falla-lote").value = "";
+  document.getElementById("falla-caja").value = "";
+  document.getElementById("falla-numero").value = "";
+  document.getElementById("falla-estado").value = "";
+  document.getElementById("falla-auto").value = "";
+  bootstrap.Modal.getOrCreateInstance(document.getElementById("modal-falla")).show();
+}
+
+const botonFalla = document.getElementById("btn-falla");
+if (botonFalla) botonFalla.addEventListener("click", abrirFalla);
+
+document.getElementById("form-falla").addEventListener("submit", (evento) => {
+  evento.preventDefault();
+  const boton = document.getElementById("btn-guardar-falla");
+  boton.disabled = true;
+  apiFetch("trazabilidad/registrar-pantalla", {
+    method: "POST",
+    body: {
+      fecha_llegada: document.getElementById("falla-llegada").value,
+      fecha_carga: document.getElementById("falla-carga").value,
+      mac_wifi: document.getElementById("falla-wifi").value,
+      mac_eth: document.getElementById("falla-eth").value,
+      lote: document.getElementById("falla-lote").value,
+      caja: document.getElementById("falla-caja").value,
+      numero_equipo: document.getElementById("falla-numero").value,
+      estado_pantalla: document.getElementById("falla-estado").value,
+      estado_auto: document.getElementById("falla-auto").value,
+    },
+  }).then((respuesta) => {
+    bootstrap.Modal.getInstance(document.getElementById("modal-falla")).hide();
+    document.getElementById("msg-error").classList.add("d-none");
+    if (respuesta && respuesta.aviso) window.alert(respuesta.aviso);
+    return cargar();
+  }).catch((err) => mostrarError("msg-error", err.message))
+    .finally(() => { boton.disabled = false; });
+});
+
+document.getElementById("form-pantalla").addEventListener("submit", (evento) => {
+  evento.preventDefault();
+  const boton = document.getElementById("btn-guardar-pantalla");
+  boton.disabled = true;
+  apiFetch("trazabilidad/registrar-pantalla", {
+    method: "POST",
+    body: {
+      fecha_llegada: document.getElementById("reg-llegada").value,
+      fecha_carga: document.getElementById("reg-carga").value,
+      mac_wifi: document.getElementById("reg-wifi").value,
+      mac_eth: document.getElementById("reg-eth").value,
+      lote: document.getElementById("reg-lote").value,
+      caja: document.getElementById("reg-caja").value,
+      numero_equipo: document.getElementById("reg-numero").value,
+      estado_pantalla: document.getElementById("reg-estado-pantalla").value,
+      estado_auto: document.getElementById("reg-estado-auto").value,
+    },
+  }).then((respuesta) => {
+    bootstrap.Modal.getInstance(document.getElementById("modal-pantalla")).hide();
+    document.getElementById("msg-error").classList.add("d-none");
+    if (respuesta && respuesta.aviso) window.alert(respuesta.aviso);
+    return cargar();
+  }).catch((err) => mostrarError("msg-error", err.message))
+    .finally(() => { boton.disabled = false; });
+});
+
+document.getElementById("form-equipo").addEventListener("submit", (evento) => {
+  evento.preventDefault();
+  const id = document.getElementById("eq-id").value;
+  const body = tipo === "ingreso"
+    ? {
+      cliente: conCliente ? document.getElementById("eq-cliente").value : undefined,
+      fecha_llegada: sinLlegada ? "" : document.getElementById("eq-llegada").value,
+      fecha_carga: document.getElementById("eq-carga").value,
+      lote: document.getElementById("eq-lote").value,
+      caja: document.getElementById("eq-caja").value,
+      numero_equipo: document.getElementById("eq-numero").value,
+      ...(hoja === "ingreso_pantalla" ? {
+        estado_pantalla: document.getElementById("eq-estado-pantalla").value,
+        estado_auto: document.getElementById("eq-estado-auto").value,
+      } : {}),
+    }
+    : {
+      cliente: document.getElementById("eq-cliente").value,
+      fecha_despacho: document.getElementById("eq-despacho").value,
+      lote: document.getElementById("eq-lote").value,
+      caja: document.getElementById("eq-caja").value,
+      numero_equipo: document.getElementById("eq-numero").value,
+      con_2_0: document.getElementById("eq-lite").checked,
+    };
+  apiFetch(`trazabilidad/${hoja}/${id}`, { method: "PUT", body })
+    .then(() => {
+      bootstrap.Modal.getInstance(document.getElementById("modal-equipo")).hide();
+      return cargar();
+    })
+    .catch((err) => mostrarError("msg-error", err.message));
+});
+
 cargar().catch((err) => mostrarError("msg-error", err.message));
 </script>
 </body>

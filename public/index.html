@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="favicon.png">
 <title>Dashboard — Sistema de Stock</title>
-<script src="assets/js/theme-init.js"></script>
+<script src="assets/js/theme-init.js?v=fijo"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
@@ -21,7 +22,7 @@
   };
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<link href="assets/css/banner.css" rel="stylesheet">
+<link href="assets/css/banner.css?v=reloj1" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style type="text/tailwindcss">
   @layer components {
@@ -32,9 +33,24 @@
     .sub-link { @apply block px-5 py-2 pl-11 text-[13px] text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white; }
     .sub-link.active { @apply text-orange-600 dark:text-orange-400 font-semibold; }
     .kpi-card { @apply rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4; }
+    .kpi-estado { border-left: 4px solid; padding-left: 0.75rem; }
+    .kpi-estado-vendidos { border-color: #ff7a29; }
+    .kpi-estado-deposito { border-color: #3d9a6a; }
+    .kpi-estado-funcionamiento { border-color: #3b82f6; }
+    .kpi-estado-prueba { border-color: #e0a106; }
+    .kpi-estado-falla { border-color: #d64545; }
+    .kpi-estado-sintestear { border-color: #94a3b8; }
+    .kpi-estado-link { color: inherit; text-decoration: none; border-radius: 0.375rem; }
+    .kpi-estado-link:hover .kpi-estado { background: rgba(255, 122, 41, .08); }
     .kanban-col { @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl min-w-[260px] max-w-[260px] shrink-0 flex flex-col max-h-[70vh]; }
     .kanban-item { @apply w-full text-left bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 border-l-4 border-l-orange-500 rounded-md px-3 py-2 hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-slate-700 transition; }
   }
+</style>
+<style>
+  .kpi-card .text-3xl { font-size: 2rem; line-height: 2.25rem; }
+  .kpi-card .text-sm { font-size: 1rem; line-height: 1.4rem; }
+  .kpi-card .text-xs { font-size: 0.875rem; line-height: 1.25rem; }
+  .kpi-card .text-\[11px\] { font-size: 13px; line-height: 1.35; }
 </style>
 </head>
 <body class="font-sans bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100">
@@ -43,65 +59,90 @@
   <aside class="sidebar w-64 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
     <div class="px-5 pt-5 pb-4 border-b border-slate-200 dark:border-slate-800">
       <div class="font-bold text-slate-900 dark:text-white text-[15px]">Sistema de Stock</div>
-      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Trazabilidad por MAC</div>
+      <div class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">SOPORTE Y LOGISTICA</div>
     </div>
     <nav class="flex-1 overflow-y-auto py-2">
-      <a href="index.html" class="nav-link active">📊 Dashboard</a>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
       <a href="busqueda.html" class="nav-link">🔍 Búsqueda</a>
-      <a href="dispositivo.html" class="nav-link">📦 dispositivo</a>
-      <a href="reparados.html" class="nav-link">🔧 Reparados y Reutilizados</a>
-      <a href="ingreso.html" class="nav-link">📥 Ingreso</a>
-      <a href="egreso.html" class="nav-link">📤 Egreso</a>
-
+      <details class="nav-group">
+        <summary><span class="nav-icono" aria-hidden="true">devices</span> Dispositivo</summary>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">build</span> Reparados y Reutilizados</summary>
+          <a href="reparados.html" class="sub-link">Reparados y Reutilizados</a>
+          <a href="reparados.html?hoja=d3" class="sub-link">D3 reutilizados/devueltos/sin antena wifi</a>
+          <a href="reparados.html?hoja=ebd" class="sub-link">Testeo EBD Reparados</a>
+          <a href="testeo.html?hoja=no_pasaron" class="sub-link">No pasaron prueba</a>
+        </details>
+      </details>
       <details class="nav-group">
         <summary>🔄 Movimientos</summary>
-        <a href="movimientos.html" class="sub-link">Todos</a>
-        <a href="movimientos.html?vista=mac" class="sub-link">Por MAC</a>
-        <a href="movimientos.html?vista=ingreso" class="sub-link">Ingreso</a>
-        <a href="movimientos.html?vista=egreso" class="sub-link">Egreso</a>
-        <a href="movimientos.html?vista=fecha" class="sub-link">Por fecha</a>
-        <a href="movimientos.html?vista=estado" class="sub-link">Por estado</a>
-        <a href="movimientos.html?vista=instancia" class="sub-link">Por instancia</a>
+        <a href="registrar-movimiento.html" class="sub-link"><span class="nav-icono" aria-hidden="true">edit_note</span> Registrar Movimiento</a>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">flag</span> Estado</summary>
+          <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
+          <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
+          <a href="estado.html?estado=comodato" class="sub-link">Comodato</a>
+          <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
+          <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
+          <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
+          <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
+          <a href="estado.html?estado=movimiento" class="sub-link">Movimiento</a>
+          <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">barcode</span> Trazabilidad de Macs</summary>
+          <a href="ingresar-mac.html" class="sub-link"><span class="nav-icono" aria-hidden="true">playlist_add</span> Ingresar Equipos por MAC</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd" class="sub-link">Ingreso EBD Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd" class="sub-link">Egreso EBD 2.0</a>
+          <a href="trazabilidad.html?hoja=ingreso_d3" class="sub-link">Ingreso D3 Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_d3" class="sub-link">Egreso D3 2.0 (venta/comodato desde Comercial)</a>
+          <a href="trazabilidad.html?hoja=devolucion_ebd" class="sub-link">Devolución EBD</a>
+          <a href="trazabilidad.html?hoja=devolucion_d3" class="sub-link">Devolución D3</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_reparado" class="sub-link">Ingreso EBD REPARADO (Testeados)</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_reparado" class="sub-link">Egreso EBD REPARADO (Venta/Migracion/Garantia)</a>
+          <a href="trazabilidad.html?hoja=ingreso_pantalla" class="sub-link">Ingreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=egreso_pantalla" class="sub-link">Egreso Pantallas Colectivo (24 Pulgadas) Oficina</a>
+          <a href="trazabilidad.html?hoja=ingreso_ebd_interno" class="sub-link">Ingreso EBD uso INTERNO</a>
+          <a href="trazabilidad.html?hoja=egreso_ebd_interno" class="sub-link">Egreso EBD uso INTERNO</a>
+        </details>
+        <details class="nav-group">
+          <summary class="sub-link"><span class="nav-icono" aria-hidden="true">support_agent</span> Soporte Técnico</summary>
+          <a href="ingreso.html" class="sub-link">Ingresos Soporte</a>
+          <a href="egreso.html" class="sub-link">Egresos Soporte</a>
+          <a href="cargar-ingreso.html" class="sub-link">Cargar Ingreso</a>
+          <a href="cargar-egreso.html" class="sub-link">Cargar Egreso</a>
+        </details>
       </details>
-
-      <a href="soporte.html" class="nav-link">🛠️ Soporte Técnico</a>
 
       <details class="nav-group">
-        <summary>🏭 Depósito</summary>
-        <a href="deposito.html?nombre=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
-        <a href="deposito.html?nombre=Casa%20Santi" class="sub-link">Casa Santi</a>
-        <a href="deposito.html?nombre=Oficina" class="sub-link">Oficina</a>
-        <a href="deposito.html?nombre=Showroom" class="sub-link">Showroom</a>
+        <summary>🏭 Depósitos</summary>
+        <a href="dispositivo.html?ubicacion=Campi%C3%B1a%20del%20Sur" class="sub-link">Campiña</a>
+        <a href="dispositivo.html?ubicacion=Casa%20Santi" class="sub-link">Casa Santi</a>
+        <a href="dispositivo.html?ubicacion=Oficina" class="sub-link">Oficina</a>
+        <a href="dispositivo.html?ubicacion=Showroom" class="sub-link">Showroom</a>
       </details>
-
-      <details class="nav-group">
-        <summary>🏷️ Estado</summary>
-        <a href="estado.html?estado=vendido" class="sub-link">Venta</a>
-        <a href="estado.html?estado=garantia" class="sub-link">Garantía</a>
-        <a href="estado.html?estado=reparado" class="sub-link">Reparado</a>
-        <a href="estado.html?estado=a_reparar" class="sub-link">A reparar</a>
-        <a href="estado.html?estado=devuelto" class="sub-link">Devolución</a>
-        <a href="estado.html?estado=prueba" class="sub-link">Prueba</a>
-        <a href="estado.html?estado=actualizacion" class="sub-link">Actualización</a>
-        <a href="estado.html?estado=de_baja" class="sub-link">Baja</a>
-        <a href="estado.html?estado=soporte_tecnico" class="sub-link">Soporte técnico</a>
-      </details>
-
-      <!-- Grupo Stock con la opción agregada -->
       <details class="nav-group">
         <summary>📚 Stock</summary>
         <a href="stock.html" class="sub-link">Stock General</a>
         <a href="accesorios.html" class="sub-link">Accesorios</a>
-        <a href="dispositivo.html" class="sub-link">dispositivo</a>
-        <a href="deposito.html" class="sub-link">Depósito</a>
       </details>
-
       <a href="clientes.html" class="nav-link">🧾 Clientes</a>
-      <a href="reportes.html" class="nav-link">📈 Reportes</a>
-      <a href="usuarios.html" class="nav-link" data-solo-admin>👤 Usuarios</a>
+      <details class="nav-group">
+        <summary>📈 Reportes</summary>
+        <a href="reportes.html" class="sub-link">Reportes</a>
+        <a href="stock-mensual.html" class="sub-link">Stock mensual</a>
+        <details class="nav-group">
+          <summary class="sub-link">Corrección de máximo y mínimos</summary>
+          <a href="correccion-accesorios.html" class="sub-link">Accesorios</a>
+        </details>
+      </details>
+      <details class="nav-group" data-solo-admin>
+        <summary>👤 Usuarios</summary>
+        <a href="usuarios.html" class="sub-link">Usuarios</a>
+        <a href="estado-movimientos.html" class="sub-link">Estado de movimientos</a>
+      </details>
     </nav>
     <div class="px-5 py-4 border-t border-slate-200 dark:border-slate-800 text-sm">
-      <button id="btn-tema" onclick="alternarTema()" class="mb-3 text-xs font-medium px-2.5 py-1 rounded-full border border-slate-300 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-orange-500 hover:text-orange-600 dark:hover:text-orange-400"></button>
       <div class="text-[10px] uppercase tracking-wide text-orange-600 dark:text-orange-400 font-semibold" id="usuario-rol">—</div>
       <div class="text-slate-700 dark:text-slate-200" id="usuario-nombre">—</div>
       <a href="#" id="btn-logout" class="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">Cerrar sesión</a>
@@ -109,10 +150,17 @@
   </aside>
 
   <main class="flex-1 min-w-0 p-7">
+    <div id="aviso-accesorios" class="mb-6" hidden></div>
     <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">El número grande es el stock actual de EBD y D3. El total de cada uno va abajo. Se actualiza desde la planilla de Google.</p>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-6">Arriba, Campiña y Oficina. Debajo sigue el resto del stock. Se actualiza desde la planilla de Google.</p>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-6" id="kpis"></div>
+    <div id="alerta-cierre" class="mb-6" hidden></div>
+
+    <div class="mb-6 space-y-3">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="kpis-lugares"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3" id="kpis"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3" id="kpis-abajo"></div>
+    </div>
 
     <div class="mb-6">
       <h2 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">Alertas de Oficina</h2>
@@ -135,9 +183,8 @@
   </main>
 </div>
 
-<script src="assets/js/api.js"></script>
-<script src="assets/js/auth-guard.js"></script>
-<script src="assets/js/theme.js"></script>
+<script src="assets/js/api.js?v=fuente"></script>
+<script src="assets/js/auth-guard.js?v=reloj4"></script>
 <script src="assets/js/modal.js"></script>
 <script src="assets/js/ventanas.js"></script>
 <script src="assets/js/ui.js"></script>
@@ -145,10 +192,22 @@
 let graficoEbd;
 let graficoEstados;
 
+function tituloConFoto(titulo) {
+  const src = fotoEquipo(titulo);
+  if (!src) return titulo;
+  return `<span class="equipo-con-foto kpi-linea"><img src="${src}" alt="" class="equipo-foto kpi-foto">${titulo}</span>`;
+}
+
+function tarjetaInternos(datos) {
+  const s = datos || { total: 0, lugares: [] };
+  const detalle = (s.lugares || []).map((lugar) => `${lugar.nombre} ${lugar.cantidad}`).join(" · ");
+  return tarjeta(s.total || 0, "EBD uso interno", detalle);
+}
+
 function tarjeta(valor, titulo, detalle) {
   return `<div class="kpi-card">
     <div class="text-3xl font-bold font-mono text-slate-900 dark:text-white">${valor}</div>
-    <div class="text-sm mt-1">${titulo}</div>
+    <div class="text-sm mt-1">${tituloConFoto(titulo)}</div>
     ${detalle ? `<div class="text-[11px] text-slate-400 mt-1">${detalle}</div>` : ""}
   </div>`;
 }
@@ -156,7 +215,7 @@ function tarjeta(valor, titulo, detalle) {
 function cifra(valor, titulo) {
   return `<div>
     <div class="text-3xl font-bold font-mono">${valor}</div>
-    <div class="text-[11px] text-slate-400 mt-1">${titulo}</div>
+    <div class="text-[11px] text-slate-400 mt-1">${tituloConFoto(titulo)}</div>
   </div>`;
 }
 
@@ -199,11 +258,55 @@ function tarjetaVendidos(venta) {
   </div>`;
 }
 
-function tarjetaLugar(nombre, datos, conD3plus) {
-  return `<div class="kpi-card">
+function cifraEstado(valor, titulo, clase, href) {
+  const bloque = `<div class="kpi-estado ${clase}">
+    <div class="text-3xl font-bold font-mono text-slate-900 dark:text-white">${valor}</div>
+    <div class="text-[11px] mt-1">${titulo}</div>
+  </div>`;
+  if (!href) return bloque;
+  return `<a href="${href}" class="kpi-estado-link">${bloque}</a>`;
+}
+
+function tarjetaReparados(p) {
+  const r = p.reparados || {};
+  return `<div class="kpi-card sm:col-span-2 xl:col-span-3">
+    <div class="text-xs uppercase tracking-wide mb-2">EBD reparados</div>
+    <div class="text-3xl font-bold font-mono text-slate-900 dark:text-white">${r.stock || 0}</div>
+    <div class="text-[11px] text-slate-400 mt-1">${tituloConFoto("EBD reparados")} · en stock, según la planilla</div>
+    <div class="flex gap-6 flex-wrap mt-4">
+      ${cifraEstado(r.vendidos || 0, "Vendidos", "kpi-estado-vendidos")}
+      ${cifraEstado(r.deposito || 0, "En depósito", "kpi-estado-deposito", "reparados.html?hoja=ebd&estado=deposito")}
+      ${cifraEstado(r.funcionamiento || 0, "En funcionamiento", "kpi-estado-funcionamiento", "reparados.html?hoja=ebd&estado=funcionamiento")}
+      ${cifraEstado(r.prueba || 0, "En prueba", "kpi-estado-prueba", "reparados.html?hoja=ebd&estado=prueba")}
+      ${cifraEstado(r.falla || 0, "Con falla", "kpi-estado-falla", "reparados.html?hoja=ebd&estado=falla")}
+      ${cifraEstado(r.sin_testear || 0, "Aún no fueron testeados", "kpi-estado-sintestear")}
+    </div>
+    <div class="text-[11px] text-slate-400 mt-3">Vendidos son los egresos de venta de EBD ya reparados en la planilla de stock. En depósito son los finalizados. En funcionamiento, en prueba y con falla salen del testeo.</div>
+  </div>`;
+}
+
+function tarjetaPantallas(p) {
+  const s = p.pantallas || {};
+  return `<div class="kpi-card sm:col-span-2">
+    <div class="text-xs uppercase tracking-wide mb-2">Pantallas colectivo</div>
+    <div class="text-3xl font-bold font-mono text-slate-900 dark:text-white">${s.total || 0}</div>
+    <div class="text-[11px] text-slate-400 mt-1">${tituloConFoto("Pantallas Colectivos (24 Pulgadas) · en oficina")}</div>
+    <div class="flex gap-6 flex-wrap mt-4">
+      ${cifraEstado(s.comprobadas_ok || 0, "Comprobadas OK", "kpi-estado-deposito", "trazabilidad.html?hoja=ingreso_pantalla")}
+      ${cifraEstado(s.vendidas || 0, "Vendidas", "kpi-estado-vendidos", "trazabilidad.html?hoja=egreso_pantalla")}
+      ${cifraEstado(s.sin_comprobar || 0, "Sin comprobar", "kpi-estado-sintestear")}
+      ${cifraEstado(s.con_falla || 0, "Con falla/para repuestos", "kpi-estado-falla", "trazabilidad.html?hoja=ingreso_pantalla")}
+    </div>
+    <div class="text-[11px] text-slate-400 mt-3">El total es el stock de la planilla y está en oficina. Comprobadas OK son las del ingreso de la trazabilidad. Sin comprobar es ese total menos las comprobadas OK y las vendidas. Con falla/para repuestos son las que en Pantalla figuran en falla.</div>
+  </div>`;
+}
+
+function tarjetaLugar(nombre, datos, conD3plus, etiquetaEbd = "Total EBD", pareja = false) {
+  const fila = pareja ? "flex justify-between items-start gap-4" : "flex gap-8 flex-wrap";
+  return `<div class="kpi-card${pareja ? " h-full" : ""}">
     <div class="text-xs uppercase tracking-wide mb-2">${nombre}</div>
-    <div class="flex gap-8 flex-wrap">
-      ${cifra(datos.ebd, "Total EBD")}
+    <div class="${fila}">
+      ${cifra(datos.ebd, etiquetaEbd)}
       ${cifra(datos.d3, "Total D3")}
       ${conD3plus ? cifra(datos.d3plus, "Total D3+") : ""}
     </div>
@@ -251,36 +354,121 @@ function dibujarGraficos(planilla) {
 
 let dashboardPrevio = "";
 
-async function cargarDashboard() {
+function diasParaCierreMensual(ahora = new Date()) {
+  const partes = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/Argentina/Buenos_Aires",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(ahora).map((parte) => [parte.type, parte.value])
+  );
+  const ultimo = new Date(Date.UTC(Number(partes.year), Number(partes.month), 0)).getUTCDate();
+  return ultimo - Number(partes.day);
+}
+
+function mostrarAlertaCierre() {
+  const caja = document.getElementById("alerta-cierre");
+  const dias = diasParaCierreMensual();
+  if (dias > 2) {
+    caja.hidden = true;
+    caja.replaceChildren();
+    return;
+  }
+  const texto = dias === 0
+    ? "Hoy es el conteo de stock mensual."
+    : dias === 1
+      ? "Mañana es el conteo de stock mensual."
+      : "Faltan 2 días para el conteo de stock mensual.";
+  const anual = dias === 0 && new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    month: "2-digit",
+  }).format(new Date()) === "12";
+  const boton = dias === 0
+    ? `<button type="button" class="alerta-stock-bajar" id="btn-informe-cierre">${anual ? "Bajar informe del año" : "Bajar informe PDF"}</button>`
+    : "";
+  caja.hidden = false;
+  caja.innerHTML = `<div class="alerta-stock">
+    <a href="stock-mensual.html" class="alerta-stock-cuerpo">
+      <div class="alerta-stock-titulo">Conteo mensual</div>
+      <strong>${texto}</strong>
+      <div class="alerta-stock-lugar">Se hace el último día del mes. El informe se baja desde acá para enviarlo por mail.</div>
+    </a>
+    <div class="alerta-stock-dato">${dias === 0 ? "Hoy" : dias + " días"}</div>
+    ${boton}
+  </div>`;
+}
+
+document.getElementById("alerta-cierre").addEventListener("click", async (evento) => {
+  const boton = evento.target.closest("#btn-informe-cierre");
+  if (!boton) return;
+  evento.preventDefault();
+  boton.disabled = true;
   try {
-    const data = await apiFetch("reportes.php", { params: { accion: "dashboard" } });
+    const resp = await fetch("api/reportes?accion=informe_pdf", { credentials: "same-origin" });
+    if (resp.status === 401) {
+      window.location.href = "login.html";
+      return;
+    }
+    if (!resp.ok) throw new Error("No se pudo generar el informe.");
+    const blob = await resp.blob();
+    const dispuesto = resp.headers.get("Content-Disposition") || "";
+    const hallado = /filename="([^"]+)"/.exec(dispuesto);
+    const enlace = document.createElement("a");
+    enlace.href = URL.createObjectURL(blob);
+    enlace.download = hallado ? hallado[1] : "Informe-stock.pdf";
+    enlace.click();
+    setTimeout(() => URL.revokeObjectURL(enlace.href), 1500);
+  } catch (error) {
+    window.alert(error.message || "No se pudo bajar el informe.");
+  } finally {
+    boton.disabled = false;
+  }
+});
+
+async function cargarDashboard(silencioso = false) {
+  try {
+    const data = await apiFetch("reportes.php", { params: { accion: "dashboard" }, silencioso });
     const firma = JSON.stringify(data.planilla) + JSON.stringify(data.alertas_oficina);
     if (firma === dashboardPrevio) return;
     dashboardPrevio = firma;
     const p = data.planilla;
+    document.getElementById("kpis-lugares").innerHTML = [
+      tarjetaLugar("Campiña", p.lugares.campina, true, "Total EBD", true),
+      tarjetaLugar("Oficina", p.lugares.oficina, true, "EBD para venta", true),
+    ].join("");
     document.getElementById("kpis").innerHTML = [
-      tarjeta(p.ebd_total, "EBD nuevos", `En todo Banner · Campiña ${p.ebd_campina} + Oficina ${p.ebd_oficina}`),
+      tarjeta(p.ebd_total, "EBD nuevos", `En todo Banner · Campiña ${p.ebd_campina} + Oficina ${p.ebd_oficina} para venta`),
       tarjeta(p.lugares.campina.d3 + p.lugares.oficina.d3, "D3 nuevos", `En todo Banner · Campiña ${p.lugares.campina.d3} + Oficina ${p.lugares.oficina.d3}`),
       tarjetaVendidos(p.venta),
       tarjetaGarantia(p.garantia),
-      tarjetaDevolucion(p.devolucion),
-      tarjeta(p.d3_prueba, "D3 de prueba", "Stock actual de la planilla"),
-      tarjeta(p.ebd_reparados, "EBD reparados", "Ya reparados, según la planilla"),
-      tarjetaLugar("Campiña", p.lugares.campina, true),
+      tarjetaReparados(p),
+      tarjetaPantallas(p),
       tarjetaLugar("Showroom", p.lugares.showroom, false),
       tarjetaLugar("Paraguay", p.lugares.paraguay, false),
-      tarjetaLugar("Oficina", p.lugares.oficina, true),
     ].join("");
+    document.getElementById("kpis-abajo").innerHTML = [
+      tarjetaInternos(p.ebd_interno),
+      tarjetaDevolucion(p.devolucion),
+      tarjeta(p.d3_prueba, "D3 de prueba", "Stock actual de la planilla"),
+    ].join("").replaceAll('class="kpi-card"', 'class="kpi-card h-full"');
 
     const alertas = data.alertas_oficina || [];
     document.getElementById("alertas-lista").innerHTML = alertas.map(a => {
       const activa = Number(a.cantidad_actual) <= Number(a.stock_minimo);
-      const estilo = activa
-        ? "border-amber-300 bg-amber-50"
-        : "border-slate-200";
-      return `<div class="flex justify-between items-center gap-3 px-3 py-2 rounded-lg border ${estilo} text-sm">
-        <div><strong>${a.tipo_nombre}</strong><div class="text-xs text-slate-400">${a.deposito_nombre || "Oficina"}</div></div>
-        <div class="font-mono text-xs text-right">quedan ${a.cantidad_actual}<br>alerta desde ${a.stock_minimo}</div>
+      if (!activa) {
+        return `<div class="flex justify-between items-center gap-3 px-3 py-2 rounded-lg border border-slate-200 text-sm">
+          <div><strong>${htmlFotoEquipo(a.tipo_nombre)}</strong><div class="text-xs text-slate-400">${textoPlano(a.deposito_nombre || "Oficina")}</div></div>
+          <div class="font-mono text-xs text-right">quedan ${textoPlano(a.cantidad_actual)}<br>alerta desde ${textoPlano(a.stock_minimo)}</div>
+        </div>`;
+      }
+      return `<div class="alerta-stock">
+        <div>
+          <div class="alerta-stock-titulo">Advertencia</div>
+          <strong>${htmlFotoEquipo(a.tipo_nombre)}</strong>
+          <div class="alerta-stock-lugar">${textoPlano(a.deposito_nombre || "Oficina")}</div>
+        </div>
+        <div class="alerta-stock-dato">quedan ${textoPlano(a.cantidad_actual)}<br>el aviso es desde ${textoPlano(a.stock_minimo)}</div>
       </div>`;
     }).join("") || `<p class="text-sm text-slate-400">No hay alertas de Oficina.</p>`;
 
@@ -328,9 +516,27 @@ function verFicha(d) {
   abrirVentana({ id: idVentana, titulo: d.mac_wifi || d.mac_eth || "Dispositivo", contenidoHtml: html });
 }
 
+async function cargarAvisoAccesorios() {
+  const caja = document.getElementById("aviso-accesorios");
+  try {
+    const filas = await apiFetch("accesorios.php", { silencioso: true });
+    const html = htmlAvisoReposicion(filas, true);
+    caja.hidden = !html;
+    caja.innerHTML = html;
+  } catch (_) {
+    caja.hidden = true;
+  }
+}
+
 cargarDashboard();
+mostrarAlertaCierre();
 cargarKanban();
-setInterval(cargarDashboard, 15000);
+cargarAvisoAccesorios();
+setInterval(() => {
+  cargarDashboard(true);
+  mostrarAlertaCierre();
+  cargarAvisoAccesorios();
+}, 15000);
 </script>
 </body>
 </html>

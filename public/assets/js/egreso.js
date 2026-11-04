@@ -95,11 +95,11 @@ async function cargarHistorialEgresos() {
   document.getElementById("tabla-egresos").innerHTML = filas.map(m => `
     <tr>
       <td>${formatearFecha(m.fecha)}</td>
-      <td class="mac">${m.mac_wifi || m.mac_eth || "—"}</td>
+      <td class="mac">${m.mac_wifi || "—"}</td>
+      <td class="mac">${m.mac_eth || "—"}</td>
       <td>${m.tipo_movimiento}</td>
       <td>${m.cliente_nombre || "—"}</td>
       <td>${m.remito || "—"}</td>
-      <td>${m.ticket || "—"}</td>
       <td>${m.usuario_nombre || "—"}</td>
     </tr>
   `).join("") || `<tr><td colspan="7" class="text-center text-muted py-3">Todavía no se registraron egresos</td></tr>`;
@@ -162,10 +162,85 @@ document.getElementById("btn-registrar-egreso").addEventListener("click", async 
   }
 });
 
+let planillaEgresos = [];
+let paginaPlanillaEgreso = 1;
+
+function fechaPlanilla(valor, texto) {
+  if (texto) return textoPlano(texto);
+  const m = String(valor || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${Number(m[3])}/${Number(m[2])}/${m[1]}`;
+  return "—";
+}
+
+function pintarPlanillaEgresos() {
+  const q = document.getElementById("buscar-planilla-egreso").value.trim().toLowerCase();
+  const visibles = planillaEgresos.filter((f) => !q || [f.razsocial_agreg, f.razon_social, f.dispositivo, f.mac, f.mac_wifi, f.mac_eth, f.num_ticket, f.estado, f.seguimiento, f.motivo, f.deposito, f.caja, f.contacto, f.correo]
+    .some((v) => String(v || "").toLowerCase().includes(q)));
+  const corte = paginar(visibles, paginaPlanillaEgreso);
+  paginaPlanillaEgreso = corte.pagina;
+  document.getElementById("resumen-planilla-egreso").textContent = q
+    ? `${visibles.length} de ${planillaEgresos.length} egresos · página ${corte.pagina} de ${corte.total}`
+    : `${visibles.length} egresos · página ${corte.pagina} de ${corte.total}`;
+  document.getElementById("paginacion-planilla-egreso").innerHTML = htmlPaginacion(corte.pagina, corte.total);
+  const editar = puedeEditarPlanilla();
+  document.getElementById("tabla-planilla-egreso").innerHTML = corte.filas.map((f) => `
+    <tr>
+      <td>${fechaPlanilla(f.fecha, f.fecha_texto)}</td>
+      <td class="col-texto">${textoPlano(f.razsocial_agreg)}</td>
+      <td class="col-texto">${textoPlano(f.razon_social)}</td>
+      <td>${htmlFotoEquipo(f.dispositivo)}</td>
+      <td>${textoPlano(f.estado)}</td>
+      <td>${textoPlano(f.envio_retiro)}</td>
+      <td>${textoPlano(f.correo)}</td>
+      <td>${textoPlano(f.seguimiento)}</td>
+      <td class="col-texto">${textoPlano(f.observacion)}</td>
+      <td class="col-texto">${textoPlano(f.contacto)}</td>
+      <td>${textoPlano(f.motivo)}</td>
+      <td>${textoPlano(f.instancia_gestion)}</td>
+      <td>${textoPlano(f.deposito)}</td>
+      <td>${textoPlano(f.caja)}</td>
+      <td class="font-monospace">${textoPlano(f.mac_wifi)}</td>
+      <td class="font-monospace">${textoPlano(f.mac_eth)}</td>
+      ${editar ? `<td class="text-end"><button type="button" class="btn btn-sm btn-outline-secondary" data-editar="${f.id}">Editar</button></td>` : "<td></td>"}
+    </tr>
+  `).join("") || `<tr><td colspan="17" class="text-center text-muted py-4">Sin egresos en la planilla</td></tr>`;
+}
+
+async function cargarPlanillaEgresos() {
+  if (window.guardiaLista) await window.guardiaLista;
+  planillaEgresos = (await apiFetch("soporte-planilla", { params: { tipo: "egreso" } }) || []).filter((f) => !esEstadoVenta(f.estado));
+  pintarPlanillaEgresos();
+}
+
+document.getElementById("buscar-planilla-egreso").addEventListener("input", () => {
+  paginaPlanillaEgreso = 1;
+  pintarPlanillaEgresos();
+});
+document.getElementById("paginacion-planilla-egreso").addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-pagina]");
+  if (!boton || boton.disabled) return;
+  paginaPlanillaEgreso = Number(boton.dataset.pagina);
+  pintarPlanillaEgresos();
+});
+
+document.getElementById("tabla-planilla-egreso").addEventListener("click", (evento) => {
+  const boton = evento.target.closest("[data-editar]");
+  if (!boton) return;
+  const fila = planillaEgresos.find((item) => String(item.id) === boton.dataset.editar);
+  if (!fila) return;
+  abrirEdicionPlanilla({
+    tipo: "egreso",
+    fila,
+    filas: planillaEgresos,
+    alGuardar: cargarPlanillaEgresos,
+  });
+});
+
 (async () => {
   await cargarDepositosEgreso();
   actualizarVisibilidadCliente();
   renderChips();
   await cargarHistorialEgresos();
+  await cargarPlanillaEgresos();
   document.getElementById("egr-buscador").focus();
 })();

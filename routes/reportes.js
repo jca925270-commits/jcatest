@@ -1,6 +1,15 @@
 const express = require("express");
 const pool = require("../config/db");
 const { requerirLogin, requerirRol } = require("../middleware/auth");
+const {
+  armarConteo,
+  guardarItemBorrador,
+  resetBorrador,
+  guardarCorreos,
+  enviarConteo,
+} = require("../lib/conteo");
+const { calcularPantallas } = require("../lib/pantallas-resumen");
+const { generarInformeCierre } = require("../lib/informe-cierre");
 
 const router = express.Router();
 router.use(requerirLogin);
@@ -67,7 +76,7 @@ async function listarAlertasPlanilla() {
 function tipoDispositivo(nombre) {
   const n = String(nombre || "").toLowerCase();
   if (n.includes("16")) return null;
-  if (n.includes("repar") || n.includes("prueba")) return null;
+  if (n.includes("repar") || n.includes("prueba") || n.includes("interno")) return null;
   if (n.includes("d3+")) return "d3plus";
   if (n.includes("d3")) return "d3";
   if (n.includes("ebd")) return "ebd";
@@ -87,9 +96,72 @@ function vacioLugar() {
   return { ebd: 0, d3: 0, d3plus: 0, total: 0 };
 }
 
+let pantallasTablaLista = null;
+let pantallasFirmaGuardada = "";
+let estadosPantallaListos = null;
+
+function asegurarEstadosPantalla() {
+  if (!estadosPantallaListos) {
+    estadosPantallaListos = (async () => {
+      for (const columna of ["estado_wifi", "estado_pantalla", "estado_audio", "estado_auto"]) {
+        const [existe] = await pool.query(
+          `SELECT COUNT(*) AS n FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'trazabilidad_ingreso_pantalla' AND COLUMN_NAME = ?`,
+          [columna]
+        );
+        if (!Number(existe[0].n)) {
+          await pool.query(`ALTER TABLE trazabilidad_ingreso_pantalla ADD COLUMN ${columna} VARCHAR(40) NULL`);
+        }
+      }
+    })().catch((error) => {
+      estadosPantallaListos = null;
+      throw error;
+    });
+  }
+  return estadosPantallaListos;
+}
+
+function asegurarPantallasResumen() {
+  if (!pantallasTablaLista) {
+    pantallasTablaLista = pool.query(
+      `CREATE TABLE IF NOT EXISTS pantallas_colectivo_resumen (
+         clave VARCHAR(40) NOT NULL PRIMARY KEY,
+         etiqueta VARCHAR(80) NOT NULL,
+         cantidad INT NULL,
+         actualizado_en DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`
+    ).then(() => pool.query(
+      "ALTER TABLE pantallas_colectivo_resumen MODIFY cantidad INT NULL"
+    )).catch((error) => {
+      pantallasTablaLista = null;
+      throw error;
+    });
+  }
+  return pantallasTablaLista;
+}
+
+async function guardarPantallasResumen(filas) {
+  const firma = filas.map((fila) => `${fila.clave}:${fila.cantidad}`).join("|");
+  if (firma === pantallasFirmaGuardada) return;
+  await asegurarPantallasResumen();
+  for (const fila of filas) {
+    await pool.query(
+      `INSERT INTO pantallas_colectivo_resumen (clave, etiqueta, cantidad)
+       VALUES (?, ?, ?)
+       ON DUPLICATE KEY UPDATE etiqueta = VALUES(etiqueta), cantidad = VALUES(cantidad)`,
+      [fila.clave, fila.etiqueta, fila.cantidad]
+    );
+  }
+  await pool.query(
+    `DELETE FROM pantallas_colectivo_resumen WHERE clave NOT IN (${filas.map(() => "?").join(",")})`,
+    filas.map((fila) => fila.clave)
+  );
+  pantallasFirmaGuardada = firma;
+}
+
 async function resumenPlanilla() {
   const [cats] = await pool.query(
-    "SELECT nombre, pais, cantidad_actual FROM categorias_stock"
+    "SELECT id, nombre, pais, cantidad_actual FROM categorias_stock"
   );
   const lugares = {
     campina: vacioLugar(),
@@ -105,8 +177,30 @@ async function resumenPlanilla() {
     lugares[lugar][tipo] += cantidad;
     lugares[lugar].total += cantidad;
   }
+  let ventaOficina = 0;
+  for (const c of cats) {
+    const n = String(c.nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (String(c.pais || "").toUpperCase() === "PARAGUAY") continue;
+    if (!n.includes("oficina") || !n.includes("ebd") || !n.includes("venta")) continue;
+    if (n.includes("16") || n.includes("interno")) continue;
+    ventaOficina += Number(c.cantidad_actual) || 0;
+  }
+  lugares.oficina.total -= lugares.oficina.ebd - ventaOficina;
+  lugares.oficina.ebd = ventaOficina;
   const campina = lugares.campina.ebd;
-  const oficina = lugares.oficina.ebd;
+  const oficina = ventaOficina;
+  const internos = [];
+  for (const c of cats) {
+    const n = String(c.nombre || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    if (!n.includes("ebd") || !n.includes("interno")) continue;
+    const nombre = String(c.nombre || "").replace(/\s*\([^)]*\)\s*/g, " ").replace(/\s+/g, " ").trim();
+    internos.push({ nombre: nombre || c.nombre, cantidad: Number(c.cantidad_actual) || 0 });
+  }
+  internos.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+  const ebdInterno = {
+    total: internos.reduce((suma, fila) => suma + fila.cantidad, 0),
+    lugares: internos,
+  };
 
   const [estados] = await pool.query(
     `SELECT estado, COUNT(*) AS movimientos,
@@ -139,6 +233,7 @@ async function resumenPlanilla() {
   for (const fila of ventasCat) {
     const n = String(fila.nombre || "").toLowerCase();
     const cantidad = Number(fila.egresos) || 0;
+    if (n.includes("interno")) continue;
     if (n.includes("d3+")) venta.d3plus += cantidad;
     else if (n.includes("d3")) venta.d3 += cantidad;
     else if (n.includes("ebd")) venta.ebd += cantidad;
@@ -186,24 +281,84 @@ async function resumenPlanilla() {
 
   let d3Prueba = 0;
   let ebdReparados = 0;
+  const idsReparados = [];
   for (const c of cats) {
     const n = c.nombre.toLowerCase();
     const cantidad = Number(c.cantidad_actual) || 0;
     if (n.includes("d3") && !n.includes("d3+") && n.includes("prueba")) d3Prueba += cantidad;
-    if (n.includes("ebd") && n.includes("ya reparados")) ebdReparados += cantidad;
+    if (n.includes("ebd") && n.includes("ya reparados")) {
+      ebdReparados += cantidad;
+      idsReparados.push(c.id);
+    }
   }
+
+  let vendidosReparados = 0;
+  if (idsReparados.length) {
+    const [ventasReparados] = await pool.query(
+      `SELECT COALESCE(SUM(egreso), 0) AS vendidos
+       FROM movimientos_cantidad
+       WHERE categoria_id IN (${idsReparados.map(() => "?").join(",")})
+         AND estado IN ('VENTA', 'VENTA COSTO 0')`,
+      idsReparados
+    );
+    vendidosReparados = Number(ventasReparados[0].vendidos) || 0;
+  }
+
+  const [estadosTesteo] = await pool.query(
+    "SELECT estado, COUNT(*) AS cantidad FROM testeo_ebd_reparados GROUP BY estado"
+  );
+  const testeo = { falla: 0, prueba: 0, funcionamiento: 0, deposito: 0 };
+  for (const fila of estadosTesteo) {
+    const grupo = grupoTesteo(fila.estado);
+    if (grupo) testeo[grupo] += Number(fila.cantidad) || 0;
+  }
+  const identificados = testeo.falla + testeo.prueba + testeo.funcionamiento + testeo.deposito;
+
+  const pantallas = await calcularPantallas(cats);
+  await guardarPantallasResumen([
+    { clave: "total_oficina", etiqueta: "En oficina", cantidad: pantallas.total },
+    { clave: "comprobadas_ok", etiqueta: "Comprobadas OK", cantidad: pantallas.comprobadas_ok },
+    { clave: "con_falla", etiqueta: "Con falla/para repuestos", cantidad: pantallas.con_falla },
+    { clave: "vendidas", etiqueta: "Vendidas", cantidad: pantallas.vendidas },
+    { clave: "sin_comprobar", etiqueta: "Sin comprobar", cantidad: pantallas.sin_comprobar },
+  ]);
 
   return {
     ebd_campina: campina,
     ebd_oficina: oficina,
     ebd_total: campina + oficina,
+    ebd_interno: ebdInterno,
     lugares,
     venta,
     garantia,
     devolucion,
     d3_prueba: d3Prueba,
     ebd_reparados: ebdReparados,
+    reparados: {
+      stock: ebdReparados,
+      vendidos: vendidosReparados,
+      deposito: testeo.deposito,
+      funcionamiento: testeo.funcionamiento,
+      prueba: testeo.prueba,
+      falla: testeo.falla,
+      sin_testear: Math.max(0, ebdReparados - identificados),
+    },
+    pantallas,
   };
+}
+
+function grupoTesteo(estado) {
+  const n = String(estado || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+  if (n === "falla" || n.startsWith("falla")) return "falla";
+  if (n.includes("prueba")) return "prueba";
+  if (n.includes("funcion")) return "funcionamiento";
+  if (n === "finalizado" || n.includes("deposito")) return "deposito";
+  return "";
 }
 
 async function calcularAlertas() {
@@ -212,8 +367,13 @@ async function calcularAlertas() {
 }
 
 router.get("/", async (req, res) => {
+  res.set("Cache-Control", "no-store");
   const accion = req.query.accion;
   try {
+    if (accion === "conteo") {
+      return res.json(await armarConteo());
+    }
+
     if (accion === "dashboard") {
       const [[{ c: enStock }]] = await pool.query(
         "SELECT COUNT(*) c FROM dispositivos WHERE estado = 'en_stock'"
@@ -232,9 +392,17 @@ router.get("/", async (req, res) => {
       });
     }
 
+    if (accion === "informe_pdf") {
+      const informe = await generarInformeCierre();
+      res.set("Cache-Control", "no-store");
+      res.set("Content-Type", "application/pdf");
+      res.set("Content-Disposition", `attachment; filename="${informe.nombre}"`);
+      return res.send(informe.pdf);
+    }
+
     if (accion === "ultima_sync") {
       const [filas] = await pool.query(
-        `SELECT DATE_FORMAT(ultima_sync, '%d/%m/%Y %H:%i:%s') AS ultima_sync
+        `SELECT DATE_FORMAT(CONVERT_TZ(ultima_sync, '+00:00', '-03:00'), '%d/%m/%Y %H:%i:%s') AS ultima_sync
          FROM sync_control
          WHERE archivo = 'STOCK_2026'
          LIMIT 1`
@@ -328,6 +496,35 @@ router.get("/", async (req, res) => {
 router.post("/", requerirRol(["admin", "operador"]), async (req, res) => {
   const accion = req.query.accion;
   const b = req.body;
+
+  if (accion === "conteo_correos" || accion === "conteo_borrador" || accion === "conteo_enviar") {
+    try {
+      if (accion === "conteo_correos") {
+        await guardarCorreos(b.aviso, b.correos);
+        return res.json(await armarConteo());
+      }
+      if (accion === "conteo_borrador") {
+        if (b.reset) await resetBorrador();
+        else await guardarItemBorrador(b.clave, b.cantidad, b.finalizado);
+        return res.json(await armarConteo());
+      }
+      const resultado = await enviarConteo({
+        destino: b.destino,
+        cantidades: b.cantidades,
+        aviso: b.aviso,
+        correos: b.correos,
+      });
+      return res.json({ ok: true, enviados: resultado.enviados });
+    } catch (e) {
+      const status = e.status || 500;
+      const fallback = accion === "conteo_enviar"
+        ? "No se pudo enviar el correo."
+        : "No se pudo guardar el conteo.";
+      return res.status(status).json({
+        error: status === 500 ? fallback : e.message,
+      });
+    }
+  }
 
   if (accion === "alertas_config") {
     if (!b.categoria_id || !b.stock_minimo) {
